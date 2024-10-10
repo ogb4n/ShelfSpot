@@ -3,9 +3,9 @@ import { BasicModal } from "@/app/components/shared/BasicModal";
 import { PlacesList } from "@/app/components/PlacesList";
 import { Divider } from "@mui/joy";
 import { RoomsList } from "@/app/components/RoomsList";
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from "@mui/icons-material/Add";
 import Typography from "@mui/joy/Typography";
-
+import { AddPlaceForm } from "@/app/components/forms/AddPlaceForm";
 
 const Manage = () => {
   return (
@@ -21,7 +21,7 @@ const Manage = () => {
           modalLabel="places are meant to add order in your rooms"
           color="success"
         >
-          oui
+          <AddPlaceForm />
         </BasicModal>
         <Divider />
         <Typography></Typography>
