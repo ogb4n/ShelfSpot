@@ -12,7 +12,6 @@ import {
   GridRowId,
   GridRowModel,
   GridRowEditStopReasons,
-  GridSlotProps,
 } from "@mui/x-data-grid";
 import CircularProgress from "@mui/joy/CircularProgress";
 import Typography from "@mui/joy/Typography";
@@ -39,30 +38,7 @@ declare module "@mui/x-data-grid" {
   }
 }
 
-function EditToolbar(props: GridSlotProps["toolbar"]) {
-  const { setRows, setRowModesModel } = props;
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleClick = () => {
-    const id = Date.now();
-    setRows((oldRows) => [
-      ...oldRows,
-      {
-        id,
-        name: "",
-        stock: 0,
-        room: null,
-        place: null,
-        status: "",
-        isNew: true,
-      },
-    ]);
-    setRowModesModel((oldModel) => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
-    }));
-  };
-
+function EditToolbar() {
   return <GridToolbarContainer></GridToolbarContainer>;
 }
 

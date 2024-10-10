@@ -4,17 +4,21 @@ import { prisma } from "@/app/utils/prisma";
 export async function POST(req: Request) {
   const body = await req.json();
 
+  if (!body || typeof body !== "object") {
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
+
   try {
     const item = await prisma.item.update({
-      where: {
-        id: body.id,
-      },
+      where: { id: body.id },
       data: {
-        name: body.name,
-        stock: body.stock,
-        price: body.price,
-        tags: body.tags,
-        status: body.status,
+        name: body.name ?? "",
+        stock: Number(body.stock) || 0,
+        placeId: body.placeId,
+        status: body.status ?? "",
       },
     });
 
