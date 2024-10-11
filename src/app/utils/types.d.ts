@@ -8,5 +8,5 @@ export interface Place {
 export interface Room {
   name: string;
   id: number;
-  icon: string;
+  icon?: string;
 }

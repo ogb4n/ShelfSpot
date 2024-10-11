@@ -6,7 +6,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("Parsed body:", body);
 
-    // Vérifiez si la pièce existe si roomId est défini
     if (body.roomId) {
       const roomExists = await prisma.room.findUnique({
         where: { id: body.roomId },
@@ -20,12 +19,11 @@ export async function POST(req: Request) {
       }
     }
 
-    // Créez le lieu
     const place = await prisma.place.create({
       data: {
         name: body.name,
         icon: body.icon,
-        roomId: body.roomId || null, // Assurez-vous de passer null si roomId est absent
+        roomId: body.roomId,
       },
     });
 
@@ -35,7 +33,9 @@ export async function POST(req: Request) {
     console.error("Error in POST /api/place/add:", error);
     return NextResponse.json(
       { error: "Failed to process the request", details: error.message },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }
