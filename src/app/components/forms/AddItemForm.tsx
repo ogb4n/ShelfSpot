@@ -1,15 +1,16 @@
 "use client";
 import React, { useState } from "react";
+import { Item } from "@/app/utils/types";
 
 export const AddItemForm: React.FC = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Item>({
     name: "",
     stock: 0,
     price: 0,
     status: "",
     tags: "",
-    roomId: "",
-    placeId: "",
+    roomId: 0,
+    placeId: 0,
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -57,8 +58,8 @@ export const AddItemForm: React.FC = () => {
         price: 0,
         status: "",
         tags: "",
-        roomId: "",
-        placeId: "",
+        roomId: 0,
+        placeId: 0,
       });
     } catch (err) {
       console.error(err);
