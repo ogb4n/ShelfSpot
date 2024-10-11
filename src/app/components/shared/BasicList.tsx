@@ -334,7 +334,7 @@ export const BasicList: React.FC = () => {
           },
         }}
         pageSizeOptions={[5]}
-        checkboxSelection
+        // checkboxSelection
         disableRowSelectionOnClick
       />
     </div>
