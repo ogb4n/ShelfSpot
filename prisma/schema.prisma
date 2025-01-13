@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  admin     Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Item {
+  id        Int     @id @default(autoincrement())
+  name      String  
+  stock     Int     @default(0)
+  image     String?
+  price     Float?
+  sellprice Float?
+  status    String?
+  tags      String?
+  placeId   Int?    
+  place     Place?  @relation(fields: [placeId], references: [id]) // Relation many-to-one avec Place
+  roomId    Int?
+  room      Room?   @relation("RoomToItems", fields: [roomId], references: [id]) // Relation avec Room
+}
+
+model Place {
+  id     Int     @id @default(autoincrement())
+  name   String
+  icon   String?
+  roomId Int?    // ID de la pièce parent
+  room   Room?   @relation("RoomToPlaces", fields: [roomId], references: [id])
+  items  Item[]  // Relation one-to-many avec Item
+}
+model Room {
+  id     Int     @id @default(autoincrement())
+  name   String
+  icon   String?
+  places Place[] @relation("RoomToPlaces") // Lieux associés à cette pièce
+  items  Item[]  @relation("RoomToItems")  // Objets directement dans la pièce
+}

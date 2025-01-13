@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import Navbar from "@/app/components/shared/Navbar";
 import React from "react";
-import { Providers } from "./contexts/ContextsProviders";
+import { AuthProvider } from "../contexts/authContext";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,10 +31,10 @@ export default function RootLayout({
         style={{ margin: 0, padding: 0, overflow: "hidden" }}
       >
         <div style={{ display: "flex", height: "100vh" }}>
-          <header style={{ flexShrink: 0 }}></header>
-          <div style={{ flexGrow: 1, overflow: "auto" }}>
-            <Providers>{children}</Providers>
-          </div>
+          <header style={{ flexShrink: 0 }}>
+            <Navbar />
+          </header>
+          <div style={{ flexGrow: 1, overflow: "auto" }}>{children}</div>
         </div>
       </body>
     </html>
