@@ -3,7 +3,9 @@ import { prisma } from "@/app/utils/prisma";
 
 export async function POST(req: Request) {
   try {
-    const { name, stock, price, status, roomId, placeId } = await req.json();
+    const { name, stock, price, status, roomId, placeId, tags } =
+      await req.json();
+    console.log(name, stock, price, status, roomId, placeId, tags);
 
     if (!name || !roomId) {
       return NextResponse.json(
@@ -31,7 +33,7 @@ export async function POST(req: Request) {
         price: price ?? 0,
         status: status,
         roomId: roomId,
-        tags: [],
+        tags: tags,
         placeId: placeId,
       },
       include: {
