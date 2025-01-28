@@ -173,11 +173,9 @@ export const BasicList: React.FC = () => {
   };
 
   const processRowUpdate = async (newRow: GridRowModel) => {
-    // RAJOUTER placeId pour que la requete passe
     const updatedRow = { ...newRow, isNew: false };
 
     try {
-      console.log("Updating row:", updatedRow);
       const response = await fetch("/api/items/edit", {
         method: "POST",
         headers: {
@@ -187,7 +185,7 @@ export const BasicList: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update row");
+        throw new Error(response.statusText);
       }
 
       setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
