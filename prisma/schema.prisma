@@ -46,3 +46,8 @@ model Room {
   places Place[] @relation("RoomToPlaces") // Lieux associés à cette pièce
   items  Item[]  @relation("RoomToItems")  // Objets directement dans la pièce
 }
+
+model Tags {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+}
