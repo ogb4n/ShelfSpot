@@ -1,3 +1,4 @@
+"use client";
 import { createContext, ReactNode, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";

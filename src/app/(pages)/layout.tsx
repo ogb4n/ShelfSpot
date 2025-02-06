@@ -30,7 +30,9 @@ export default function RootLayout({
           <header style={{ flexShrink: 0 }}>
             <Navbar />
           </header>
-          <div style={{ flexGrow: 1, overflow: "auto" }}>{children}</div>
+          <AuthProvider>
+            <div style={{ flexGrow: 1, overflow: "auto" }}>{children}</div>
+          </AuthProvider>
         </div>
       </body>
     </html>
