@@ -32,7 +32,7 @@ export const AddItemForm: React.FC = () => {
     setSuccess(null);
 
     try {
-      const response = await fetch("/api/items", {
+      const response = await fetch("/api/items/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,6 +42,7 @@ export const AddItemForm: React.FC = () => {
           stock: Number(formData.stock),
           price: Number(formData.price),
           status: formData.status,
+          tags: formData.tags.split(",").map((tag) => tag.trim()),
           roomId: formData.roomId ? Number(formData.roomId) : null,
           placeId: formData.placeId ? Number(formData.placeId) : null,
         }),

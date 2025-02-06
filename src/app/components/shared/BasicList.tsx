@@ -12,7 +12,6 @@ import {
   GridRowId,
   GridRowModel,
   GridRowEditStopReasons,
-  GridSlotProps,
 } from "@mui/x-data-grid";
 import CircularProgress from "@mui/joy/CircularProgress";
 import Typography from "@mui/joy/Typography";
@@ -39,30 +38,7 @@ declare module "@mui/x-data-grid" {
   }
 }
 
-function EditToolbar(props: GridSlotProps["toolbar"]) {
-  const { setRows, setRowModesModel } = props;
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleClick = () => {
-    const id = Date.now();
-    setRows((oldRows) => [
-      ...oldRows,
-      {
-        id,
-        name: "",
-        stock: 0,
-        room: null,
-        place: null,
-        status: "",
-        isNew: true,
-      },
-    ]);
-    setRowModesModel((oldModel) => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
-    }));
-  };
-
+function EditToolbar() {
   return <GridToolbarContainer></GridToolbarContainer>;
 }
 
@@ -173,11 +149,9 @@ export const BasicList: React.FC = () => {
   };
 
   const processRowUpdate = async (newRow: GridRowModel) => {
-    // RAJOUTER placeId pour que la requete passe
     const updatedRow = { ...newRow, isNew: false };
 
     try {
-      console.log("Updating row:", updatedRow);
       const response = await fetch("/api/items/edit", {
         method: "POST",
         headers: {
@@ -187,7 +161,7 @@ export const BasicList: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update row");
+        throw new Error(response.statusText);
       }
 
       setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
