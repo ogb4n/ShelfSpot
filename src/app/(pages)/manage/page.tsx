@@ -6,6 +6,7 @@ import { RoomsList } from "@/app/components/RoomsList";
 import AddIcon from "@mui/icons-material/Add";
 import Typography from "@mui/joy/Typography";
 import { AddPlaceForm } from "@/app/components/forms/AddPlaceForm";
+import { AddRoomForm } from "@/app/components/forms/AddRoomForm";
 
 const Manage = () => {
   return (
@@ -29,10 +30,10 @@ const Manage = () => {
           openLabel="add rooms"
           modalTitle="Room addition"
           icon={<AddIcon />}
-          modalLabel="rooms are meant to add order in your places"
+          modalLabel="rooms are meant to add order in your house"
           color="warning"
         >
-          oui
+          <AddRoomForm></AddRoomForm>
         </BasicModal>
         <RoomsList />
       </main>

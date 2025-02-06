@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   const room = await prisma.room.create({
     data: {
       name: body.name,
-      icon: body.icon,
+      // icon: body.icon,
     },
   });
 
