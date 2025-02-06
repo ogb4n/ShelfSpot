@@ -33,7 +33,7 @@ export async function POST(req: Request) {
         price: price ?? 0,
         status: status,
         roomId: roomId,
-        tags: tags,
+        // tags: tags,
         placeId: placeId,
       },
       include: {

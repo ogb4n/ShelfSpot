@@ -1,19 +1,36 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import useGetRooms from "../../hooks/useGetRooms";
+import useGetPlaces from "../../hooks/useGetPlaces";
+import { Item, Room, Place } from "@/app/utils/types";
 
 export const AddItemForm: React.FC = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Item>({
     name: "",
     stock: 0,
     price: 0,
     status: "",
     tags: "",
-    roomId: "",
-    placeId: "",
+    roomId: 0,
+    placeId: 0,
   });
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const { rooms } = useGetRooms();
+  const { places } = useGetPlaces();
+  const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
+
+  useEffect(() => {
+    if (formData.roomId) {
+      setFilteredPlaces(
+        places.filter((place: Place) => place.roomId === formData.roomId)
+      );
+    } else {
+      setFilteredPlaces([]);
+    }
+  }, [formData.roomId, places]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -21,7 +38,7 @@ export const AddItemForm: React.FC = () => {
     const { id, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [id]: value,
+      [id]: id === "roomId" || id === "placeId" ? Number(value) : value,
     }));
   };
 
@@ -41,7 +58,7 @@ export const AddItemForm: React.FC = () => {
           stock: Number(formData.stock),
           price: Number(formData.price),
           status: formData.status,
-          tags: formData.tags.split(",").map((tag) => tag.trim()),
+          tags: formData.tags?.split(",").map((tag) => tag.trim()),
           roomId: formData.roomId ? Number(formData.roomId) : null,
           placeId: formData.placeId ? Number(formData.placeId) : null,
         }),
@@ -58,8 +75,8 @@ export const AddItemForm: React.FC = () => {
         price: 0,
         status: "",
         tags: "",
-        roomId: "",
-        placeId: "",
+        roomId: 0,
+        placeId: 0,
       });
     } catch (err) {
       console.error(err);
@@ -81,7 +98,6 @@ export const AddItemForm: React.FC = () => {
         value={formData.name}
         onChange={handleChange}
         required
-        placeholder="e.g., Laptop"
         className="border border-gray-300 rounded p-2 w-full"
       />
 
@@ -119,14 +135,10 @@ export const AddItemForm: React.FC = () => {
         type="text"
         value={formData.status}
         onChange={handleChange}
-        placeholder="e.g., Available"
         className="border border-gray-300 rounded p-2 w-full"
       />
-      {/* LES TAGS DOIVENT ETRE UNE LISTE SELECTIONNABLE ,
-    PLUSIEURS TAGS PEUVENT ETRE SELECTIONNES,
-    SI UN TAG EST SELECTIONNE UNE DEUXIEME FOIS ALORS IL SE DESELECTIONNE
-    SI ON CLIQUE SUR UN TAG IL EST DESELECTIONNE */}
-      <label htmlFor="tags" className="font-semibold">
+
+      {/* <label htmlFor="tags" className="font-semibold">
         Tags
       </label>
       <input
@@ -134,38 +146,46 @@ export const AddItemForm: React.FC = () => {
         type="text"
         value={formData.tags}
         onChange={handleChange}
-        placeholder="electronics"
         className="border border-gray-300 rounded p-2 w-full"
-      />
+      /> */}
 
       <label htmlFor="roomId" className="font-semibold">
-        Room ID
+        Room
       </label>
-      <input
+      <select
         id="roomId"
-        type="number"
         value={formData.roomId}
         onChange={handleChange}
-        min="0"
-        placeholder="e.g., 1"
         className="border border-gray-300 rounded p-2 w-full"
-      />
+      >
+        <option value="">Select a room</option>
+        {rooms.map((room: Room) => (
+          <option key={room.id} value={room.id}>
+            {room.name}
+          </option>
+        ))}
+      </select>
 
       <label htmlFor="placeId" className="font-semibold">
-        Place ID (optional)
+        Place
       </label>
-      <input
+      <select
         id="placeId"
-        type="number"
         value={formData.placeId}
         onChange={handleChange}
-        min="0"
-        placeholder="e.g., 2"
         className="border border-gray-300 rounded p-2 w-full"
-      />
+        disabled={!formData.roomId}
+      >
+        <option value="">Select a place</option>
+        {filteredPlaces.map((place: Place) => (
+          <option key={place.id} value={place.id}>
+            {place.name}
+          </option>
+        ))}
+      </select>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      {success && <p className="text-green-500">{success}</p>}
 
       <button
         type="submit"
