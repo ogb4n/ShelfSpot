@@ -8,9 +8,8 @@ import Typography from "@mui/joy/Typography";
 import Sheet from "@mui/joy/Sheet";
 import { ColorPaletteProp } from "@mui/joy/styles";
 
-
 interface BasicModalProps {
-  openLabel: string;
+  openLabel: string | React.ReactNode;
   modalTitle: string;
   color?: ColorPaletteProp;
   modalLabel: string;

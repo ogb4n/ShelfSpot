@@ -3,13 +3,37 @@
 import useGetRooms from "@/app/hooks/useGetRooms";
 import Card from "@mui/joy/Card";
 import Button from "@mui/joy/Button";
-import React from "react";
+import React, { useState } from "react";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import { Room } from "../utils/types";
+import { BasicModal } from "./shared/BasicModal";
+import { EditRoomForm } from "./forms/EditRoomForm";
 
 export const RoomsList: React.FC = () => {
   const { rooms, loading, error } = useGetRooms();
+  const [deleting, setDeleting] = useState<number | null>(null);
+
+  const handleDelete = async (id: number) => {
+    setDeleting(id);
+    try {
+      const res = await fetch("/api/room/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Erreur lors de la suppression");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -25,11 +49,21 @@ export const RoomsList: React.FC = () => {
         <Card key={room.id} className="flex justify-between items-center">
           <div className="flex items-center w-full">
             {room.name}
-            <Button color="primary" className="ml-2">
-              <DriveFileRenameOutlineIcon />
-            </Button>
-            <Button color="danger" className="ml-2">
-              <DeleteOutlineIcon />
+            <BasicModal
+              openLabel={<DriveFileRenameOutlineIcon />}
+              color="primary"
+              modalTitle="Edit room"
+              modalLabel="Change room details"
+            >
+              <EditRoomForm roomId={room.id} />
+            </BasicModal>
+            <Button
+              onClick={() => handleDelete(room.id)}
+              color="danger"
+              className="ml-2"
+              disabled={deleting === room.id}
+            >
+              {deleting === room.id ? "Suppression..." : <DeleteOutlineIcon />}
             </Button>
           </div>
         </Card>

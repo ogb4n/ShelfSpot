@@ -6,6 +6,8 @@ import React, { useState } from "react";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import { Place } from "@/app/utils/types";
+import { BasicModal } from "@/app/components/shared/BasicModal";
+import { EditPlaceForm } from "@/app/components/forms/EditPlaceForm";
 
 export const PlacesList: React.FC = () => {
   const { places, loading, error } = useGetPlaces();
@@ -46,9 +48,14 @@ export const PlacesList: React.FC = () => {
         <Card key={place.id} className="flex justify-between items-center">
           <div className="flex items-center w-full">
             {place.name}
-            <Button color="primary" className="ml-2">
-              <DriveFileRenameOutlineIcon />
-            </Button>
+            <BasicModal
+              openLabel={<DriveFileRenameOutlineIcon />}
+              modalTitle="Edit place"
+              modalLabel="Change place details"
+              color="primary"
+            >
+              <EditPlaceForm placeId={place.id} />
+            </BasicModal>
             <Button
               onClick={() => handleDelete(place.id)}
               color="danger"
