@@ -7,6 +7,8 @@ import React, { useState } from "react";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import { Room } from "../utils/types";
+import { BasicModal } from "./shared/BasicModal";
+import { EditRoomForm } from "./forms/EditRoomForm";
 
 export const RoomsList: React.FC = () => {
   const { rooms, loading, error } = useGetRooms();
@@ -47,9 +49,14 @@ export const RoomsList: React.FC = () => {
         <Card key={room.id} className="flex justify-between items-center">
           <div className="flex items-center w-full">
             {room.name}
-            <Button color="primary" className="ml-2">
-              <DriveFileRenameOutlineIcon />
-            </Button>
+            <BasicModal
+              openLabel={<DriveFileRenameOutlineIcon />}
+              color="primary"
+              modalTitle="Edit room"
+              modalLabel="Change room details"
+            >
+              <EditRoomForm roomId={room.id} />
+            </BasicModal>
             <Button
               onClick={() => handleDelete(room.id)}
               color="danger"
