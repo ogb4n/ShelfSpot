@@ -10,7 +10,7 @@ import { type IconName } from "lucide-react/dynamic";
 
 export const TagsList = () => {
   const { tags, loading, error } = useGetTags();
-  // const [deleting, setDeleting] = React.useState<number | null>(null);
+  const [deleting, setDeleting] = React.useState<number | null>(null);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -22,7 +22,7 @@ export const TagsList = () => {
 
   return (
     <List sx={{ maxWidth: 300 }}>
-      <Box display={"flex"} gap={1} alignItems={"center"}>
+      <Box alignItems={"center"}>
         {tags.map((tag: ITag) => (
           <Box key={tag.id} display={"flex"} gap={1} alignItems={"center"}>
             <Tag
@@ -32,7 +32,7 @@ export const TagsList = () => {
                 <Icon name={tag.icon as IconName} color="green" size={16} />
               }
             ></Tag>
-            <DeletionChip />
+            <DeletionChip tagId={tag.id} />
           </Box>
         ))}
       </Box>

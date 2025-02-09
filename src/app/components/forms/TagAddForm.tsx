@@ -6,7 +6,7 @@ import { type IconName } from "lucide-react/dynamic";
 export const TagAddForm: React.FC = () => {
   const [formData, setFormData] = useState({
     name: "",
-    icon: "home" as IconName, // Valeur par défaut
+    icon: "home" as IconName,
   });
 
   const [error, setError] = useState<string | null>(null);

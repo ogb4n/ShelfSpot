@@ -7,7 +7,22 @@ interface IconSelectorProps {
   onSelect: (iconName: IconName) => void;
 }
 
-const availableIcons: IconName[] = ["home", "user", "settings", "camera"];
+const availableIcons: IconName[] = [
+  "home",
+  "user",
+  "settings",
+  "camera",
+  "house",
+  "warehouse",
+  "cctv",
+  "eye",
+  "eye-off",
+  "factory",
+  "wallet",
+  "boxes",
+  "computer",
+  "keyboard",
+];
 
 export const IconSelector: React.FC<IconSelectorProps> = ({
   selectedIcon,
