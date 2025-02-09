@@ -21,3 +21,9 @@ export type Item = {
   roomId: number;
   placeId?: number;
 };
+
+export type Tag = {
+  id: number;
+  name: string;
+  icon: string;
+};

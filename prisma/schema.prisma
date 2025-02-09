@@ -50,4 +50,5 @@ model Room {
 model Tags {
   id    Int     @id @default(autoincrement())
   name  String  @unique
+  icon  String?
 }
