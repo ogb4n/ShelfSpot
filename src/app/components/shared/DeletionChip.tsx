@@ -3,12 +3,15 @@ import Box from "@mui/joy/Box";
 import Chip from "@mui/joy/Chip";
 import DeleteForever from "@mui/icons-material/DeleteForever";
 import { useState } from "react";
-
 interface DeletionChipProps {
   tagId: number;
+  onDelete: (id: number) => void;
 }
 
-export const DeletionChip: React.FC<DeletionChipProps> = ({ tagId }) => {
+export const DeletionChip: React.FC<DeletionChipProps> = ({
+  tagId,
+  onDelete,
+}) => {
   const [deleting, setDeleting] = useState<number | null>(null);
 
   const handleDelete = async (id: number) => {
@@ -25,6 +28,8 @@ export const DeletionChip: React.FC<DeletionChipProps> = ({ tagId }) => {
       if (!res.ok) {
         throw new Error("Erreur lors de la suppression");
       }
+
+      onDelete(id); // Mettre à jour la liste des tags
     } catch (err) {
       console.error(err);
     } finally {

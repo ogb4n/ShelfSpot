@@ -2,8 +2,13 @@
 import React, { useState } from "react";
 import { IconSelector } from "../shared/IconSelector";
 import { type IconName } from "lucide-react/dynamic";
+import { Tag as ITag } from "../../utils/types";
 
-export const TagAddForm: React.FC = () => {
+interface TagAddFormProps {
+  onAddTag: (newTag: ITag) => void;
+}
+
+export const TagAddForm: React.FC<TagAddFormProps> = ({ onAddTag }) => {
   const [formData, setFormData] = useState({
     name: "",
     icon: "home" as IconName,
@@ -30,7 +35,8 @@ export const TagAddForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log("Form data being sent:", formData);
+    setError(null);
+    setSuccess(null);
 
     try {
       const response = await fetch("/api/tags/add", {
@@ -42,22 +48,23 @@ export const TagAddForm: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de l'ajout de la place");
+        throw new Error("Erreur lors de l'ajout du tag");
       }
 
-      await response.json();
+      const newTag = await response.json();
 
-      setSuccess("Room added successfully!");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.message);
+      onAddTag(newTag); // Mise à jour de la liste des tags
+      setSuccess("Tag ajouté avec succès !");
+      setFormData({ name: "", icon: "home" }); // Réinitialisation du formulaire
+    } catch (err) {
+      setError((err as Error).message);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="p-4 space-y-4">
       <label htmlFor="name" className="font-semibold">
-        Name
+        Nom du tag
       </label>
       <input
         type="text"
@@ -70,7 +77,7 @@ export const TagAddForm: React.FC = () => {
 
       <IconSelector selectedIcon={formData.icon} onSelect={handleIconSelect} />
 
-      <button type="submit">Create a tag</button>
+      <button type="submit">Créer un tag</button>
 
       {error && <p className="text-red-500">{error}</p>}
       {success && <p className="text-green-500">{success}</p>}

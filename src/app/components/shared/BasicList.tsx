@@ -201,7 +201,13 @@ export const BasicList: React.FC = () => {
       type: "singleSelect",
       valueOptions: rooms,
     },
-    { field: "status", headerName: "Status", flex: 0.8, editable: true },
+    {
+      field: "tags",
+      headerName: "Tags",
+      flex: 1,
+      editable: true,
+    },
+    { field: "status", headerName: "Status", flex: 0.8 },
     {
       field: "actions",
       type: "actions",
