@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from "react";
 import useGetRooms from "../../hooks/useGetRooms";
 import useGetPlaces from "../../hooks/useGetPlaces";
-import { Item, Room, Place } from "@/app/utils/types";
+import useGetTags from "../../hooks/useGetTags";
+import { Item, Room, Place, Tag } from "@/app/utils/types";
+import { IconName } from "lucide-react/dynamic";
 
 export const AddItemForm: React.FC = () => {
   const [formData, setFormData] = useState<Item>({
@@ -10,9 +12,10 @@ export const AddItemForm: React.FC = () => {
     stock: 0,
     price: 0,
     status: "",
-    tags: "",
     roomId: 0,
     placeId: 0,
+    icon: "home" as IconName,
+    tags: [] as string[],
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -20,13 +23,15 @@ export const AddItemForm: React.FC = () => {
 
   const { rooms } = useGetRooms();
   const { places } = useGetPlaces();
+  const { tags } = useGetTags();
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
 
   useEffect(() => {
     if (formData.roomId) {
-      setFilteredPlaces(
-        places.filter((place: Place) => place.roomId === formData.roomId)
+      const filtered = places.filter(
+        (place: Place) => place.roomId === formData.roomId
       );
+      setFilteredPlaces(filtered);
     } else {
       setFilteredPlaces([]);
     }
@@ -42,6 +47,15 @@ export const AddItemForm: React.FC = () => {
     }));
   };
 
+  const handleTagChange = (tagId: string) => {
+    setFormData((prev) => {
+      const newTags = prev.tags?.includes(tagId)
+        ? prev.tags.filter((t) => t !== tagId)
+        : [...(prev.tags ?? []), tagId];
+      return { ...prev, tags: newTags };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -54,13 +68,11 @@ export const AddItemForm: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: formData.name,
+          ...formData,
           stock: Number(formData.stock),
           price: Number(formData.price),
-          status: formData.status,
-          tags: formData.tags?.split(",").map((tag) => tag.trim()),
-          roomId: formData.roomId ? Number(formData.roomId) : null,
-          placeId: formData.placeId ? Number(formData.placeId) : null,
+          roomId: formData.roomId ?? null,
+          placeId: formData.placeId ?? null,
         }),
       });
 
@@ -74,9 +86,10 @@ export const AddItemForm: React.FC = () => {
         stock: 0,
         price: 0,
         status: "",
-        tags: "",
         roomId: 0,
         placeId: 0,
+        icon: "home",
+        tags: [],
       });
     } catch (err) {
       console.error(err);
@@ -114,41 +127,6 @@ export const AddItemForm: React.FC = () => {
         className="border border-gray-300 rounded p-2 w-full"
       />
 
-      <label htmlFor="price" className="font-semibold">
-        Price
-      </label>
-      <input
-        id="price"
-        type="number"
-        value={formData.price}
-        onChange={handleChange}
-        min="0"
-        step="0.01"
-        className="border border-gray-300 rounded p-2 w-full"
-      />
-
-      <label htmlFor="status" className="font-semibold">
-        Status
-      </label>
-      <input
-        id="status"
-        type="text"
-        value={formData.status}
-        onChange={handleChange}
-        className="border border-gray-300 rounded p-2 w-full"
-      />
-
-      {/* <label htmlFor="tags" className="font-semibold">
-        Tags
-      </label>
-      <input
-        id="tags"
-        type="text"
-        value={formData.tags}
-        onChange={handleChange}
-        className="border border-gray-300 rounded p-2 w-full"
-      /> */}
-
       <label htmlFor="roomId" className="font-semibold">
         Room
       </label>
@@ -183,6 +161,26 @@ export const AddItemForm: React.FC = () => {
           </option>
         ))}
       </select>
+
+      <label className="font-semibold" htmlFor="tags">
+        Tags
+      </label>
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag: Tag) => (
+          <button
+            key={tag.id}
+            type="button"
+            className={`px-3 py-1 rounded ${
+              formData.tags?.includes(tag.name)
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200"
+            }`}
+            onClick={() => handleTagChange(tag.name)}
+          >
+            {tag.name}
+          </button>
+        ))}
+      </div>
 
       {error && <p className="text-red-500">{error}</p>}
       {success && <p className="text-green-500">{success}</p>}

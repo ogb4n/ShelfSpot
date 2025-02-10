@@ -17,9 +17,10 @@ export type Item = {
   stock: number;
   price?: number;
   status: string;
-  tags?: string;
+  tags?: string[];
   roomId: number;
   placeId?: number;
+  icon: string;
 };
 
 export type Tag = {
