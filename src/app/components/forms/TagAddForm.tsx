@@ -53,9 +53,9 @@ export const TagAddForm: React.FC<TagAddFormProps> = ({ onAddTag }) => {
 
       const newTag = await response.json();
 
-      onAddTag(newTag); // Mise à jour de la liste des tags
+      onAddTag(newTag);
       setSuccess("Tag ajouté avec succès !");
-      setFormData({ name: "", icon: "home" }); // Réinitialisation du formulaire
+      setFormData({ name: "", icon: "home" });
     } catch (err) {
       setError((err as Error).message);
     }

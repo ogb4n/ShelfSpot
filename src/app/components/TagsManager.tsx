@@ -17,12 +17,10 @@ export const TagsManager: React.FC = () => {
     }
   }, [initialTags]);
 
-  // Fonction pour ajouter un tag à la liste
   const handleAddTag = (newTag: ITag) => {
     setTags((prevTags) => [...prevTags, newTag]);
   };
 
-  // Fonction pour supprimer un tag
   const handleDeleteTag = (tagId: number) => {
     setTags((prevTags) => prevTags.filter((tag) => tag.id !== tagId));
   };
