@@ -53,7 +53,7 @@ export const AddRoomForm: React.FC = () => {
         type="text"
         id="name"
         required
-        className="w-full border-gray-300 rounded p-2"
+        className="w-full border-gray-300 rounded-sm p-2"
         value={formData.name}
         onChange={handleChange}
       />

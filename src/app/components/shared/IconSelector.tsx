@@ -21,7 +21,7 @@ export const IconSelector: React.FC<IconSelectorProps> = ({
         id="icon-selector"
         value={selectedIcon}
         onChange={(e) => onSelect(e.target.value as IconName)}
-        className="w-full border-gray-300 rounded p-2"
+        className="w-full border-gray-300 rounded-sm p-2"
       >
         {avaliableIcons.map((icon) => (
           <option key={icon} value={icon}>

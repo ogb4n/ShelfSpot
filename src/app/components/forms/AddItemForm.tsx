@@ -100,7 +100,7 @@ export const AddItemForm: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 bg-white shadow rounded space-y-4"
+      className="p-4 bg-white shadow-sm rounded-sm space-y-4"
     >
       <label htmlFor="name" className="font-semibold">
         Item Name
@@ -111,7 +111,7 @@ export const AddItemForm: React.FC = () => {
         value={formData.name}
         onChange={handleChange}
         required
-        className="border border-gray-300 rounded p-2 w-full"
+        className="border border-gray-300 rounded-sm p-2 w-full"
       />
 
       <label htmlFor="stock" className="font-semibold">
@@ -124,7 +124,7 @@ export const AddItemForm: React.FC = () => {
         onChange={handleChange}
         min="0"
         required
-        className="border border-gray-300 rounded p-2 w-full"
+        className="border border-gray-300 rounded-sm p-2 w-full"
       />
 
       <label htmlFor="roomId" className="font-semibold">
@@ -134,7 +134,7 @@ export const AddItemForm: React.FC = () => {
         id="roomId"
         value={formData.roomId}
         onChange={handleChange}
-        className="border border-gray-300 rounded p-2 w-full"
+        className="border border-gray-300 rounded-sm p-2 w-full"
       >
         <option value="">Select a room</option>
         {rooms.map((room: Room) => (
@@ -151,7 +151,7 @@ export const AddItemForm: React.FC = () => {
         id="placeId"
         value={formData.placeId}
         onChange={handleChange}
-        className="border border-gray-300 rounded p-2 w-full"
+        className="border border-gray-300 rounded-sm p-2 w-full"
         disabled={!formData.roomId}
       >
         <option value="">Select a place</option>
@@ -187,7 +187,7 @@ export const AddItemForm: React.FC = () => {
 
       <button
         type="submit"
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600"
       >
         Create Item
       </button>
