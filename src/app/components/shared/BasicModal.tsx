@@ -6,12 +6,12 @@ import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Typography from "@mui/joy/Typography";
 import Sheet from "@mui/joy/Sheet";
-import { ColorPaletteProp } from "@mui/joy/styles";
+import { SxProps } from "@mui/material";
 
 interface BasicModalProps {
   openLabel: string | React.ReactNode;
   modalTitle: string;
-  color?: ColorPaletteProp;
+  sx?: SxProps;
   modalLabel: string;
   icon?: React.ReactNode;
   children: React.ReactNode;
@@ -22,13 +22,13 @@ export const BasicModal: React.FC<BasicModalProps> = ({
   modalLabel,
   icon,
   modalTitle,
-  color,
+  sx,
   children,
 }) => {
   const [open, setOpen] = React.useState<boolean>(false);
   return (
     <React.Fragment>
-      <Button variant="outlined" color={color} onClick={() => setOpen(true)}>
+      <Button variant="outlined" sx={sx} onClick={() => setOpen(true)}>
         {icon} {openLabel}
       </Button>
       <Modal

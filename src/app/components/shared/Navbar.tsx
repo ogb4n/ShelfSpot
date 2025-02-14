@@ -20,6 +20,7 @@ import LocalShippingRoundedIcon from "@mui/icons-material/LocalShippingRounded";
 import { redirect } from "next/navigation";
 import { LuCodepen } from "react-icons/lu";
 import { useSession, signOut } from "next-auth/react";
+import theme from "@/app/theme";
 
 export const Sidebar: React.FC = () => {
   const handleSignOut = async () => {
@@ -72,7 +73,7 @@ export const Sidebar: React.FC = () => {
           width: "100vw",
           height: "100vh",
           opacity: "var(--SideNavigation-slideIn)",
-          backgroundColor: "var(--joy-palette-background-backdrop)",
+          backgroundColor: theme.colorSchemes.dark.palette.secondary[500],
           transition: "opacity 0.4s",
           transform: {
             xs: "translateX(calc(100% * (var(--SideNavigation-slideIn, 0) - 1) + var(--SideNavigation-slideIn, 0) * var(--Sidebar-width, 0px)))",
@@ -84,7 +85,6 @@ export const Sidebar: React.FC = () => {
         <IconButton
           onClick={() => redirect("dashboard")}
           variant="soft"
-          color="primary"
           size="sm"
         >
           <LuCodepen />

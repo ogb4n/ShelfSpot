@@ -12,6 +12,7 @@ import {
   Link,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
+import theme from "@/app/theme";
 
 const FormSchema = z
   .object({
@@ -115,16 +116,18 @@ const SignUpForm = () => {
       <Button
         type="submit"
         variant="contained"
-        color="primary"
         fullWidth
-        sx={{ mt: 3 }}
+        sx={{
+          backgroundColor: theme.colorSchemes.dark.palette.primary[500],
+          mt: 3,
+        }}
       >
         Register
       </Button>
       <Divider sx={{ my: 2 }}>or</Divider>
       <Typography textAlign="center" variant="body2">
         I already have an account to{" "}
-        <Link href="/login" underline="hover" color="primary">
+        <Link href="/login" underline="hover">
           log in
         </Link>
       </Typography>

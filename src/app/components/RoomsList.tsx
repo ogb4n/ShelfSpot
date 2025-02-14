@@ -9,6 +9,7 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import { Room } from "../utils/types";
 import { BasicModal } from "./shared/BasicModal";
 import { EditRoomForm } from "./forms/EditRoomForm";
+import theme from "../theme";
 
 export const RoomsList: React.FC = () => {
   const { rooms, loading, error } = useGetRooms();
@@ -51,7 +52,9 @@ export const RoomsList: React.FC = () => {
             {room.name}
             <BasicModal
               openLabel={<DriveFileRenameOutlineIcon />}
-              color="primary"
+              sx={{
+                backgroundColor: theme.colorSchemes.dark.palette.primary[500],
+              }}
               modalTitle="Edit room"
               modalLabel="Change room details"
             >
@@ -59,7 +62,9 @@ export const RoomsList: React.FC = () => {
             </BasicModal>
             <Button
               onClick={() => handleDelete(room.id)}
-              color="danger"
+              sx={{
+                backgroundColor: theme.colorSchemes.dark.palette.danger[500],
+              }}
               className="ml-2"
               disabled={deleting === room.id}
             >

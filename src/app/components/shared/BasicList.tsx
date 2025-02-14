@@ -19,6 +19,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
+import theme from "@/app/theme";
 
 interface Item {
   id: number;
@@ -223,7 +224,7 @@ export const BasicList: React.FC = () => {
               key={`save-${id}`}
               icon={<SaveIcon />}
               label="Save"
-              sx={{ color: "primary.main" }}
+              sx={{ color: theme.colorSchemes.dark.palette.primary[500] }}
               onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
@@ -279,7 +280,10 @@ export const BasicList: React.FC = () => {
   if (error) {
     return (
       <div style={{ textAlign: "center", marginTop: "20px" }}>
-        <Typography level="h3" color="danger">
+        <Typography
+          level="h3"
+          sx={{ color: theme.colorSchemes.dark.palette.danger[500] }}
+        >
           {error}
         </Typography>
         <button

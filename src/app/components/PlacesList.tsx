@@ -8,6 +8,7 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import { Place } from "@/app/utils/types";
 import { BasicModal } from "@/app/components/shared/BasicModal";
 import { EditPlaceForm } from "@/app/components/forms/EditPlaceForm";
+import theme from "../theme";
 
 export const PlacesList: React.FC = () => {
   const { places, loading, error } = useGetPlaces();
@@ -52,13 +53,17 @@ export const PlacesList: React.FC = () => {
               openLabel={<DriveFileRenameOutlineIcon />}
               modalTitle="Edit place"
               modalLabel="Change place details"
-              color="primary"
+              sx={{
+                backgroundColor: theme.colorSchemes.dark.palette.primary[500],
+              }}
             >
               <EditPlaceForm placeId={place.id} />
             </BasicModal>
             <Button
               onClick={() => handleDelete(place.id)}
-              color="danger"
+              sx={{
+                backgroundColor: theme.colorSchemes.dark.palette.danger[500],
+              }}
               className="ml-2"
               disabled={deleting === place.id}
             >

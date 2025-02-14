@@ -7,6 +7,7 @@ import * as z from "zod";
 import { Button, TextField, Typography, Box } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import theme from "@/app/theme";
 
 const FormSchema = z.object({
   email: z
@@ -77,9 +78,11 @@ export const LoginForm = () => {
       <Button
         type="submit"
         variant="contained"
-        color="primary"
         fullWidth
-        sx={{ mt: 3 }}
+        sx={{
+          backgroundColor: theme.colorSchemes.dark.palette.primary[500],
+          mt: 3,
+        }}
       >
         Login
       </Button>
