@@ -3,7 +3,8 @@ import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import React from "react";
 import { Providers } from "./contexts/ContextsProviders";
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import Sheet from "@mui/joy/Sheet";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -33,19 +34,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <AppRouterCacheProvider>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased`}
-          style={{ margin: 0, padding: 0, overflow: "hidden" }}
-        >
-          <div style={{ display: "flex", height: "100vh" }}>
-            <header style={{ flexShrink: 0 }}></header>
-            <div style={{ flexGrow: 1, overflow: "auto" }}>
-              <Providers>{children}</Providers>
-            </div>
-          </div>
-        </body>
-      </AppRouterCacheProvider>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased`}
+        style={{ margin: 0, padding: 0, overflow: "hidden" }}
+      >
+        <Sheet style={{ display: "flex", height: "100vh" }}>
+          <Sheet style={{ flexGrow: 1, overflow: "auto" }}>
+            <Providers>{children}</Providers>
+          </Sheet>
+        </Sheet>
+      </body>
     </html>
   );
 }

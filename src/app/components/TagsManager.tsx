@@ -29,11 +29,7 @@ export const TagsManager: React.FC = () => {
     <Box>
       <Typography typography={"h4"}>Your tags</Typography>
       <TagsList tags={tags} onDelete={handleDeleteTag} />
-      <BasicModal
-        openLabel="add tags"
-        modalLabel="add tags"
-        modalTitle="Tags pannel"
-      >
+      <BasicModal openLabel="add tags" modalLabel="" modalTitle="Tag addition">
         <TagAddForm onAddTag={handleAddTag} />
       </BasicModal>
     </Box>

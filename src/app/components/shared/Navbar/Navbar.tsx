@@ -27,7 +27,7 @@ import { tabs } from "./constants";
 
 export const Sidebar: React.FC = () => {
   const handleSignOut = async () => {
-    signOut();
+    await signOut();
   };
 
   const session = useSession();

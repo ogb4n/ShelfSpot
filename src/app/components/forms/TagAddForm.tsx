@@ -46,7 +46,7 @@ export const TagAddForm: React.FC<TagAddFormProps> = ({ onAddTag }) => {
   return (
     <form onSubmit={handleSubmit} className="p-4 space-y-4">
       <label htmlFor="name" className="font-semibold">
-        Nom du tag
+        Tag name
       </label>
       <input
         type="text"
@@ -59,7 +59,7 @@ export const TagAddForm: React.FC<TagAddFormProps> = ({ onAddTag }) => {
 
       <IconSelector selectedIcon={formData.icon} onSelect={handleIconSelect} />
 
-      <button type="submit">Créer un tag</button>
+      <button type="submit">Create a tag</button>
 
       {error && <p className="text-red-500">{error}</p>}
       {success && <p className="text-green-500">{success}</p>}

@@ -79,7 +79,7 @@ const SignUpForm = () => {
       </Typography>
       <Box display="flex" flexDirection="column" gap={2}>
         <TextField
-          label="Nom d'utilisateur"
+          label="Username"
           variant="outlined"
           {...form.register("username")}
           error={!!form.formState.errors.username}
@@ -87,7 +87,7 @@ const SignUpForm = () => {
           fullWidth
         />
         <TextField
-          label="Adresse email"
+          label="Email Address"
           variant="outlined"
           {...form.register("email")}
           error={!!form.formState.errors.email}
@@ -95,7 +95,7 @@ const SignUpForm = () => {
           fullWidth
         />
         <TextField
-          label="Mot de passe"
+          label="Password"
           type="password"
           variant="outlined"
           {...form.register("password")}
@@ -104,7 +104,7 @@ const SignUpForm = () => {
           fullWidth
         />
         <TextField
-          label="Confirmation du mot de passe"
+          label="Confirm your password"
           type="password"
           variant="outlined"
           {...form.register("confirmPassword")}
