@@ -4,7 +4,7 @@ import useGetRooms from "../../hooks/useGetRooms";
 import useGetPlaces from "../../hooks/useGetPlaces";
 import useGetTags from "../../hooks/useGetTags";
 import { Item, Room, Place, Tag } from "@/app/utils/types";
-import { IconName } from "lucide-react/dynamic";
+import createItem from "@/app/api/items/add/createItem";
 
 export const AddItemForm: React.FC = () => {
   const [formData, setFormData] = useState<Item>({
@@ -14,7 +14,6 @@ export const AddItemForm: React.FC = () => {
     status: "",
     roomId: 0,
     placeId: 0,
-    icon: "home" as IconName,
     tags: [] as string[],
   });
 
@@ -41,9 +40,13 @@ export const AddItemForm: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { id, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
-      [id]: id === "roomId" || id === "placeId" ? Number(value) : value,
+      [id]:
+        id === "stock" || id === "price" || id === "roomId" || id === "placeId"
+          ? Number(value)
+          : value,
     }));
   };
 
@@ -58,39 +61,8 @@ export const AddItemForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
     try {
-      const response = await fetch("/api/items/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          stock: Number(formData.stock),
-          price: Number(formData.price),
-          roomId: formData.roomId ?? null,
-          placeId: formData.placeId ?? null,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create item");
-      }
-
-      setSuccess("Item successfully created!");
-      setFormData({
-        name: "",
-        stock: 0,
-        price: 0,
-        status: "",
-        roomId: 0,
-        placeId: 0,
-        icon: "home",
-        tags: [],
-      });
+      await createItem(setSuccess, setError, formData);
     } catch (err) {
       console.error(err);
       setError("An error occurred while creating the item.");
@@ -100,7 +72,7 @@ export const AddItemForm: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 bg-white shadow rounded space-y-4"
+      className="p-4 bg-white shadow-sm rounded-sm space-y-4"
     >
       <label htmlFor="name" className="font-semibold">
         Item Name
@@ -111,7 +83,7 @@ export const AddItemForm: React.FC = () => {
         value={formData.name}
         onChange={handleChange}
         required
-        className="border border-gray-300 rounded p-2 w-full"
+        className="border border-gray-300 rounded-sm p-2 w-full"
       />
 
       <label htmlFor="stock" className="font-semibold">
@@ -124,7 +96,7 @@ export const AddItemForm: React.FC = () => {
         onChange={handleChange}
         min="0"
         required
-        className="border border-gray-300 rounded p-2 w-full"
+        className="border border-gray-300 rounded-sm p-2 w-full"
       />
 
       <label htmlFor="roomId" className="font-semibold">
@@ -134,7 +106,7 @@ export const AddItemForm: React.FC = () => {
         id="roomId"
         value={formData.roomId}
         onChange={handleChange}
-        className="border border-gray-300 rounded p-2 w-full"
+        className="border border-gray-300 rounded-sm p-2 w-full"
       >
         <option value="">Select a room</option>
         {rooms.map((room: Room) => (
@@ -151,7 +123,7 @@ export const AddItemForm: React.FC = () => {
         id="placeId"
         value={formData.placeId}
         onChange={handleChange}
-        className="border border-gray-300 rounded p-2 w-full"
+        className="border border-gray-300 rounded-sm p-2 w-full"
         disabled={!formData.roomId}
       >
         <option value="">Select a place</option>
@@ -187,7 +159,7 @@ export const AddItemForm: React.FC = () => {
 
       <button
         type="submit"
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600"
       >
         Create Item
       </button>

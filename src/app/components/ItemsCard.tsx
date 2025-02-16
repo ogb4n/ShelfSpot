@@ -7,7 +7,8 @@ import CircularProgress from "@mui/joy/CircularProgress";
 import Typography from "@mui/joy/Typography";
 import { BasicModal } from "./shared/BasicModal";
 import { AddItemForm } from "./forms/AddItemForm";
-import InventoryIcon from "@mui/icons-material/Inventory";
+import { InventoryIcon } from "@/app/utils/icons";
+import theme from "../theme";
 
 export const ItemsCard: React.FC = () => {
   const [itemsCount, setItemsCount] = React.useState<number | null>(null);
@@ -21,7 +22,7 @@ export const ItemsCard: React.FC = () => {
         setItemsCount(items.length);
       } catch (error) {
         console.error("Failed to fetch items count:", error);
-        setItemsCount(0); // Optionnel : indiquez un fallback en cas d'erreur.
+        setItemsCount(0);
       } finally {
         setLoading(false);
       }
@@ -31,7 +32,11 @@ export const ItemsCard: React.FC = () => {
   }, []);
 
   return (
-    <Card variant="solid" color="primary" invertedColors>
+    <Card
+      variant="solid"
+      sx={{ backgroundColor: theme.colorSchemes.dark.palette.primary[500] }}
+      invertedColors
+    >
       <CardContent orientation="horizontal">
         <CircularProgress size="lg" determinate value={itemsCount ?? 0}>
           <InventoryIcon />

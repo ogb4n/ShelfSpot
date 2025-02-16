@@ -1,11 +1,12 @@
 "use client";
 import * as React from "react";
-import { List, Box } from "@mui/joy";
+import { List, Box, Typography } from "@mui/joy";
 import { Tag } from "./shared/Tag";
 import { Icon } from "./shared/Icon";
 import { DeletionChip } from "./shared/DeletionChip";
 import { Tag as ITag } from "../utils/types";
 import { type IconName } from "lucide-react/dynamic";
+import theme from "../theme";
 
 interface TagsListProps {
   tags: ITag[];
@@ -14,7 +15,16 @@ interface TagsListProps {
 
 export const TagsList: React.FC<TagsListProps> = ({ tags, onDelete }) => {
   if (!tags.length) {
-    return <div>No tags available</div>;
+    return (
+      <Typography
+        sx={{
+          color: theme.colorSchemes.dark.palette.disabled[500],
+          margin: 2,
+        }}
+      >
+        No tags available
+      </Typography>
+    );
   }
 
   return (

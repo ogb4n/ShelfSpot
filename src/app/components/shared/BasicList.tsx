@@ -15,10 +15,11 @@ import {
 } from "@mui/x-data-grid";
 import CircularProgress from "@mui/joy/CircularProgress";
 import Typography from "@mui/joy/Typography";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
+import { EditIcon, DeleteIcon, SaveIcon, CancelIcon } from "@/app/utils/icons";
+import deleteItem from "@/app/api/items/delete/deleteItem";
+import editItem from "@/app/api/items/edit/editItem";
+
+import theme from "@/app/theme";
 
 interface Item {
   id: number;
@@ -120,20 +121,15 @@ export const BasicList: React.FC = () => {
   };
 
   const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    return setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: GridRowModes.View },
+    });
   };
 
   const handleDeleteClick = (id: GridRowId) => async () => {
-    try {
-      const response = await fetch(`/api/items/delete?id=${id}`, {
-        method: "DELETE",
-      });
-
-      return response;
-    } catch (error) {
-      console.error("Error deleting row:", error);
-    }
-    setRows(rows.filter((row) => row.id !== id));
+    await deleteItem(id);
+    return setRows(rows.filter((row) => row.id !== id));
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
@@ -150,25 +146,9 @@ export const BasicList: React.FC = () => {
 
   const processRowUpdate = async (newRow: GridRowModel) => {
     const updatedRow = { ...newRow, isNew: false };
+    await editItem(updatedRow);
 
-    try {
-      const response = await fetch("/api/items/edit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedRow),
-      });
-
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-
-      setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    } catch (error) {
-      console.error("Error updating row:", error);
-    }
-
+    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     return updatedRow;
   };
 
@@ -197,17 +177,16 @@ export const BasicList: React.FC = () => {
       field: "room",
       headerName: "Room",
       flex: 1,
-      editable: true,
       type: "singleSelect",
+      editable: true,
       valueOptions: rooms,
     },
     {
       field: "tags",
       headerName: "Tags",
       flex: 1,
-      editable: true,
     },
-    { field: "status", headerName: "Status", flex: 0.8 },
+    { field: "status", headerName: "Status", flex: 0.8, editable: true },
     {
       field: "actions",
       type: "actions",
@@ -223,7 +202,7 @@ export const BasicList: React.FC = () => {
               key={`save-${id}`}
               icon={<SaveIcon />}
               label="Save"
-              sx={{ color: "primary.main" }}
+              sx={{ color: theme.colorSchemes.dark.palette.primary[500] }}
               onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
@@ -279,7 +258,10 @@ export const BasicList: React.FC = () => {
   if (error) {
     return (
       <div style={{ textAlign: "center", marginTop: "20px" }}>
-        <Typography level="h3" color="danger">
+        <Typography
+          level="h3"
+          sx={{ color: theme.colorSchemes.dark.palette.danger[500] }}
+        >
           {error}
         </Typography>
         <button

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import editPlace from "@/app/api/place/edit/editPlace";
 
 export const EditPlaceForm: React.FC<{ placeId: number }> = ({ placeId }) => {
   const [formData, setFormData] = useState({ name: "", icon: "" });
@@ -9,15 +10,7 @@ export const EditPlaceForm: React.FC<{ placeId: number }> = ({ placeId }) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      await fetch("/api/place/edit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: placeId, ...formData }),
-      });
-    } catch (error) {
-      return console.error("Failed to edit place:", error);
-    }
+    await editPlace(placeId, formData);
   };
 
   return (

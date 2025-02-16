@@ -6,10 +6,15 @@ import CardActions from "@mui/joy/CardActions";
 import Typography from "@mui/joy/Typography";
 import Button from "@mui/joy/Button";
 import { redirect } from "next/navigation";
+import theme from "@/app/theme";
 
 export const MostUsedPlacesCard: React.FC = () => {
   return (
-    <Card variant="solid" sx={{ backgroundColor: "#07a875" }} invertedColors>
+    <Card
+      variant="solid"
+      sx={{ backgroundColor: theme.colorSchemes.dark.palette.secondary[500] }}
+      invertedColors
+    >
       <CardContent orientation="horizontal">
         <CardContent>
           <Typography level="body-md" fontWeight="bold">

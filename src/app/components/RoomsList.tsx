@@ -1,14 +1,15 @@
 "use client";
-
 import useGetRooms from "@/app/hooks/useGetRooms";
 import Card from "@mui/joy/Card";
 import Button from "@mui/joy/Button";
 import React, { useState } from "react";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { DeleteOutlineIcon } from "../utils/icons";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import { Room } from "../utils/types";
 import { BasicModal } from "./shared/BasicModal";
 import { EditRoomForm } from "./forms/EditRoomForm";
+import theme from "../theme";
+import deleteRoom from "../api/room/delete/deleteRoom";
 
 export const RoomsList: React.FC = () => {
   const { rooms, loading, error } = useGetRooms();
@@ -16,23 +17,7 @@ export const RoomsList: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     setDeleting(id);
-    try {
-      const res = await fetch("/api/room/delete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Erreur lors de la suppression");
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDeleting(null);
-    }
+    return deleteRoom(id, setDeleting);
   };
 
   if (loading) {
@@ -51,7 +36,9 @@ export const RoomsList: React.FC = () => {
             {room.name}
             <BasicModal
               openLabel={<DriveFileRenameOutlineIcon />}
-              color="primary"
+              sx={{
+                backgroundColor: theme.colorSchemes.dark.palette.primary[500],
+              }}
               modalTitle="Edit room"
               modalLabel="Change room details"
             >
@@ -59,7 +46,9 @@ export const RoomsList: React.FC = () => {
             </BasicModal>
             <Button
               onClick={() => handleDelete(room.id)}
-              color="danger"
+              sx={{
+                backgroundColor: theme.colorSchemes.dark.palette.danger[500],
+              }}
               className="ml-2"
               disabled={deleting === room.id}
             >
