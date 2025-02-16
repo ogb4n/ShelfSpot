@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { avaliableIcons } from "../../utils/icons";
+import { availableIcons } from "@/app/utils/icons";
 import { type IconName } from "lucide-react/dynamic";
 
 interface IconSelectorProps {
@@ -23,7 +23,7 @@ export const IconSelector: React.FC<IconSelectorProps> = ({
         onChange={(e) => onSelect(e.target.value as IconName)}
         className="w-full border-gray-300 rounded-sm p-2"
       >
-        {avaliableIcons.map((icon) => (
+        {availableIcons.map((icon) => (
           <option key={icon} value={icon}>
             {icon}
           </option>

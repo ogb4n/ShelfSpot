@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import useGetRooms from "../../hooks/useGetRooms";
 import { Room } from "@/app/utils/types";
+import createPlace from "@/app/api/place/add/createPlace";
 
 export const AddPlaceForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -11,7 +12,6 @@ export const AddPlaceForm: React.FC = () => {
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
   const { rooms } = useGetRooms();
 
   const handleChange = (
@@ -28,28 +28,7 @@ export const AddPlaceForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log("Form data being sent:", formData);
-
-    try {
-      const response = await fetch("/api/place/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'ajout de la place");
-      }
-
-      await response.json();
-
-      setSuccess("Place ajoutée avec succès !");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.message);
-    }
+    await createPlace(setSuccess, setError, formData);
   };
 
   return (

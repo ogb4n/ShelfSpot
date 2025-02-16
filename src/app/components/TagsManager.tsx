@@ -33,7 +33,6 @@ export const TagsManager: React.FC = () => {
         openLabel="add tags"
         modalLabel="add tags"
         modalTitle="Tags pannel"
-        color="success"
       >
         <TagAddForm onAddTag={handleAddTag} />
       </BasicModal>

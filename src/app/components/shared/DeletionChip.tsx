@@ -1,9 +1,10 @@
 import * as React from "react";
 import Box from "@mui/joy/Box";
 import Chip from "@mui/joy/Chip";
-import DeleteForever from "@mui/icons-material/DeleteForever";
 import { useState } from "react";
+import { DeleteForever } from "@/app/utils/icons";
 import theme from "@/app/theme";
+import deleteTag from "@/app/api/tags/delete/deleteTag";
 interface DeletionChipProps {
   tagId: number;
   onDelete: (id: number) => void;
@@ -17,25 +18,7 @@ export const DeletionChip: React.FC<DeletionChipProps> = ({
 
   const handleDelete = async (id: number) => {
     setDeleting(id);
-    try {
-      const res = await fetch("/api/tags/delete", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Erreur lors de la suppression");
-      }
-
-      onDelete(id); // Mettre à jour la liste des tags
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDeleting(null);
-    }
+    await deleteTag(id, setDeleting, onDelete);
   };
 
   return (
@@ -44,7 +27,7 @@ export const DeletionChip: React.FC<DeletionChipProps> = ({
         variant="outlined"
         onClick={() => handleDelete(tagId)}
         sx={{
-          backgroundColor: theme.colorSchemes.dark.palette.primary[500],
+          color: theme.colorSchemes.dark.palette.danger[500],
           justifyContent: "center",
         }}
       >

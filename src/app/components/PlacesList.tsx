@@ -3,37 +3,17 @@ import useGetPlaces from "@/app/hooks/useGetPlaces";
 import Card from "@mui/joy/Card";
 import Button from "@mui/joy/Button";
 import React, { useState } from "react";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { DeleteOutlineIcon } from "@/app/utils/icons";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import { Place } from "@/app/utils/types";
 import { BasicModal } from "@/app/components/shared/BasicModal";
 import { EditPlaceForm } from "@/app/components/forms/EditPlaceForm";
+import deletePlace from "../api/place/delete/deletePlace";
 import theme from "../theme";
 
 export const PlacesList: React.FC = () => {
   const { places, loading, error } = useGetPlaces();
   const [deleting, setDeleting] = useState<number | null>(null);
-
-  const handleDelete = async (id: number) => {
-    setDeleting(id);
-    try {
-      const res = await fetch("/api/place/delete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Erreur lors de la suppression");
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDeleting(null);
-    }
-  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -60,7 +40,7 @@ export const PlacesList: React.FC = () => {
               <EditPlaceForm placeId={place.id} />
             </BasicModal>
             <Button
-              onClick={() => handleDelete(place.id)}
+              onClick={() => deletePlace(place.id, setDeleting)}
               sx={{
                 backgroundColor: theme.colorSchemes.dark.palette.danger[500],
               }}

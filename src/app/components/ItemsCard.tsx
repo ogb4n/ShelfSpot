@@ -7,7 +7,7 @@ import CircularProgress from "@mui/joy/CircularProgress";
 import Typography from "@mui/joy/Typography";
 import { BasicModal } from "./shared/BasicModal";
 import { AddItemForm } from "./forms/AddItemForm";
-import InventoryIcon from "@mui/icons-material/Inventory";
+import { InventoryIcon } from "@/app/utils/icons";
 import theme from "../theme";
 
 export const ItemsCard: React.FC = () => {

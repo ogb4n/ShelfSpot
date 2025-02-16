@@ -4,9 +4,6 @@ import "./globals.css";
 import React from "react";
 import { Providers } from "./contexts/ContextsProviders";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
-import { ThemeProvider } from "@mui/material/styles";
-// import theme from "./theme";
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,21 +33,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased`}
-        style={{ margin: 0, padding: 0, overflow: "hidden" }}
-      >
-        <AppRouterCacheProvider>
-          {/* <ThemeProvider theme={theme}> */}
+      <AppRouterCacheProvider>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased`}
+          style={{ margin: 0, padding: 0, overflow: "hidden" }}
+        >
           <div style={{ display: "flex", height: "100vh" }}>
             <header style={{ flexShrink: 0 }}></header>
             <div style={{ flexGrow: 1, overflow: "auto" }}>
               <Providers>{children}</Providers>
             </div>
           </div>
-          {/* </ThemeProvider> */}
-        </AppRouterCacheProvider>
-      </body>
+        </body>
+      </AppRouterCacheProvider>
     </html>
   );
 }

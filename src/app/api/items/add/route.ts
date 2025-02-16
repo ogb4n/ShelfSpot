@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/utils/prisma";
+import { Item } from "@/app/utils/types";
 
 export async function POST(req: Request) {
   try {
-    const { name, stock, price, status, roomId, placeId, tags } =
+    const { name, stock, price, status, roomId, placeId, tags }: Item =
       await req.json();
-    console.log(name, stock, price, status, roomId, placeId, tags);
+
+    const tagsToString = tags?.join(",");
 
     if (!name || !roomId) {
       return NextResponse.json(
@@ -29,11 +31,11 @@ export async function POST(req: Request) {
     const item = await prisma.item.create({
       data: {
         name: name,
-        stock: stock ?? 0,
-        price: price ?? 0,
+        stock: stock,
+        price: price,
         status: status,
         roomId: roomId,
-        // tags: tags,
+        tags: tagsToString,
         placeId: placeId,
       },
       include: {

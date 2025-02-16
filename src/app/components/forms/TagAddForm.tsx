@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { IconSelector } from "../shared/IconSelector";
 import { type IconName } from "lucide-react/dynamic";
 import { Tag as ITag } from "../../utils/types";
+import createTag from "@/app/api/tags/add/createTag";
 
 interface TagAddFormProps {
   onAddTag: (newTag: ITag) => void;
@@ -37,28 +38,9 @@ export const TagAddForm: React.FC<TagAddFormProps> = ({ onAddTag }) => {
 
     setError(null);
     setSuccess(null);
-
-    try {
-      const response = await fetch("/api/tags/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'ajout du tag");
-      }
-
-      const newTag = await response.json();
-
-      onAddTag(newTag);
-      setSuccess("Tag ajouté avec succès !");
-      setFormData({ name: "", icon: "home" });
-    } catch (err) {
-      setError((err as Error).message);
-    }
+    const response = await createTag(formData, setError, setSuccess);
+    onAddTag(response);
+    setFormData({ name: "", icon: "home" });
   };
 
   return (

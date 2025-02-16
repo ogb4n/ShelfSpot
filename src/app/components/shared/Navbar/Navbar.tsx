@@ -11,16 +11,19 @@ import ListItemButton from "@mui/joy/ListItemButton";
 import ListItemContent from "@mui/joy/ListItemContent";
 import Typography from "@mui/joy/Typography";
 import Sheet from "@mui/joy/Sheet";
-import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
-import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
-import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
-import StarRoundedIcon from "@mui/icons-material/StarRounded";
-import LocalShippingRoundedIcon from "@mui/icons-material/LocalShippingRounded";
+import {
+  SearchRoundedIcon,
+  SettingsRoundedIcon,
+  LogoutRoundedIcon,
+  LuCodepen,
+} from "@/app/utils/icons";
+
 import { redirect } from "next/navigation";
-import { LuCodepen } from "react-icons/lu";
+
 import { useSession, signOut } from "next-auth/react";
 import theme from "@/app/theme";
+
+import { tabs } from "./constants";
 
 export const Sidebar: React.FC = () => {
   const handleSignOut = async () => {
@@ -116,30 +119,16 @@ export const Sidebar: React.FC = () => {
             "--ListItem-radius": (theme) => theme.vars.radius.sm,
           }}
         >
-          <ListItem>
-            <ListItemButton onClick={() => redirect("/dashboard")}>
-              <DashboardRoundedIcon />
-              <ListItemContent>
-                <Typography level="title-sm">Dashboard</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton onClick={() => redirect("/favourites")}>
-              <StarRoundedIcon />
-              <ListItemContent>
-                <Typography level="title-sm">Favourites</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton onClick={() => redirect("/consumables")}>
-              <LocalShippingRoundedIcon />
-              <ListItemContent>
-                <Typography level="title-sm">Consumables</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
+          {tabs.map((tab) => (
+            <ListItem key={tab.label}>
+              <ListItemButton onClick={() => redirect(tab.href)}>
+                {tab.icon()}
+                <ListItemContent>
+                  <Typography level="title-sm">{tab.label}</Typography>
+                </ListItemContent>
+              </ListItemButton>
+            </ListItem>
+          ))}
         </List>
         <List
           size="sm"
@@ -161,11 +150,6 @@ export const Sidebar: React.FC = () => {
       </Box>
       <Divider />
       <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-        {/* <Avatar
-          variant="outlined"
-          size="sm"
-          src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286"
-        /> */}
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography level="title-sm">{user?.name}</Typography>
           <Typography level="body-xs">{user?.email}</Typography>

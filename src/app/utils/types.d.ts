@@ -20,7 +20,6 @@ export type Item = {
   tags?: string[];
   roomId: number;
   placeId?: number;
-  icon: string;
 };
 
 export type Tag = {

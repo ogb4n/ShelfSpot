@@ -4,7 +4,7 @@ import useGetRooms from "../../hooks/useGetRooms";
 import useGetPlaces from "../../hooks/useGetPlaces";
 import useGetTags from "../../hooks/useGetTags";
 import { Item, Room, Place, Tag } from "@/app/utils/types";
-import { IconName } from "lucide-react/dynamic";
+import createItem from "@/app/api/items/add/createItem";
 
 export const AddItemForm: React.FC = () => {
   const [formData, setFormData] = useState<Item>({
@@ -14,7 +14,6 @@ export const AddItemForm: React.FC = () => {
     status: "",
     roomId: 0,
     placeId: 0,
-    icon: "home" as IconName,
     tags: [] as string[],
   });
 
@@ -41,9 +40,13 @@ export const AddItemForm: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { id, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
-      [id]: id === "roomId" || id === "placeId" ? Number(value) : value,
+      [id]:
+        id === "stock" || id === "price" || id === "roomId" || id === "placeId"
+          ? Number(value)
+          : value,
     }));
   };
 
@@ -58,39 +61,8 @@ export const AddItemForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
     try {
-      const response = await fetch("/api/items/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          stock: Number(formData.stock),
-          price: Number(formData.price),
-          roomId: formData.roomId ?? null,
-          placeId: formData.placeId ?? null,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create item");
-      }
-
-      setSuccess("Item successfully created!");
-      setFormData({
-        name: "",
-        stock: 0,
-        price: 0,
-        status: "",
-        roomId: 0,
-        placeId: 0,
-        icon: "home",
-        tags: [],
-      });
+      await createItem(setSuccess, setError, formData);
     } catch (err) {
       console.error(err);
       setError("An error occurred while creating the item.");
