@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const items = await prisma.item.findMany({
       include: {
-        room: true, // Inclut les informations de la place associée
+        room: true,
       },
     });
 
@@ -13,7 +13,6 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching items:", error);
 
-    // Assurez-vous que la réponse JSON contient un objet valide
     return NextResponse.json(
       {
         error: "Failed to fetch items.",

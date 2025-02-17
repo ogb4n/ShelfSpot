@@ -27,3 +27,9 @@ export type Tag = {
   name: string;
   icon: string;
 };
+
+export type User = {
+  id: number;
+  username: string;
+  email: string;
+};
