@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/app/components/shared/Navbar/Navbar";
 import React from "react";
-// import { AuthProvider } from "../contexts/authContext";
+import { Providers } from "../contexts/ContextsProviders";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,9 +31,9 @@ export default function RootLayout({
           <header style={{ flexShrink: 0 }}>
             <Navbar />
           </header>
-          {/* <AuthProvider> */}
-          <div style={{ flexGrow: 1, overflow: "auto" }}>{children}</div>
-          {/* </AuthProvider> */}
+          <Providers>
+            <div style={{ flexGrow: 1, overflow: "auto" }}>{children}</div>
+          </Providers>
         </div>
       </body>
     </html>

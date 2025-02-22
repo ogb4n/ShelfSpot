@@ -7,12 +7,8 @@ import bcrypt from "bcrypt";
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    signIn: "/sign-in",
-  },
+  session: { strategy: "jwt" },
+  pages: { signIn: "/sign-in" },
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -21,28 +17,24 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+        if (!credentials?.email || !credentials?.password) return null;
+
         const existingUser = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
-        if (!existingUser) {
-          return null;
-        }
+        if (!existingUser) return null;
 
         const passwordMatch = await bcrypt.compare(
           credentials.password,
           existingUser.password
         );
-        if (!passwordMatch) {
-          return null;
-        }
+        if (!passwordMatch) return null;
 
         return {
-          id: `${existingUser.id}`,
+          id: String(existingUser.id),
           email: existingUser.email,
           name: existingUser.name,
+          admin: existingUser.admin,
         };
       },
     }),
@@ -63,9 +55,10 @@ export const authOptions: NextAuthOptions = {
       return {
         ...session,
         user: {
-          ...session.user,
-          name: token.name,
           id: token.id,
+          name: token.name,
+          email: token.email,
+          admin: token.admin,
         },
       };
     },
