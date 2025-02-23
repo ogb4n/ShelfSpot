@@ -12,12 +12,13 @@ export type Room = {
 };
 
 interface Item {
-  id: number;
+  id?: number;
   name: string;
   quantity: number;
   room: { id: number; name: string; icon: string } | null;
   place: { id: number; name: string; icon: string; roomId: number } | null;
   status: string | null;
+  tags: string[];
 }
 
 export type Tag = {
