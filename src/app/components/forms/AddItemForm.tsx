@@ -5,15 +5,15 @@ import useGetPlaces from "../../hooks/useGetPlaces";
 import useGetTags from "../../hooks/useGetTags";
 import { Item, Room, Place, Tag } from "@/app/utils/types";
 import createItem from "@/app/api/items/add/createItem";
+import Switch from "@mui/joy/Switch";
 
 export const AddItemForm: React.FC = () => {
   const [formData, setFormData] = useState<Item>({
     name: "",
-    stock: 0,
-    price: 0,
+    quantity: 0,
     status: "",
-    roomId: 0,
-    placeId: 0,
+    room: { id: 0, name: "", icon: "" },
+    place: { id: 0, name: "", icon: "", roomId: 0 },
     tags: [] as string[],
   });
 
@@ -24,17 +24,18 @@ export const AddItemForm: React.FC = () => {
   const { places } = useGetPlaces();
   const { tags } = useGetTags();
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
+  const [checked, setChecked] = React.useState<boolean>(false);
 
   useEffect(() => {
-    if (formData.roomId) {
+    if (formData.room?.id) {
       const filtered = places.filter(
-        (place: Place) => place.roomId === formData.roomId
+        (place: Place) => place.roomId === formData.room?.id
       );
       setFilteredPlaces(filtered);
     } else {
       setFilteredPlaces([]);
     }
-  }, [formData.roomId, places]);
+  }, [formData.room?.id, places]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -92,7 +93,7 @@ export const AddItemForm: React.FC = () => {
       <input
         id="stock"
         type="number"
-        value={formData.stock}
+        value={formData.quantity}
         onChange={handleChange}
         min="0"
         required
@@ -104,7 +105,7 @@ export const AddItemForm: React.FC = () => {
       </label>
       <select
         id="roomId"
-        value={formData.roomId}
+        value={formData.room?.id}
         onChange={handleChange}
         className="border border-gray-300 rounded-sm p-2 w-full"
       >
@@ -121,10 +122,10 @@ export const AddItemForm: React.FC = () => {
       </label>
       <select
         id="placeId"
-        value={formData.placeId}
+        value={formData.place?.id}
         onChange={handleChange}
         className="border border-gray-300 rounded-sm p-2 w-full"
-        disabled={!formData.roomId}
+        disabled={!formData.room?.id}
       >
         <option value="">Select a place</option>
         {filteredPlaces.map((place: Place) => (
@@ -153,6 +154,14 @@ export const AddItemForm: React.FC = () => {
           </button>
         ))}
       </div>
+
+      <label className="font-semibold" htmlFor="consumable">
+        Is the item a consumable ?
+      </label>
+      <Switch
+        checked={checked}
+        onChange={(event) => setChecked(event.target.checked)}
+      />
 
       {error && <p className="text-red-500">{error}</p>}
       {success && <p className="text-green-500">{success}</p>}

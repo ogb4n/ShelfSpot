@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       where: { id: body.id },
       data: {
         name: body.name ?? "",
-        stock: Number(body.stock) || 0,
+        quantity: Number(body.quantity) || 0,
         placeId: body.placeId,
         status: body.status ?? "",
       },

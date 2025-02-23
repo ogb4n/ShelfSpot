@@ -15,20 +15,18 @@ import {
 } from "@mui/x-data-grid";
 import CircularProgress from "@mui/joy/CircularProgress";
 import Typography from "@mui/joy/Typography";
-import { EditIcon, DeleteIcon, SaveIcon, CancelIcon } from "@/app/utils/icons";
+import {
+  EditIcon,
+  DeleteIcon,
+  SaveIcon,
+  CancelIcon,
+  GradeIcon,
+} from "@/app/utils/icons";
 import deleteItem from "@/app/api/items/delete/deleteItem";
 import editItem from "@/app/api/items/edit/editItem";
 
 import theme from "@/app/theme";
-
-interface Item {
-  id: number;
-  name: string;
-  stock: number;
-  room: { id: number; name: string; icon: string } | null;
-  place: { id: number; name: string; icon: string; roomId: number } | null;
-  status: string | null;
-}
+import { Item } from "@/app/utils/types";
 
 declare module "@mui/x-data-grid" {
   interface ToolbarPropsOverrides {
@@ -65,7 +63,7 @@ export const BasicList: React.FC = () => {
         data.map((item) => ({
           id: item.id,
           name: item.name,
-          stock: item.stock,
+          quantity: item.quantity,
           place: item.place ? item.place.name : "N/A",
           room: item.room ? item.room.name : "N/A",
           status: item.status ?? "N/A",
@@ -159,7 +157,7 @@ export const BasicList: React.FC = () => {
   const columns: GridColDef[] = [
     { field: "name", headerName: "Item", flex: 1, editable: true },
     {
-      field: "stock",
+      field: "quantity",
       headerName: "Qty.",
       type: "number",
       flex: 0.5,
@@ -186,7 +184,6 @@ export const BasicList: React.FC = () => {
       headerName: "Tags",
       flex: 1,
     },
-    { field: "status", headerName: "Status", flex: 0.8, editable: true },
     {
       field: "actions",
       type: "actions",
@@ -230,6 +227,14 @@ export const BasicList: React.FC = () => {
             icon={<DeleteIcon />}
             label="Delete"
             onClick={handleDeleteClick(id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            key={`cancel-${id}`}
+            icon={<GradeIcon />}
+            label="Cancel"
+            className="textPrimary"
+            onClick={handleCancelClick(id)}
             color="inherit"
           />,
         ];

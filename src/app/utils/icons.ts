@@ -9,6 +9,7 @@ import CancelIcon from "@mui/icons-material/Close";
 import DeleteForever from "@mui/icons-material/DeleteForever";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import GradeIcon from "@mui/icons-material/Grade";
 
 import { LuCodepen } from "react-icons/lu";
 export const availableIcons: readonly IconName[] = [
@@ -40,4 +41,5 @@ export {
   CancelIcon,
   DeleteForever,
   InventoryIcon,
+  GradeIcon,
 };
