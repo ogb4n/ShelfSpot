@@ -1,5 +1,5 @@
 import { ItemsCard } from "@/app/components/ItemsCard";
-import { BasicList } from "@/app/components/shared/BasicList";
+import { BasicList } from "@/app/components/BasicList";
 import { MostUsedPlacesCard } from "@/app/components/ManageCard";
 
 const Dashboard = () => {

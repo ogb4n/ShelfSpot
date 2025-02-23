@@ -19,12 +19,13 @@ model User {
 model Item {
   id        Int     @id @default(autoincrement())
   name      String  
-  stock     Int     @default(0)
+  quantity     Int     @default(1)
   image     String?
   price     Float?
   sellprice Float?
   status    String?
   tags      String?
+  consumable Boolean @default(false)
   placeId   Int?    
   place     Place?  @relation(fields: [placeId], references: [id]) // Relation many-to-one avec Place
   roomId    Int?

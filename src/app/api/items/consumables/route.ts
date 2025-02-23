@@ -7,7 +7,11 @@ export async function GET() {
       include: {
         room: true,
       },
+      where: {
+        consumable: true,
+      },
     });
+
     return NextResponse.json(items);
   } catch (error) {
     console.error("Error fetching items:", error);
