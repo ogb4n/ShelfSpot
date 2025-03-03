@@ -26,3 +26,9 @@ export type Tag = {
   name: string;
   icon: string;
 };
+
+export type Wallet = {
+  id: string;
+  name: string;
+  balance: number;
+};

@@ -14,6 +14,7 @@ model User {
   name      String?
   admin     Boolean  @default(false)
   createdAt DateTime @default(now())
+  Wallet Wallet[]
 }
 
 model Item {
@@ -52,4 +53,31 @@ model Tags {
   id    Int     @id @default(autoincrement())
   name  String  @unique
   icon  String?
+}
+
+model Wallet {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  balance   Float   @default(0)
+  createdAt DateTime @default(now())
+  Outcome Outcome[]
+  Income Income[]
+}
+
+model Outcome {
+  id        Int     @id @default(autoincrement())
+  walletId  Int
+  wallet    Wallet  @relation(fields: [walletId], references: [id])
+  amount    Float
+  createdAt DateTime @default(now())
+} 
+
+model Income {
+  id        Int     @id @default(autoincrement())
+  walletId  Int
+  wallet    Wallet  @relation(fields: [walletId], references: [id])
+  amount    Float
+  createdAt DateTime @default(now())
 }

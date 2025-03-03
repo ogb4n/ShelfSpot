@@ -18,7 +18,6 @@ const Manage = () => {
           modalTitle="Place addition"
           icon={<AddIcon />}
           modalLabel="places are meant to add order in your rooms"
-          color="success"
         >
           <AddPlaceForm />
         </BasicModal>
@@ -28,7 +27,6 @@ const Manage = () => {
           modalTitle="Room addition"
           icon={<AddIcon />}
           modalLabel="rooms are meant to add order in your house"
-          color="warning"
         >
           <AddRoomForm />
         </BasicModal>

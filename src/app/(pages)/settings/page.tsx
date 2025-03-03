@@ -7,8 +7,6 @@ import { TagsManager } from "@/app/components/TagsManager";
 const Settings = async () => {
   const session = await getServerSession();
   if (!session) redirect("/login");
-  const user = session.user;
-  console.log(user);
 
   return (
     <div>
