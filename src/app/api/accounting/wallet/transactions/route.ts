@@ -13,7 +13,6 @@ export async function GET(req: Request) {
 
   const parsedWalletId = parseInt(walletId);
   try {
-    // Query incomes and outcomes separately
     const incomes = await prisma.income.findMany({
       where: { walletId: parsedWalletId },
     });
@@ -22,17 +21,18 @@ export async function GET(req: Request) {
       where: { walletId: parsedWalletId },
     });
 
-    // Map each record to include a 'type'
     const incomeTransactions = incomes.map((income) => ({
       id: income.id,
       type: "income",
       amount: income.amount,
+      description: income.description,
     }));
 
     const outcomeTransactions = outcomes.map((outcome) => ({
       id: outcome.id,
       type: "outcome",
       amount: outcome.amount,
+      description: outcome.description,
     }));
 
     const transactions = [...incomeTransactions, ...outcomeTransactions];

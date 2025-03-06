@@ -4,9 +4,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log("Parsed body:", body);
 
-    // Vérification : l'utilisateur existe-t-il ?
     const userExists = await prisma.user.findUnique({
       where: { id: parseInt(body.userId) },
     });

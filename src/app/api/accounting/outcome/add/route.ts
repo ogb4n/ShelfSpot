@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const data = schema.parse(body);
 
   try {
-    const income = await prisma.income.create({
+    const outcome = await prisma.outcome.create({
       data: {
         walletId: data.walletId,
         description: data.description,
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         createdAt: new Date(),
       },
     });
-    return NextResponse.json(income);
+    return NextResponse.json(outcome);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(error);

@@ -31,7 +31,7 @@ export const AddWalletForm: React.FC<AddWalletFormProps> = ({ userId }) => {
       }
       setSuccess(true);
       setWalletName("");
-      setBaseBalance(0); // reset balance after success
+      setBaseBalance(0);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "An error occurred.");
@@ -53,7 +53,6 @@ export const AddWalletForm: React.FC<AddWalletFormProps> = ({ userId }) => {
       </div>
       <div>
         {" "}
-        {/* new input field for base balance */}
         <label htmlFor="baseBalance">Base Balance:</label>
         <input
           id="baseBalance"

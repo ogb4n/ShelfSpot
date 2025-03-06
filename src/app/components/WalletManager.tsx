@@ -7,7 +7,10 @@ import { BasicModal } from "./shared/BasicModal";
 import { BorderColorIcon, FolderOpenIcon } from "../utils/icons";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
-import { WalletTransactions } from "./WalletTransactions"; // added import
+import { WalletTransactions } from "./WalletTransactions";
+import { EditWalletForm } from "./forms/EditWalletForm";
+import { AddOutcomeForm } from "./forms/AddOutcomeForm";
+import { AddIncomeForm } from "./forms/AddIncomeForm";
 
 interface Wallet {
   id: string;
@@ -19,8 +22,16 @@ export const WalletManager = () => {
   const { data: session } = useSession();
   const [wallets, setWallets] = useState<Wallet[]>([]);
 
+  const handleDelete = async (walletId: number) => {
+    await fetch(`/api/accounting/wallet/delete?walletId`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ walletId }),
+    });
+    setWallets(wallets.filter((wallet) => parseInt(wallet.id) !== walletId));
+  };
+
   useEffect(() => {
-    // Vérifiez que session.user existe et possède un id
     if (session?.user?.id) {
       const fetchWallets = async () => {
         try {
@@ -42,7 +53,6 @@ export const WalletManager = () => {
     }
   }, [session]);
 
-  // Vous pouvez gérer le cas où la session n'est pas encore chargée
   if (!session) return <div>Loading...</div>;
 
   return (
@@ -88,7 +98,7 @@ export const WalletManager = () => {
                       modalTitle="wallet.edition"
                       modalLabel="Edit wallet informations"
                     >
-                      p
+                      <EditWalletForm walletId={parseInt(wallet.id)} />
                     </BasicModal>
                     <BasicModal
                       openLabel=""
@@ -96,8 +106,14 @@ export const WalletManager = () => {
                       modalTitle="wallet.name"
                       modalLabel="Wallet informations"
                     >
-                      {/* Replace placeholder with wallet transactions table */}
                       <WalletTransactions walletId={wallet.id} />
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(wallet.id)}
+                        className="text-center text-red-500 hover:text-red-800"
+                      >
+                        Delete this wallet
+                      </button>
                     </BasicModal>
                   </Stack>
                 </td>
@@ -106,13 +122,21 @@ export const WalletManager = () => {
           </tbody>
         </Table>
       </Sheet>
-      <BasicModal
-        openLabel="Add wallet"
-        modalTitle="Add a new wallet"
-        modalLabel="You can add a new wallet to your account by filling out the form below."
-      >
-        <AddWalletForm userId={session.user.id} />
-      </BasicModal>
+      <Sheet sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+        <BasicModal
+          openLabel="Add wallet"
+          modalTitle="Add a new wallet"
+          modalLabel="You can add a new wallet to your account by filling out the form below."
+        >
+          <AddWalletForm userId={session.user.id} />
+        </BasicModal>
+        <BasicModal openLabel="New Income" modalTitle="" modalLabel="">
+          <AddIncomeForm />
+        </BasicModal>
+        <BasicModal openLabel="New Outcome" modalTitle="" modalLabel="">
+          <AddOutcomeForm />
+        </BasicModal>
+      </Sheet>
     </Stack>
   );
 };
