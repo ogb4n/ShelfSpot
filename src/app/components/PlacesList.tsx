@@ -34,7 +34,7 @@ export const PlacesList: React.FC = () => {
               modalTitle="Edit place"
               modalLabel="Change place details"
               sx={{
-                backgroundColor: theme.colorSchemes.dark.palette.primary[500],
+                backgroundColor: theme.colorSchemes.dark.palette.secondary[500],
               }}
             >
               <EditPlaceForm placeId={place.id} />

@@ -10,6 +10,8 @@ import DeleteForever from "@mui/icons-material/DeleteForever";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import GradeIcon from "@mui/icons-material/Grade";
+import BorderColorIcon from "@mui/icons-material/BorderColor";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import { LuCodepen } from "react-icons/lu";
 export const availableIcons: readonly IconName[] = [
@@ -30,6 +32,8 @@ export const availableIcons: readonly IconName[] = [
 ] as const;
 
 export {
+  FolderOpenIcon,
+  BorderColorIcon,
   DeleteOutlineIcon,
   SearchRoundedIcon,
   SettingsRoundedIcon,

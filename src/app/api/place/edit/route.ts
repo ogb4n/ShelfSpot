@@ -12,6 +12,7 @@ export async function POST(req: Request) {
       },
     });
     return NextResponse.json(updatedPlace);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     return NextResponse.json(
       { error: "Failed to edit place", details: err.message },
