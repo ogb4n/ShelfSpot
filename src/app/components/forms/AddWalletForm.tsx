@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 interface AddWalletFormProps {
-  userId: string;
+  userId: number;
 }
 
 export const AddWalletForm: React.FC<AddWalletFormProps> = ({ userId }) => {

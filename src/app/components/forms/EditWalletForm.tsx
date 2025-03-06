@@ -5,18 +5,17 @@ export const EditWalletForm = ({ walletId }: { walletId: number }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // ...existing code...
-    await fetch(`/api/accounting/wallet/edit?walletId=${walletId}`, {
-      method: "PUT",
+    await fetch(`/api/accounting/wallet/edit`, {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, walletId }),
     });
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <label>
-        New Wallet Name:
+        <p>New Wallet Name:</p>
         <input
           type="text"
           value={name}

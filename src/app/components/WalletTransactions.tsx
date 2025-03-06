@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-interface Transaction {
+export interface Transaction {
   id: string;
   type: "income" | "outcome";
   amount: number;
@@ -48,8 +48,8 @@ export const WalletTransactions = ({ walletId }: WalletTransactionsProps) => {
   const handleSaveClick = async (tx: Transaction) => {
     const updateEndpoint =
       tx.type === "outcome"
-        ? "/api/accounting/outcome/update"
-        : "/api/accounting/income/update";
+        ? "/api/accounting/outcome/edit"
+        : "/api/accounting/income/edit";
     try {
       const response = await fetch(updateEndpoint, {
         method: "PUT",

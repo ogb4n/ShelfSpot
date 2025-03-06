@@ -7,7 +7,6 @@ export async function POST(req: Request) {
     amount: zod.number(),
     description: zod.string(),
     walletId: zod.number(),
-    userId: zod.number(),
   });
 
   const body = await req.json();

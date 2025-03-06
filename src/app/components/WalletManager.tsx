@@ -12,6 +12,7 @@ import { EditWalletForm } from "./forms/EditWalletForm";
 import { AddOutcomeForm } from "./forms/AddOutcomeForm";
 import { AddIncomeForm } from "./forms/AddIncomeForm";
 
+// move to type file
 interface Wallet {
   id: string;
   name: string;
@@ -32,7 +33,7 @@ export const WalletManager = () => {
   };
 
   useEffect(() => {
-    if (session?.user?.id) {
+    if (session?.user && "id" in session.user) {
       const fetchWallets = async () => {
         try {
           const response = await fetch(
@@ -131,10 +132,10 @@ export const WalletManager = () => {
           <AddWalletForm userId={session.user.id} />
         </BasicModal>
         <BasicModal openLabel="New Income" modalTitle="" modalLabel="">
-          <AddIncomeForm />
+          <AddIncomeForm userId={session.user.id} />
         </BasicModal>
         <BasicModal openLabel="New Outcome" modalTitle="" modalLabel="">
-          <AddOutcomeForm />
+          <AddOutcomeForm userId={session.user.id} />
         </BasicModal>
       </Sheet>
     </Stack>
