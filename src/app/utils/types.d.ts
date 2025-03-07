@@ -11,16 +11,15 @@ export type Room = {
   icon?: string;
 };
 
-export type Item = {
+interface Item {
   id?: number;
   name: string;
-  stock: number;
-  price?: number;
-  status: string;
-  tags?: string[];
-  roomId: number;
-  placeId?: number;
-};
+  quantity: number;
+  room: { id: number; name: string; icon: string } | null;
+  place: { id: number; name: string; icon: string; roomId: number } | null;
+  status: string | null;
+  tags: string[];
+}
 
 export type Tag = {
   id: number;
@@ -32,4 +31,9 @@ export type User = {
   id: number;
   username: string;
   email: string;
+};
+export type Wallet = {
+  id: string;
+  name: string;
+  balance: number;
 };

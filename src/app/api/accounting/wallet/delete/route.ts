@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/app/utils/prisma";
 
 export async function DELETE(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const id = parseInt(searchParams.get("id") as string, 10);
+  const body = await req.json();
+  const walletId = body.walletId;
 
-  const item = await prisma.income.delete({
+  const item = await prisma.wallet.delete({
     where: {
-      id,
+      id: walletId,
     },
   });
 

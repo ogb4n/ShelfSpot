@@ -69,17 +69,15 @@ model Wallet {
 model Outcome {
   id        Int     @id @default(autoincrement())
   walletId  Int
-  wallet    Wallet  @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  wallet    Wallet  @relation(fields: [walletId], references: [id])
   amount    Float
-  description String
   createdAt DateTime @default(now())
 } 
 
 model Income {
   id        Int     @id @default(autoincrement())
   walletId  Int
-  wallet    Wallet  @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  wallet    Wallet  @relation(fields: [walletId], references: [id])
   amount    Float
-  description String
   createdAt DateTime @default(now())
 }
