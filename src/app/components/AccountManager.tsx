@@ -1,6 +1,14 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, Button, Input } from "@mui/joy";
+import {
+  Box,
+  Typography,
+  Button,
+  Input,
+  CircularProgress,
+  Alert,
+} from "@mui/joy";
+import { useSession } from "next-auth/react";
 
 interface AccountManagerProps {
   user:
@@ -13,21 +21,56 @@ interface AccountManagerProps {
 }
 
 export const AccountManager = ({ user }: AccountManagerProps) => {
+  const { data: session, update } = useSession();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const userId = session?.user?.id;
 
-  const handleSave = () => {
-    // Ici, vous pouvez ajouter la logique pour sauvegarder les modifications, par exemple via un appel API.
-    console.log("Profil sauvegardé", { name, email });
-    setEditing(false);
+  const handleSave = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/user/edit/name", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, userId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Profil sauvegardé", data);
+
+      await update({
+        ...session,
+        user: {
+          ...session?.user,
+          name: data.name,
+        },
+      });
+
+      setEditing(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      console.error("Error updating profile:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
-    // Réinitialisation des valeurs avec celles du profil utilisateur initial
     setName(user?.name ?? "");
     setEmail(user?.email ?? "");
     setEditing(false);
+    setError(null);
   };
 
   return (
@@ -35,6 +78,11 @@ export const AccountManager = ({ user }: AccountManagerProps) => {
       <Typography component="h2" mb={2}>
         Your profile
       </Typography>
+      {error && (
+        <Alert color="danger" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
       {editing ? (
         <>
           <Input
@@ -43,22 +91,26 @@ export const AccountManager = ({ user }: AccountManagerProps) => {
             onChange={(e) => setName(e.target.value)}
             sx={{ mb: 2 }}
           />
-          <Input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            sx={{ mb: 2 }}
-          />
+          <Typography sx={{ mb: 2 }}>
+            Email: {email || "Not provided"}
+          </Typography>
           <Box>
             <Button
               variant="solid"
               color="primary"
               onClick={handleSave}
               sx={{ mr: 1 }}
+              disabled={isLoading}
+              startDecorator={isLoading ? <CircularProgress size="sm" /> : null}
             >
-              Save
+              {isLoading ? "Saving..." : "Save"}
             </Button>
-            <Button variant="outlined" color="neutral" onClick={handleCancel}>
+            <Button
+              variant="outlined"
+              color="neutral"
+              onClick={handleCancel}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
           </Box>
