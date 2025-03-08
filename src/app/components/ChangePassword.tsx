@@ -14,10 +14,8 @@ export const ChangePassword = () => {
       return;
     }
     setError(null);
-    // Ici, vous pouvez ajouter la logique pour envoyer le nouveau mot de passe via une API
     console.log("Nouveau mot de passe sauvegardé:", password);
     setSuccess(true);
-    // Réinitialisation des champs après succès
     setPassword("");
     setConfirmPassword("");
   };
@@ -46,13 +44,13 @@ export const ChangePassword = () => {
       />
       <Input
         type="password"
-        placeholder="Confirmer le nouveau mot de passe"
+        placeholder="Change your password"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
         sx={{ mb: 2 }}
       />
       <Button variant="solid" color="primary" onClick={handleChangePassword}>
-        Modifier le mot de passe
+        Change your password
       </Button>
     </Box>
   );

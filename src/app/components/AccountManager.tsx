@@ -9,6 +9,7 @@ import {
   Alert,
 } from "@mui/joy";
 import { useSession } from "next-auth/react";
+import { ChangePassword } from "./ChangePassword";
 
 interface AccountManagerProps {
   user:
@@ -75,7 +76,7 @@ export const AccountManager = ({ user }: AccountManagerProps) => {
 
   return (
     <Box>
-      <Typography component="h2" mb={2}>
+      <Typography typography={"h4"} mb={2} sx={{ font: "bold" }}>
         Your profile
       </Typography>
       {error && (
@@ -105,11 +106,13 @@ export const AccountManager = ({ user }: AccountManagerProps) => {
             >
               {isLoading ? "Saving..." : "Save"}
             </Button>
+            <ChangePassword />
             <Button
               variant="outlined"
               color="neutral"
               onClick={handleCancel}
               disabled={isLoading}
+              sx={{ mt: 2 }}
             >
               Cancel
             </Button>
