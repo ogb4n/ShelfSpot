@@ -4,6 +4,28 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 
+// Extend the built-in types
+declare module "next-auth" {
+  interface User {
+    admin?: boolean;
+  }
+  interface Session {
+    user: {
+      id: string;
+      name?: string;
+      email?: string;
+      admin?: boolean;
+    };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    admin?: boolean;
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
@@ -47,6 +69,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           name: user.name,
           email: user.email,
+          admin: user.admin, // Ajout de l'attribut admin ici
         };
       }
       return token;
@@ -58,7 +81,7 @@ export const authOptions: NextAuthOptions = {
           id: token.id,
           name: token.name,
           email: token.email,
-          admin: token.admin,
+          admin: token.admin, // Transfert de l'attribut admin du token à la session
         },
       };
     },
