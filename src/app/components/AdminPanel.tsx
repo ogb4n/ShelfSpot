@@ -23,6 +23,7 @@ type User = {
 };
 
 export const AdminPanel = () => {
+  // Récupération des données de session de l'utilisateur
   const { data } = useSession();
   const [accounts, setAccounts] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -240,4 +241,18 @@ export const AdminPanel = () => {
       )}
     </Box>
   );
+  console.log(data);
+
+  // Vérification des droits d'administrateur
+  if (data?.user?.admin) {
+    return (
+      <Box>
+        {/* Titre du panneau d'administration */}
+        <Typography>Admin Panel</Typography>
+      </Box>
+    );
+  }
+
+  // Ne rien afficher si l'utilisateur n'est pas administrateur
+  return null;
 };
