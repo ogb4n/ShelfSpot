@@ -22,7 +22,9 @@ export async function POST(req: Request) {
     }
     await prisma.user.delete({ where: { id } });
     return NextResponse.json({ message: "User deleted successfully" });
-  } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }
