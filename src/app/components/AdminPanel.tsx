@@ -65,7 +65,7 @@ export const AdminPanel = () => {
     if (data?.user?.admin) {
       fetchAccounts();
     }
-  }, [data?.user?.admin]);
+  }, [data]);
 
   const handleEdit = (account: User) => {
     setEditingId(account.id);
