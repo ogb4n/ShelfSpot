@@ -31,10 +31,19 @@ export const AdminPanel = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<User>>({});
   const [saveLoading, setSaveLoading] = useState(false);
+  const [showAddUserForm, setShowAddUserForm] = useState(false);
+  const [newUserForm, setNewUserForm] = useState({
+    email: "",
+    password: "",
+    name: "",
+    admin: false,
+  });
 
   useEffect(() => {
     async function fetchAccounts() {
       if (!data?.user?.admin) return;
+
+      console.log(data);
 
       try {
         const response = await fetch("/api/admin/accounts");
@@ -111,6 +120,57 @@ export const AdminPanel = () => {
     }
   };
 
+  const handleAddUserChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setNewUserForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleAddUser = async () => {
+    try {
+      const res = await fetch("/api/admin/accounts/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUserForm),
+      });
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+      // Refresh the accounts list
+      const created = await res.json();
+      setAccounts((prev) => [...prev, created.user]);
+      setShowAddUserForm(false);
+      setNewUserForm({ email: "", password: "", name: "", admin: false });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add user");
+    }
+  };
+
+  const handleDelete = async (userId: string) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this user? This action is irreversible."
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch("/api/admin/accounts/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: Number(userId) }),
+      });
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+      setAccounts((prev) => prev.filter((acc) => acc.id !== userId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete user");
+    }
+  };
+
   if (!data?.user?.admin) {
     return null;
   }
@@ -121,6 +181,50 @@ export const AdminPanel = () => {
         Admin Panel
       </Typography>
       <Divider sx={{ mb: 2 }} />
+
+      <Button
+        variant="solid"
+        color="primary"
+        onClick={() => setShowAddUserForm(!showAddUserForm)}
+        sx={{ mb: 2 }}
+      >
+        Add user
+      </Button>
+
+      {showAddUserForm && (
+        <Box sx={{ mb: 2 }}>
+          <Input
+            placeholder="Email"
+            name="email"
+            value={newUserForm.email}
+            onChange={handleAddUserChange}
+            sx={{ mb: 1 }}
+          />
+          <Input
+            placeholder="Password"
+            name="password"
+            type="password"
+            value={newUserForm.password}
+            onChange={handleAddUserChange}
+            sx={{ mb: 1 }}
+          />
+          <Input
+            placeholder="Name (optional)"
+            name="name"
+            value={newUserForm.name}
+            onChange={handleAddUserChange}
+            sx={{ mb: 1 }}
+          />
+          <Checkbox
+            name="admin"
+            checked={newUserForm.admin}
+            onChange={handleAddUserChange}
+            label="Admin"
+            sx={{ mb: 1 }}
+          />
+          <Button onClick={handleAddUser}>Create User</Button>
+        </Box>
+      )}
 
       <Typography level="title-md" sx={{ mb: 2 }}>
         User Accounts
@@ -158,7 +262,7 @@ export const AdminPanel = () => {
                         <Input
                           size="sm"
                           name="name"
-                          value={editForm.name || ""}
+                          value={editForm.name ?? ""}
                           onChange={handleChange}
                         />
                       ) : (
@@ -170,7 +274,7 @@ export const AdminPanel = () => {
                         <Input
                           size="sm"
                           name="email"
-                          value={editForm.email || ""}
+                          value={editForm.email ?? ""}
                           onChange={handleChange}
                         />
                       ) : (
@@ -217,13 +321,25 @@ export const AdminPanel = () => {
                           </Button>
                         </>
                       ) : (
-                        <Button
-                          size="sm"
-                          color="neutral"
-                          onClick={() => handleEdit(account)}
-                        >
-                          Edit
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            color="neutral"
+                            onClick={() => handleEdit(account)}
+                          >
+                            Edit
+                          </Button>
+                          {account.id !== data?.user?.id && (
+                            <Button
+                              size="sm"
+                              color="danger"
+                              onClick={() => handleDelete(account.id)}
+                              sx={{ ml: 1 }}
+                            >
+                              Delete
+                            </Button>
+                          )}
+                        </>
                       )}
                     </td>
                   </tr>
@@ -241,18 +357,4 @@ export const AdminPanel = () => {
       )}
     </Box>
   );
-  console.log(data);
-
-  // Vérification des droits d'administrateur
-  if (data?.user?.admin) {
-    return (
-      <Box>
-        {/* Titre du panneau d'administration */}
-        <Typography>Admin Panel</Typography>
-      </Box>
-    );
-  }
-
-  // Ne rien afficher si l'utilisateur n'est pas administrateur
-  return null;
 };
