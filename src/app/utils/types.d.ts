@@ -27,6 +27,11 @@ export type Tag = {
   icon: string;
 };
 
+export type User = {
+  id: number;
+  username: string;
+  email: string;
+};
 export type Wallet = {
   id: string;
   name: string;

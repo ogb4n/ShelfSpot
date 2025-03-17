@@ -9,30 +9,27 @@ import { AddRoomForm } from "@/app/components/forms/AddRoomForm";
 
 const Manage = () => {
   return (
-    <>
-      <header></header>
-      <main className="flex min-h-screen items-center justify-center p-24 gap-2">
-        <PlacesList />
-        <BasicModal
-          openLabel="add places"
-          modalTitle="Place addition"
-          icon={<AddIcon />}
-          modalLabel="places are meant to add order in your rooms"
-        >
-          <AddPlaceForm />
-        </BasicModal>
-        <Divider />
-        <BasicModal
-          openLabel="add rooms"
-          modalTitle="Room addition"
-          icon={<AddIcon />}
-          modalLabel="rooms are meant to add order in your house"
-        >
-          <AddRoomForm />
-        </BasicModal>
-        <RoomsList />
-      </main>
-    </>
+    <main className="flex min-h-screen items-center justify-center p-24 gap-2">
+      <PlacesList />
+      <BasicModal
+        openLabel="add places"
+        modalTitle="Place addition"
+        icon={<AddIcon />}
+        modalLabel="places are meant to add order in your rooms"
+      >
+        <AddPlaceForm />
+      </BasicModal>
+      <Divider />
+      <BasicModal
+        openLabel="add rooms"
+        modalTitle="Room addition"
+        icon={<AddIcon />}
+        modalLabel="rooms are meant to add order in your house"
+      >
+        <AddRoomForm />
+      </BasicModal>
+      <RoomsList />
+    </main>
   );
 };
 

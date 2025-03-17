@@ -1,16 +1,17 @@
+"use client";
 import { useState, useEffect } from "react";
 
 /**
- * Custom hook to fetch all places from the API
+ * Custom hook to fetch user account information from the API
  *
- * This hook handles the complete data fetching lifecycle including loading and error states.
- * Places represent physical locations where items can be stored.
+ * This hook is client-side only ("use client" directive) and manages the complete
+ * data fetching lifecycle for user account data, including loading and error states.
  *
- * @returns {Object} Object containing places array, loading state, and any error
+ * @returns {Object} Object containing account data, loading state, and any error
  */
-function useGetPlaces() {
-  // State to store the fetched places
-  const [places, setPlaces] = useState([]);
+function useGetAccount() {
+  // State to store the fetched account data
+  const [account, setAccount] = useState([]);
   // Track loading state to show appropriate UI indicators
   const [loading, setLoading] = useState(true);
   // Track any errors that occur during data fetching
@@ -18,15 +19,15 @@ function useGetPlaces() {
 
   useEffect(() => {
     /**
-     * Asynchronous function to fetch places from the API
+     * Asynchronous function to fetch account information from the API
      */
-    async function fetchPlaces() {
+    async function fetchAccount() {
       try {
-        // Make API request to get all places
-        const response = await fetch("/api/place");
+        // Make API request to get account information
+        const response = await fetch("/api/account");
         const data = await response.json();
-        // Update state with received places data
-        setPlaces(data);
+        // Update state with received account data
+        setAccount(data);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         // Store any error that occurs during API call
@@ -37,11 +38,11 @@ function useGetPlaces() {
       }
     }
     // Execute the fetch function when component mounts
-    fetchPlaces();
+    fetchAccount();
   }, []); // Empty dependency array ensures this runs once on component mount
 
   // Return all necessary states for the component to use
-  return { places, loading, error };
+  return { account, loading, error };
 }
 
-export default useGetPlaces;
+export default useGetAccount;
