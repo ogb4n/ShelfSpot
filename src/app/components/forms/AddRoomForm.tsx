@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import createRoom from "@/app/api/room/add/createRoom";
+import createRoom from "@/app/components/requests/createRoom";
 
 export const AddRoomForm: React.FC = () => {
   const [formData, setFormData] = useState({

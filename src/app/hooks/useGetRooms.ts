@@ -23,7 +23,7 @@ function useGetRooms() {
     async function fetchrooms() {
       try {
         // Make API request to get all rooms
-        const response = await fetch("/api/room");
+        const response = await fetch("/api/rooms");
         const data = await response.json();
         // Update state with received rooms data
         setRooms(data);

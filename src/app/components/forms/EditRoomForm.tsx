@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { IconSelector } from "../shared/IconSelector";
 import { type IconName } from "lucide-react/dynamic";
-import editRoom from "@/app/api/room/edit/editRoom";
+import editRoom from "@/app/components/requests/editRoom";
 
 export const EditRoomForm: React.FC<{ roomId: number }> = ({ roomId }) => {
   const [formData, setFormData] = useState({ name: "", icon: "search" });

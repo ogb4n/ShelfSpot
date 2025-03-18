@@ -1,7 +1,7 @@
 "use client";
 /**
  * Module de liste des pièces (RoomsList)
- * 
+ *
  * Ce composant affiche la liste des pièces disponibles dans l'application.
  * Il permet de visualiser, modifier et supprimer des pièces.
  * Chaque pièce est affichée dans une carte avec des boutons d'action.
@@ -16,14 +16,14 @@ import { Room } from "../utils/types"; // Interface définissant la structure d'
 import { BasicModal } from "./shared/BasicModal"; // Composant de fenêtre modale
 import { EditRoomForm } from "./forms/EditRoomForm"; // Formulaire d'édition de pièce
 import theme from "../theme"; // Thème de l'application
-import deleteRoom from "../api/room/delete/deleteRoom"; // Fonction API pour supprimer une pièce
+import deleteRoom from "./requests/deleteRoom"; // Fonction API pour supprimer une pièce
 
 /**
  * Composant d'affichage de la liste des pièces
- * 
+ *
  * Affiche toutes les pièces disponibles avec des options pour les éditer
  * et les supprimer. Utilise le hook useGetRooms pour récupérer les données.
- * 
+ *
  * @returns {JSX.Element} Le composant rendu
  */
 export const RoomsList: React.FC = () => {
@@ -35,7 +35,7 @@ export const RoomsList: React.FC = () => {
   /**
    * Gère la suppression d'une pièce
    * Met à jour l'état local et appelle l'API pour effectuer la suppression
-   * 
+   *
    * @param {number} id - L'identifiant de la pièce à supprimer
    * @returns {Promise} Promesse de suppression
    */
@@ -65,7 +65,7 @@ export const RoomsList: React.FC = () => {
           <div className="flex items-center w-full">
             {/* Nom de la pièce */}
             {room.name}
-            
+
             {/* Modale pour éditer la pièce */}
             <BasicModal
               openLabel={<DriveFileRenameOutlineIcon />}
@@ -77,7 +77,7 @@ export const RoomsList: React.FC = () => {
             >
               <EditRoomForm roomId={room.id} />
             </BasicModal>
-            
+
             {/* Bouton pour supprimer la pièce */}
             <Button
               onClick={() => handleDelete(room.id)}

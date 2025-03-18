@@ -1,6 +1,6 @@
 /**
  * Module de puce de suppression (DeletionChip)
- * 
+ *
  * Ce composant fournit un bouton stylisé en forme de puce (chip) pour les opérations de suppression.
  * Il est principalement utilisé pour supprimer des tags, mais peut être réutilisé pour d'autres
  * éléments nécessitant une suppression via une interface visuelle compacte.
@@ -11,11 +11,11 @@ import Chip from "@mui/joy/Chip"; // Composant de puce interactive
 import { useState } from "react"; // Hook pour la gestion d'état
 import { DeleteForever } from "@/app/utils/icons"; // Icône de suppression
 import theme from "@/app/theme"; // Thème de l'application
-import deleteTag from "@/app/api/tags/delete/deleteTag"; // Fonction API pour supprimer un tag
+import deleteTag from "@/app/components/requests/deleteTag"; // Fonction API pour supprimer un tag
 
 /**
  * Interface définissant les propriétés du composant DeletionChip
- * 
+ *
  * @property {number} tagId - L'identifiant du tag à supprimer
  * @property {Function} onDelete - Fonction de rappel appelée après une suppression réussie
  */
@@ -27,7 +27,7 @@ interface DeletionChipProps {
 /**
  * Composant de puce pour la suppression d'éléments
  * Offre une interface visuelle compacte pour déclencher la suppression d'un tag
- * 
+ *
  * @param {DeletionChipProps} props - Les propriétés du composant
  * @returns {JSX.Element} - Le composant rendu
  */
@@ -41,7 +41,7 @@ export const DeletionChip: React.FC<DeletionChipProps> = ({
   /**
    * Gère l'action de suppression d'un tag
    * Appelle l'API de suppression et met à jour l'interface en conséquence
-   * 
+   *
    * @param {number} id - L'identifiant du tag à supprimer
    */
   const handleDelete = async (id: number) => {
