@@ -110,7 +110,7 @@ export const WalletManager = () => {
                       <WalletTransactions walletId={wallet.id} />
                       <button
                         type="button"
-                        onClick={() => handleDelete(wallet.id)}
+                        onClick={() => handleDelete(parseInt(wallet.id))}
                         className="text-center text-red-500 hover:text-red-800"
                       >
                         Delete this wallet

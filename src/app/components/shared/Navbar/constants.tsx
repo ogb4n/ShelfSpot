@@ -19,9 +19,9 @@ export const tabs = [
     href: "/consumables",
     icon: () => <LocalShippingRoundedIcon />,
   },
-  {
-    label: "Accounting",
-    href: "/accounting",
-    icon: () => <AccountBalanceWalletIcon />,
-  },
+  // {
+  //   label: "Accounting",
+  //   href: "/accounting",
+  //   icon: () => <AccountBalanceWalletIcon />,
+  // },
 ];
