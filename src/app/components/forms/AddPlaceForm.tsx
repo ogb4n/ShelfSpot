@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import useGetRooms from "../../hooks/useGetRooms";
 import { Room } from "@/app/utils/types";
-import createPlace from "@/app/api/place/add/createPlace";
+import createPlace from "@/app/components/requests/createPlace";
 
 export const AddPlaceForm: React.FC = () => {
   const [formData, setFormData] = useState({

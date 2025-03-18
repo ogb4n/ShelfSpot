@@ -23,7 +23,7 @@ function useGetPlaces() {
     async function fetchPlaces() {
       try {
         // Make API request to get all places
-        const response = await fetch("/api/place");
+        const response = await fetch("/api/places");
         const data = await response.json();
         // Update state with received places data
         setPlaces(data);

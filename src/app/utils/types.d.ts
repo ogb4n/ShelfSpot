@@ -15,6 +15,10 @@ interface Item {
   id?: number;
   name: string;
   quantity: number;
+  status: string;
+  roomId: number;
+  placeId?: number;
+  tags: string[];
   room: { id: number; name: string; icon: string } | null;
   place: { id: number; name: string; icon: string; roomId: number } | null;
   status: string | null;

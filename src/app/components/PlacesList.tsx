@@ -1,7 +1,7 @@
 "use client";
 /**
  * Module de liste des emplacements (PlacesList)
- * 
+ *
  * Ce composant affiche la liste des emplacements disponibles dans l'application.
  * Il permet de visualiser, modifier et supprimer des emplacements.
  * Chaque emplacement est affiché dans une carte avec des boutons d'action.
@@ -15,15 +15,15 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import { Place } from "@/app/utils/types"; // Interface définissant la structure d'un emplacement
 import { BasicModal } from "@/app/components/shared/BasicModal"; // Composant de fenêtre modale
 import { EditPlaceForm } from "@/app/components/forms/EditPlaceForm"; // Formulaire d'édition d'emplacement
-import deletePlace from "../api/place/delete/deletePlace"; // Fonction API pour supprimer un emplacement
+import deletePlace from "./requests/deletePlace"; // Fonction API pour supprimer un emplacement
 import theme from "../theme"; // Thème de l'application
 
 /**
  * Composant d'affichage de la liste des emplacements
- * 
+ *
  * Affiche tous les emplacements disponibles avec des options pour les éditer
  * et les supprimer. Utilise le hook useGetPlaces pour récupérer les données.
- * 
+ *
  * @returns {JSX.Element} Le composant rendu
  */
 export const PlacesList: React.FC = () => {
@@ -51,7 +51,7 @@ export const PlacesList: React.FC = () => {
           <div className="flex items-center w-full">
             {/* Nom de l'emplacement */}
             {place.name}
-            
+
             {/* Modale pour éditer l'emplacement */}
             <BasicModal
               openLabel={<DriveFileRenameOutlineIcon />}
@@ -63,7 +63,7 @@ export const PlacesList: React.FC = () => {
             >
               <EditPlaceForm placeId={place.id} />
             </BasicModal>
-            
+
             {/* Bouton pour supprimer l'emplacement */}
             <Button
               onClick={() => deletePlace(place.id, setDeleting)}

@@ -1,7 +1,7 @@
 "use client";
 /**
  * Module de formulaire d'ajout d'articles (AddItemForm)
- * 
+ *
  * Ce composant présente un formulaire permettant d'ajouter un nouvel article à l'inventaire.
  * Il permet de spécifier le nom, la quantité, la pièce, l'emplacement et les tags associés à l'article.
  * Le formulaire inclut également une option pour indiquer si l'article est consommable.
@@ -11,12 +11,12 @@ import useGetRooms from "../../hooks/useGetRooms"; // Hook pour récupérer les 
 import useGetPlaces from "../../hooks/useGetPlaces"; // Hook pour récupérer les emplacements disponibles
 import useGetTags from "../../hooks/useGetTags"; // Hook pour récupérer les tags disponibles
 import { Item, Room, Place, Tag } from "@/app/utils/types"; // Types pour la validation des données
-import createItem from "@/app/api/items/add/createItem"; // Fonction API pour créer un nouvel article
+import createItem from "@/app/components/requests/createItem"; // Fonction API pour créer un nouvel article
 import Switch from "@mui/joy/Switch"; // Composant interrupteur pour l'option consommable
 
 /**
  * Composant de formulaire pour ajouter un nouvel article à l'inventaire
- * 
+ *
  * @returns {JSX.Element} Le formulaire rendu
  */
 export const AddItemForm: React.FC = () => {
@@ -25,6 +25,7 @@ export const AddItemForm: React.FC = () => {
     name: "",
     quantity: 0,
     status: "",
+    roomId: 0,
     room: { id: 0, name: "", icon: "" },
     place: { id: 0, name: "", icon: "", roomId: 0 },
     tags: [] as string[],
@@ -38,7 +39,7 @@ export const AddItemForm: React.FC = () => {
   const { rooms } = useGetRooms(); // Récupère la liste des pièces
   const { places } = useGetPlaces(); // Récupère la liste des emplacements
   const { tags } = useGetTags(); // Récupère la liste des tags
-  
+
   // État pour filtrer les emplacements en fonction de la pièce sélectionnée
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
   // État pour gérer l'option "article consommable"
@@ -62,7 +63,7 @@ export const AddItemForm: React.FC = () => {
   /**
    * Gère les changements dans les champs du formulaire
    * Convertit automatiquement certains champs en nombres si nécessaire
-   * 
+   *
    * @param {React.ChangeEvent<HTMLInputElement | HTMLSelectElement>} e - L'événement de changement
    */
   const handleChange = (
@@ -82,7 +83,7 @@ export const AddItemForm: React.FC = () => {
   /**
    * Gère la sélection/désélection des tags
    * Ajoute ou retire un tag de la liste des tags sélectionnés
-   * 
+   *
    * @param {string} tagId - L'identifiant du tag à ajouter ou retirer
    */
   const handleTagChange = (tagId: string) => {
@@ -97,7 +98,7 @@ export const AddItemForm: React.FC = () => {
   /**
    * Gère la soumission du formulaire
    * Envoie les données à l'API et gère les états de succès ou d'erreur
-   * 
+   *
    * @param {React.FormEvent} e - L'événement de soumission du formulaire
    */
   const handleSubmit = async (e: React.FormEvent) => {

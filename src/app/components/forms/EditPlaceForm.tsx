@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import editPlace from "@/app/api/place/edit/editPlace";
+import editPlace from "@/app/components/requests/editPlace";
 
 export const EditPlaceForm: React.FC<{ placeId: number }> = ({ placeId }) => {
   const [formData, setFormData] = useState({ name: "", icon: "" });

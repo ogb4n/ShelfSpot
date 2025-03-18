@@ -1,7 +1,7 @@
 "use client";
 /**
  * Module de liste des consommables (ConsumablesList)
- * 
+ *
  * Ce composant affiche et gère la liste des articles consommables de l'inventaire.
  * Il permet de visualiser, modifier et supprimer des consommables via une grille de données interactive.
  * Le composant offre des fonctionnalités d'édition en ligne, de tri et de pagination.
@@ -29,8 +29,8 @@ import {
   CancelIcon,
   GradeIcon,
 } from "@/app/utils/icons"; // Icônes pour les actions
-import deleteItem from "@/app/api/items/delete/deleteItem"; // Fonction API pour supprimer un article
-import editItem from "@/app/api/items/edit/editItem"; // Fonction API pour éditer un article
+import deleteItem from "@/app/components/requests/deleteItem"; // Fonction API pour supprimer un article
+import editItem from "@/app/components/requests/editItem"; // Fonction API pour éditer un article
 
 import theme from "@/app/theme"; // Thème de l'application
 import { Item } from "@/app/utils/types"; // Interface définissant la structure d'un article
@@ -51,7 +51,7 @@ declare module "@mui/x-data-grid" {
 /**
  * Composant de barre d'outils personnalisée pour la grille de données
  * Actuellement vide mais peut être étendu pour ajouter des fonctionnalités
- * 
+ *
  * @returns {JSX.Element} Barre d'outils de la grille
  */
 function EditToolbar() {
@@ -61,7 +61,7 @@ function EditToolbar() {
 /**
  * Composant principal de liste des consommables
  * Affiche et gère les articles consommables dans une grille interactive
- * 
+ *
  * @returns {JSX.Element} Le composant rendu
  */
 export const ConsumablesList: React.FC = () => {
@@ -92,10 +92,10 @@ export const ConsumablesList: React.FC = () => {
       if (!response.ok) {
         throw new Error("Failed to fetch items");
       }
-      
+
       // Traitement des données reçues
       const data: Item[] = await response.json();
-      
+
       // Formatage des données pour la grille avec gestion des valeurs nulles
       setRows(
         data.map((item) => ({
@@ -156,7 +156,7 @@ export const ConsumablesList: React.FC = () => {
   /**
    * Gère l'arrêt de l'édition d'une ligne
    * Empêche la sortie automatique du mode édition lors d'un clic en dehors
-   * 
+   *
    * @param {Object} params - Paramètres de l'événement
    * @param {Object} event - L'événement d'arrêt d'édition
    */
@@ -171,7 +171,7 @@ export const ConsumablesList: React.FC = () => {
 
   /**
    * Active le mode édition pour une ligne spécifique
-   * 
+   *
    * @param {GridRowId} id - L'identifiant de la ligne à éditer
    * @returns {Function} Fonction de gestionnaire d'événements
    */
@@ -181,7 +181,7 @@ export const ConsumablesList: React.FC = () => {
 
   /**
    * Sauvegarde les modifications et quitte le mode édition
-   * 
+   *
    * @param {GridRowId} id - L'identifiant de la ligne modifiée
    * @returns {Function} Fonction de gestionnaire d'événements
    */
@@ -194,7 +194,7 @@ export const ConsumablesList: React.FC = () => {
 
   /**
    * Supprime un article consommable après confirmation
-   * 
+   *
    * @param {GridRowId} id - L'identifiant de la ligne à supprimer
    * @returns {Function} Fonction de gestionnaire d'événements asynchrone
    */
@@ -205,7 +205,7 @@ export const ConsumablesList: React.FC = () => {
 
   /**
    * Annule les modifications en cours et quitte le mode édition
-   * 
+   *
    * @param {GridRowId} id - L'identifiant de la ligne en édition
    * @returns {Function} Fonction de gestionnaire d'événements
    */
@@ -225,7 +225,7 @@ export const ConsumablesList: React.FC = () => {
   /**
    * Traite la mise à jour d'une ligne après édition
    * Envoie les modifications à l'API et met à jour l'état local
-   * 
+   *
    * @param {GridRowModel} newRow - Les nouvelles données de la ligne
    * @returns {Promise<GridRowModel>} La ligne mise à jour
    */
@@ -240,7 +240,7 @@ export const ConsumablesList: React.FC = () => {
 
   /**
    * Met à jour le modèle des modes de ligne
-   * 
+   *
    * @param {GridRowModesModel} newRowModesModel - Le nouveau modèle de modes
    */
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
@@ -289,7 +289,7 @@ export const ConsumablesList: React.FC = () => {
       cellClassName: "actions",
       /**
        * Détermine quelles actions afficher selon le mode de la ligne
-       * 
+       *
        * @param {Object} params - Les paramètres de la cellule
        * @returns {Array<JSX.Element>} Les actions à afficher
        */

@@ -1,7 +1,7 @@
 "use client";
 /**
  * Module de liste d'articles de base (BasicList)
- * 
+ *
  * Ce composant fournit une interface complète de gestion des articles sous forme de tableau éditable.
  * Il permet l'affichage, l'édition, la suppression et la mise à jour des articles en temps réel.
  * La grille de données utilise le composant DataGrid de MUI X qui offre des fonctionnalités avancées
@@ -30,8 +30,8 @@ import {
   CancelIcon,
   GradeIcon,
 } from "@/app/utils/icons"; // Icônes personnalisées pour les actions
-import deleteItem from "@/app/api/items/delete/deleteItem"; // Fonction API pour supprimer un article
-import editItem from "@/app/api/items/edit/editItem"; // Fonction API pour éditer un article
+import deleteItem from "@/app/components/requests/deleteItem"; // Fonction API pour supprimer un article
+import editItem from "@/app/components/requests/editItem"; // Fonction API pour éditer un article
 
 import theme from "@/app/theme"; // Thème de l'application
 import { Item } from "@/app/utils/types"; // Type pour les articles
@@ -53,7 +53,7 @@ declare module "@mui/x-data-grid" {
  * Composant de barre d'outils personnalisée pour la grille de données
  * Actuellement vide mais peut être utilisé pour ajouter des boutons ou des fonctionnalités
  * comme "Ajouter un article", "Filtrer", etc.
- * 
+ *
  * @returns {JSX.Element} Barre d'outils de la grille
  */
 function EditToolbar() {
@@ -63,7 +63,7 @@ function EditToolbar() {
 /**
  * Composant principal de liste d'articles
  * Gère l'affichage et l'édition des articles dans une grille de données interactive
- * 
+ *
  * @returns {JSX.Element} Le composant de liste d'articles rendu
  */
 export const BasicList: React.FC = () => {
@@ -122,8 +122,8 @@ export const BasicList: React.FC = () => {
   const fetchRoomsAndPlaces = useCallback(async () => {
     try {
       // Appels API parallèles pour récupérer les pièces et les emplacements
-      const roomsResponse = await fetch("/api/room");
-      const placesResponse = await fetch("/api/place");
+      const roomsResponse = await fetch("/api/rooms");
+      const placesResponse = await fetch("/api/places");
 
       if (!roomsResponse.ok || !placesResponse.ok) {
         throw new Error("Failed to fetch rooms or places");
@@ -154,7 +154,7 @@ export const BasicList: React.FC = () => {
   /**
    * Gère l'arrêt de l'édition d'une ligne
    * Empêche la sortie automatique du mode édition lors d'un clic en dehors
-   * 
+   *
    * @param {Object} params - Paramètres de l'événement
    * @param {Object} event - L'événement d'arrêt d'édition
    */
@@ -169,7 +169,7 @@ export const BasicList: React.FC = () => {
 
   /**
    * Active le mode édition pour une ligne spécifique
-   * 
+   *
    * @param {GridRowId} id - L'identifiant de la ligne à éditer
    * @returns {Function} Fonction de gestionnaire d'événements
    */
@@ -179,7 +179,7 @@ export const BasicList: React.FC = () => {
 
   /**
    * Sauvegarde les modifications et quitte le mode édition
-   * 
+   *
    * @param {GridRowId} id - L'identifiant de la ligne modifiée
    * @returns {Function} Fonction de gestionnaire d'événements
    */
@@ -192,7 +192,7 @@ export const BasicList: React.FC = () => {
 
   /**
    * Supprime un article après confirmation
-   * 
+   *
    * @param {GridRowId} id - L'identifiant de la ligne à supprimer
    * @returns {Function} Fonction de gestionnaire d'événements asynchrone
    */
@@ -203,7 +203,7 @@ export const BasicList: React.FC = () => {
 
   /**
    * Annule les modifications en cours et quitte le mode édition
-   * 
+   *
    * @param {GridRowId} id - L'identifiant de la ligne en édition
    * @returns {Function} Fonction de gestionnaire d'événements
    */
@@ -223,7 +223,7 @@ export const BasicList: React.FC = () => {
   /**
    * Traite la mise à jour d'une ligne après édition
    * Envoie les modifications à l'API et met à jour l'état local
-   * 
+   *
    * @param {GridRowModel} newRow - Les nouvelles données de la ligne
    * @returns {Promise<GridRowModel>} La ligne mise à jour
    */
@@ -238,7 +238,7 @@ export const BasicList: React.FC = () => {
 
   /**
    * Met à jour le modèle des modes de ligne
-   * 
+   *
    * @param {GridRowModesModel} newRowModesModel - Le nouveau modèle de modes
    */
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
@@ -287,7 +287,7 @@ export const BasicList: React.FC = () => {
       cellClassName: "actions",
       /**
        * Détermine quelles actions afficher selon le mode de la ligne
-       * 
+       *
        * @param {Object} params - Les paramètres de la cellule
        * @returns {Array<JSX.Element>} Les actions à afficher
        */
