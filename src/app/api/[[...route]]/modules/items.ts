@@ -138,5 +138,30 @@ export const itemsModule: ApiModule = {
         },
       },
     },
+    {
+      path: "items/consumables",
+      handlers: {
+        GET: async () => {
+          try {
+            const consumables = await prisma.item.findMany({
+              where: {
+                consumable: true,
+              },
+              include: {
+                room: true,
+              },
+            });
+
+            return NextResponse.json(consumables);
+          } catch (error) {
+            console.error("Error fetching consumables:", error);
+            return NextResponse.json(
+              { error: "Failed to fetch consumables." },
+              { status: 500 }
+            );
+          }
+        },
+      },
+    },
   ],
 };
