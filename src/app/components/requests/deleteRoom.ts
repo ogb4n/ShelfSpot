@@ -17,7 +17,7 @@ const deleteRoom = async (
   try {
     // Send API request to delete the room
     const res = await fetch("/api/rooms/delete", {
-      method: "POST", // Note: Using POST for deletion
+      method: "DELETE", // Note: Using POST for deletion
       headers: {
         "Content-Type": "application/json",
       },
