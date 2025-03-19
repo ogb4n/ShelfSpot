@@ -13,6 +13,7 @@ export const itemsModule: ApiModule = {
             const items = await prisma.item.findMany({
               include: {
                 room: true,
+                place: true, // Add this line to include place data
               },
             });
             return NextResponse.json(items);
