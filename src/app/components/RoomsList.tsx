@@ -6,17 +6,23 @@
  * Il permet de visualiser, modifier et supprimer des pièces.
  * Chaque pièce est affichée dans une carte avec des boutons d'action.
  */
-import useGetRooms from "@/app/hooks/useGetRooms"; // Hook personnalisé pour récupérer les pièces
-import Card from "@mui/joy/Card"; // Composant de carte
-import Button from "@mui/joy/Button"; // Composant de bouton
+import useGetRooms from "@/app/hooks/useGetRooms";
+import Card from "@mui/joy/Card";
+import Button from "@mui/joy/Button";
 import React, { useState } from "react";
-import { DeleteOutlineIcon } from "../utils/icons"; // Icône de suppression
-import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"; // Icône d'édition
-import { Room } from "../utils/types"; // Interface définissant la structure d'une pièce
-import { BasicModal } from "./shared/BasicModal"; // Composant de fenêtre modale
-import { EditRoomForm } from "./forms/EditRoomForm"; // Formulaire d'édition de pièce
-import theme from "../theme"; // Thème de l'application
-import deleteRoom from "./requests/deleteRoom"; // Fonction API pour supprimer une pièce
+import { DeleteOutlineIcon } from "../utils/icons";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
+import { Room } from "../utils/types";
+import { BasicModal } from "./shared/BasicModal";
+import { EditRoomForm } from "./forms/EditRoomForm";
+import theme from "../theme";
+import deleteRoom from "./requests/deleteRoom";
+import List from "@mui/joy/List";
+import ListItem from "@mui/joy/ListItem";
+import ListItemContent from "@mui/joy/ListItemContent";
+import Typography from "@mui/joy/Typography";
+import Box from "@mui/joy/Box";
+import Divider from "@mui/joy/Divider";
 
 /**
  * Composant d'affichage de la liste des pièces
@@ -32,13 +38,6 @@ export const RoomsList: React.FC = () => {
   // État pour suivre la pièce en cours de suppression
   const [deleting, setDeleting] = useState<number | null>(null);
 
-  /**
-   * Gère la suppression d'une pièce
-   * Met à jour l'état local et appelle l'API pour effectuer la suppression
-   *
-   * @param {number} id - L'identifiant de la pièce à supprimer
-   * @returns {Promise} Promesse de suppression
-   */
   const handleDelete = async (id: number) => {
     // Marque cette pièce comme étant en cours de suppression
     setDeleting(id);
@@ -58,41 +57,63 @@ export const RoomsList: React.FC = () => {
 
   // Rendu de la liste des pièces
   return (
-    <Card className="p-2 w-2/5">
-      {/* Parcours du tableau des pièces pour les afficher */}
-      {rooms.map((room: Room) => (
-        <Card key={room.id} className="flex justify-between items-center">
-          <div className="flex items-center w-full">
-            {/* Nom de la pièce */}
-            {room.name}
+    <Card className="p-4 w-2/5" variant="outlined">
+      <Typography typography="h5" className="mb-3">
+        Rooms
+      </Typography>
+      <List>
+        {rooms.map((room: Room, index: number) => (
+          <React.Fragment key={room.id}>
+            <ListItem
+              className="py-3"
+              endAction={
+                <Box className="flex gap-2">
+                  {/* Modale pour éditer la pièce */}
+                  <BasicModal
+                    openLabel={<DriveFileRenameOutlineIcon />}
+                    sx={{
+                      backgroundColor:
+                        theme.colorSchemes.dark.palette.primary[500],
+                    }}
+                    modalTitle="Edit room"
+                    modalLabel="Change room details"
+                  >
+                    <EditRoomForm roomId={room.id} />
+                  </BasicModal>
 
-            {/* Modale pour éditer la pièce */}
-            <BasicModal
-              openLabel={<DriveFileRenameOutlineIcon />}
-              sx={{
-                backgroundColor: theme.colorSchemes.dark.palette.primary[500],
-              }}
-              modalTitle="Edit room"
-              modalLabel="Change room details"
+                  {/* Bouton pour supprimer la pièce */}
+                  <Button
+                    onClick={() => handleDelete(room.id)}
+                    variant="soft"
+                    color="danger"
+                    size="sm"
+                    disabled={deleting === room.id}
+                  >
+                    {deleting === room.id ? (
+                      "Suppression..."
+                    ) : (
+                      <DeleteOutlineIcon />
+                    )}
+                  </Button>
+                </Box>
+              }
             >
-              <EditRoomForm roomId={room.id} />
-            </BasicModal>
-
-            {/* Bouton pour supprimer la pièce */}
-            <Button
-              onClick={() => handleDelete(room.id)}
-              sx={{
-                backgroundColor: theme.colorSchemes.dark.palette.danger[500],
-              }}
-              className="ml-2"
-              disabled={deleting === room.id} // Désactivé pendant la suppression
-            >
-              {/* Affichage dynamique en fonction de l'état de suppression */}
-              {deleting === room.id ? "Suppression..." : <DeleteOutlineIcon />}
-            </Button>
-          </div>
-        </Card>
-      ))}
+              <ListItemContent>
+                <Typography>{room.name}</Typography>
+              </ListItemContent>
+            </ListItem>
+            {index < rooms.length - 1 && <Divider />}
+          </React.Fragment>
+        ))}
+        {rooms.length === 0 && (
+          <Typography
+            level="body-sm"
+            className="text-center py-4 text-gray-500"
+          >
+            Aucune pièce disponible
+          </Typography>
+        )}
+      </List>
     </Card>
   );
 };

@@ -17,6 +17,12 @@ import { BasicModal } from "@/app/components/shared/BasicModal"; // Composant de
 import { EditPlaceForm } from "@/app/components/forms/EditPlaceForm"; // Formulaire d'édition d'emplacement
 import deletePlace from "./requests/deletePlace"; // Fonction API pour supprimer un emplacement
 import theme from "../theme"; // Thème de l'application
+import List from "@mui/joy/List";
+import ListItem from "@mui/joy/ListItem";
+import ListItemContent from "@mui/joy/ListItemContent";
+import Typography from "@mui/joy/Typography";
+import Box from "@mui/joy/Box";
+import Divider from "@mui/joy/Divider";
 
 /**
  * Composant d'affichage de la liste des emplacements
@@ -32,6 +38,13 @@ export const PlacesList: React.FC = () => {
   // État pour suivre l'emplacement en cours de suppression
   const [deleting, setDeleting] = useState<number | null>(null);
 
+  const handleDelete = async (id: number) => {
+    // Marque cet emplacement comme étant en cours de suppression
+    setDeleting(id);
+    // Appelle la fonction API pour effectuer la suppression
+    return deletePlace(id, setDeleting);
+  };
+
   // Affichage d'un indicateur de chargement pendant la récupération des données
   if (loading) {
     return <div>Loading...</div>;
@@ -44,41 +57,63 @@ export const PlacesList: React.FC = () => {
 
   // Rendu de la liste des emplacements
   return (
-    <Card className="p-2 w-2/5">
-      {/* Parcours du tableau des emplacements pour les afficher */}
-      {places.map((place: Place) => (
-        <Card key={place.id} className="flex justify-between items-center">
-          <div className="flex items-center w-full">
-            {/* Nom de l'emplacement */}
-            {place.name}
+    <Card className="p-4 w-2/5" variant="outlined">
+      <Typography typography="h5" className="mb-3">
+        Places
+      </Typography>
+      <List>
+        {places.map((place: Place, index: number) => (
+          <React.Fragment key={place.id}>
+            <ListItem
+              className="py-3"
+              endAction={
+                <Box className="flex gap-2">
+                  {/* Modale pour éditer l'emplacement */}
+                  <BasicModal
+                    openLabel={<DriveFileRenameOutlineIcon />}
+                    sx={{
+                      backgroundColor:
+                        theme.colorSchemes.dark.palette.primary[500],
+                    }}
+                    modalTitle="Edit place"
+                    modalLabel="Change place details"
+                  >
+                    <EditPlaceForm placeId={place.id} />
+                  </BasicModal>
 
-            {/* Modale pour éditer l'emplacement */}
-            <BasicModal
-              openLabel={<DriveFileRenameOutlineIcon />}
-              modalTitle="Edit place"
-              modalLabel="Change place details"
-              sx={{
-                backgroundColor: theme.colorSchemes.dark.palette.secondary[500],
-              }}
+                  {/* Bouton pour supprimer l'emplacement */}
+                  <Button
+                    onClick={() => handleDelete(place.id)}
+                    variant="soft"
+                    color="danger"
+                    size="sm"
+                    disabled={deleting === place.id}
+                  >
+                    {deleting === place.id ? (
+                      "Suppression..."
+                    ) : (
+                      <DeleteOutlineIcon />
+                    )}
+                  </Button>
+                </Box>
+              }
             >
-              <EditPlaceForm placeId={place.id} />
-            </BasicModal>
-
-            {/* Bouton pour supprimer l'emplacement */}
-            <Button
-              onClick={() => deletePlace(place.id, setDeleting)}
-              sx={{
-                backgroundColor: theme.colorSchemes.dark.palette.danger[500],
-              }}
-              className="ml-2"
-              disabled={deleting === place.id} // Désactivé pendant la suppression
-            >
-              {/* Affichage dynamique en fonction de l'état de suppression */}
-              {deleting === place.id ? "Suppression..." : <DeleteOutlineIcon />}
-            </Button>
-          </div>
-        </Card>
-      ))}
+              <ListItemContent>
+                <Typography>{place.name}</Typography>
+              </ListItemContent>
+            </ListItem>
+            {index < places.length - 1 && <Divider />}
+          </React.Fragment>
+        ))}
+        {places.length === 0 && (
+          <Typography
+            level="body-sm"
+            className="text-center py-4 text-gray-500"
+          >
+            Aucun emplacement disponible
+          </Typography>
+        )}
+      </List>
     </Card>
   );
 };
