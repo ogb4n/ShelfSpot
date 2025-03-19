@@ -1,38 +1,35 @@
-# Étape 1 : Construire l'application Next.js
-FROM node:18-alpine AS builder
+# Étape 1: Construction de l'image
+FROM node:alpine AS builder
 
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Copier package.json et package-lock.json
-COPY package.json package-lock.json ./
+# Copier package.json et yarn.lock
+COPY package.json yarn.lock ./
 
-# Installer les dépendances en mode production
-RUN npm ci --omit=dev
+# Installer les dépendances
+RUN yarn install
 
-# Copier le code source
+# Copier le reste de l'application
 COPY . .
 
-# Construire l'application Next.js
-RUN npm run build
+# Construire l'application
+RUN yarn build
 
-# Étape 2 : Exécuter l'application avec un serveur léger
-FROM node:18-alpine AS runner
+# Étape 2: Lancement de l'application
+FROM node:alpine
 
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Copier uniquement le build et les dépendances
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
+# Copier les fichiers nécessaires depuis l'étape de construction
+COPY --from=builder /app ./
 
-# Définir la variable d'environnement pour la production
-ENV NODE_ENV=production
+# Installer les dépendances de production
+RUN yarn install --production
 
-# Exposer le port utilisé par Next.js
+# Exposer le port sur lequel l'application tourne
 EXPOSE 3000
 
-# Démarrer l'application
-CMD ["npm", "run", "start"]
+# Commande pour démarrer l'application
+CMD ["yarn", "start"]
