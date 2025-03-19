@@ -109,7 +109,6 @@ export const itemsModule: ApiModule = {
       handlers: {
         POST: async (req) => {
           const body = await req.json();
-
           if (!body || typeof body !== "object") {
             return NextResponse.json(
               { error: "Invalid request body" },
@@ -118,12 +117,23 @@ export const itemsModule: ApiModule = {
           }
 
           try {
+            const place = await prisma.place.findFirstOrThrow({
+              where: { name: body.place },
+            });
+            const room = await prisma.room.findFirstOrThrow({
+              where: { name: body.room },
+            });
             const item = await prisma.item.update({
               where: { id: body.id },
               data: {
                 name: body.name ?? "",
                 quantity: Number(body.quantity) || 0,
-                placeId: body.placeId,
+                place: {
+                  connect: { id: place.id },
+                },
+                room: {
+                  connect: { id: room.id },
+                },
                 status: body.status ?? "",
               },
             });
@@ -150,6 +160,7 @@ export const itemsModule: ApiModule = {
               },
               include: {
                 room: true,
+                place: true, // Add place relationship
               },
             });
 
