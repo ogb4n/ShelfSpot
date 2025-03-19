@@ -9,10 +9,11 @@ import * as z from "zod";
 export const adminModule: ApiModule = {
   routes: [
     {
-      path: "account",
+      path: "admin/accounts",
       handlers: {
         GET: async () => {
           const session = await getServerSession(authOptions);
+          console.log("request have been triggered");
           if (!session?.user?.admin) {
             return NextResponse.json(
               { message: "Access denied" },
@@ -33,7 +34,7 @@ export const adminModule: ApiModule = {
       },
     },
     {
-      path: "account/add",
+      path: "admin/accounts/add",
       handlers: {
         POST: async (req) => {
           const newUserSchema = z.object({
@@ -88,7 +89,7 @@ export const adminModule: ApiModule = {
       },
     },
     {
-      path: "account/delete",
+      path: "admin/accounts/delete",
       handlers: {
         DELETE: async (req) => {
           const userDeleteSchema = z.object({
@@ -129,7 +130,7 @@ export const adminModule: ApiModule = {
       },
     },
     {
-      path: "account/edit",
+      path: "admin/accounts/edit",
       handlers: {
         PUT: async (req) => {
           const userUpdateSchema = z.object({
