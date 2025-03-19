@@ -6,6 +6,7 @@ export async function GET(
   context: { params: { route?: string[] } }
 ) {
   const params = await context.params;
+
   return handleRequest(req, "GET", params);
 }
 
@@ -14,6 +15,7 @@ export async function POST(
   context: { params: { route?: string[] } }
 ) {
   const params = await context.params;
+
   return handleRequest(req, "POST", params);
 }
 
@@ -22,6 +24,7 @@ export async function PUT(
   context: { params: { route?: string[] } }
 ) {
   const params = await context.params;
+
   return handleRequest(req, "PUT", params);
 }
 
@@ -30,6 +33,7 @@ export async function DELETE(
   context: { params: { route?: string[] } }
 ) {
   const params = await context.params;
+
   return handleRequest(req, "DELETE", params);
 }
 

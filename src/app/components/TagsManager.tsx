@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 /**
  * Module de gestionnaire de tags (TagsManager)
- * 
+ *
  * Ce composant permet de gérer les tags (étiquettes) de l'application.
  * Il offre une interface pour visualiser, ajouter et supprimer des tags.
  * Les tags peuvent être utilisés pour catégoriser et rechercher des éléments.
@@ -16,10 +17,10 @@ import { Tag as ITag } from "../utils/types"; // Interface définissant la struc
 
 /**
  * Composant de gestion des tags
- * 
+ *
  * Permet aux utilisateurs de visualiser, créer et supprimer des tags.
  * Utilise un état local synchronisé avec les données du serveur.
- * 
+ *
  * @returns {JSX.Element} Le composant rendu
  */
 export const TagsManager: React.FC = () => {
@@ -41,7 +42,7 @@ export const TagsManager: React.FC = () => {
   /**
    * Gère l'ajout d'un nouveau tag
    * Met à jour l'état local pour refléter immédiatement l'ajout
-   * 
+   *
    * @param {ITag} newTag - Le nouveau tag à ajouter
    */
   const handleAddTag = (newTag: ITag) => {
@@ -51,7 +52,7 @@ export const TagsManager: React.FC = () => {
   /**
    * Gère la suppression d'un tag
    * Met à jour l'état local pour refléter immédiatement la suppression
-   * 
+   *
    * @param {number} tagId - L'identifiant du tag à supprimer
    */
   const handleDeleteTag = (tagId: number) => {
@@ -62,10 +63,10 @@ export const TagsManager: React.FC = () => {
     <Box>
       {/* Titre de la section */}
       <Typography typography={"h4"}>Your tags</Typography>
-      
+
       {/* Liste des tags avec gestion de la suppression */}
       <TagsList tags={tags} onDelete={handleDeleteTag} />
-      
+
       {/* Modale pour ajouter un nouveau tag */}
       <BasicModal openLabel="add tags" modalLabel="" modalTitle="Tag addition">
         <TagAddForm onAddTag={handleAddTag} />
