@@ -122,8 +122,8 @@ export const ConsumablesList: React.FC = () => {
   const fetchRoomsAndPlaces = useCallback(async () => {
     try {
       // Appels API parallèles pour récupérer les pièces et les emplacements
-      const roomsResponse = await fetch("/api/room");
-      const placesResponse = await fetch("/api/place");
+      const roomsResponse = await fetch("/api/rooms");
+      const placesResponse = await fetch("/api/places");
 
       if (!roomsResponse.ok || !placesResponse.ok) {
         throw new Error("Failed to fetch rooms or places");
