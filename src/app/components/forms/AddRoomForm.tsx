@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import createRoom from "@/app/components/requests/createRoom";
 
 export const AddRoomForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -19,29 +20,7 @@ export const AddRoomForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    console.log("Form data being sent:", formData);
-
-    try {
-      const response = await fetch("/api/room/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'ajout de la place");
-      }
-
-      await response.json();
-
-      setSuccess("Room added sucessfully !");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.message);
-    }
+    return createRoom(setSuccess, setError, formData);
   };
 
   return (
@@ -53,7 +32,7 @@ export const AddRoomForm: React.FC = () => {
         type="text"
         id="name"
         required
-        className="w-full border-gray-300 rounded p-2"
+        className="w-full border-gray-300 rounded-sm p-2"
         value={formData.name}
         onChange={handleChange}
       />

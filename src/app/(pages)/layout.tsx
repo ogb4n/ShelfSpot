@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Navbar from "@/app/components/shared/Navbar";
+import Navbar from "@/app/components/shared/Navbar/Navbar";
 import React from "react";
-// import { AuthProvider } from "../contexts/authContext";
+import { getServerSession } from "next-auth";
+import { Providers } from "../contexts/ContextsProviders";
+import { redirect } from "next/navigation";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -15,11 +18,17 @@ export const metadata: Metadata = {
   title: "ShelfSpot",
   description: "Keep an eye on your stocks",
 };
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession();
+
+  if (!session) {
+    redirect("/register");
+    return null;
+  }
   return (
     <html lang="en">
       <body
@@ -30,9 +39,9 @@ export default function RootLayout({
           <header style={{ flexShrink: 0 }}>
             <Navbar />
           </header>
-          {/* <AuthProvider> */}
-          <div style={{ flexGrow: 1, overflow: "auto" }}>{children}</div>
-          {/* </AuthProvider> */}
+          <Providers>
+            <div style={{ flexGrow: 1, overflow: "auto" }}>{children}</div>
+          </Providers>
         </div>
       </body>
     </html>

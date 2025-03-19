@@ -14,17 +14,19 @@ model User {
   name      String?
   admin     Boolean  @default(false)
   createdAt DateTime @default(now())
+  Wallet Wallet[]
 }
 
 model Item {
   id        Int     @id @default(autoincrement())
   name      String  
-  stock     Int     @default(0)
+  quantity     Int     @default(1)
   image     String?
   price     Float?
   sellprice Float?
   status    String?
   tags      String?
+  consumable Boolean @default(false)
   placeId   Int?    
   place     Place?  @relation(fields: [placeId], references: [id]) // Relation many-to-one avec Place
   roomId    Int?
@@ -50,4 +52,34 @@ model Room {
 model Tags {
   id    Int     @id @default(autoincrement())
   name  String  @unique
+  icon  String?
+}
+
+model Wallet {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  balance   Float   @default(0)
+  createdAt DateTime @default(now())
+  Outcome Outcome[]
+  Income Income[]
+}
+
+model Outcome {
+  id        Int     @id @default(autoincrement())
+  walletId  Int
+  wallet    Wallet  @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  amount    Float
+  description String
+  createdAt DateTime @default(now())
+} 
+
+model Income {
+  id        Int     @id @default(autoincrement())
+  walletId  Int
+  wallet    Wallet  @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  amount    Float
+  description String
+  createdAt DateTime @default(now())
 }
