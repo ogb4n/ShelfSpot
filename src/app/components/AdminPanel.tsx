@@ -13,6 +13,7 @@ import {
   Checkbox,
 } from "@mui/joy";
 import { useSession } from "next-auth/react";
+import Loading from "./shared/Loading";
 
 type User = {
   id: string;
@@ -237,9 +238,7 @@ export const AdminPanel = () => {
       )}
 
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-          <CircularProgress />
-        </Box>
+        <Loading />
       ) : (
         <Sheet sx={{ width: "100%", overflow: "auto" }}>
           <Table stickyHeader>

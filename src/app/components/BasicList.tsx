@@ -29,12 +29,12 @@ import {
   SaveIcon,
   CancelIcon,
   GradeIcon,
-} from "@/app/utils/icons"; // Icônes personnalisées pour les actions
+} from "@/app/assets/icons"; // Icônes personnalisées pour les actions
 import deleteItem from "@/app/components/requests/deleteItem"; // Fonction API pour supprimer un article
 import editItem from "@/app/components/requests/editItem"; // Fonction API pour éditer un article
 
-import theme from "@/app/theme"; // Thème de l'application
-import { Item } from "@/app/utils/types"; // Type pour les articles
+import theme from "@/app/assets/theme"; // Thème de l'application
+import { Item } from "@/app/types"; // Type pour les articles
 
 /**
  * Extension du module de la grille de données pour ajouter des propriétés personnalisées

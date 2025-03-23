@@ -10,19 +10,20 @@ import useGetPlaces from "@/app/hooks/useGetPlaces"; // Hook personnalisé pour 
 import Card from "@mui/joy/Card"; // Composant de carte
 import Button from "@mui/joy/Button"; // Composant de bouton
 import React, { useState } from "react";
-import { DeleteOutlineIcon } from "@/app/utils/icons"; // Icône de suppression
+import { DeleteOutlineIcon } from "@/app/assets/icons"; // Icône de suppression
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"; // Icône d'édition
-import { Place } from "@/app/utils/types"; // Interface définissant la structure d'un emplacement
+import { Place } from "@/app/types"; // Interface définissant la structure d'un emplacement
 import { BasicModal } from "@/app/components/shared/BasicModal"; // Composant de fenêtre modale
 import { EditPlaceForm } from "@/app/components/forms/EditPlaceForm"; // Formulaire d'édition d'emplacement
 import deletePlace from "./requests/deletePlace"; // Fonction API pour supprimer un emplacement
-import theme from "../theme"; // Thème de l'application
+import theme from "../assets/theme"; // Thème de l'application
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
 import ListItemContent from "@mui/joy/ListItemContent";
 import Typography from "@mui/joy/Typography";
 import Box from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
+import Loading from "./shared/Loading";
 
 /**
  * Composant d'affichage de la liste des emplacements
@@ -47,7 +48,7 @@ export const PlacesList: React.FC = () => {
 
   // Affichage d'un indicateur de chargement pendant la récupération des données
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   // Affichage d'un message d'erreur si la récupération a échoué

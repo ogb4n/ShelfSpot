@@ -20,7 +20,6 @@ import {
   GridRowModel,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid"; // Composants de grille de données avancée
-import CircularProgress from "@mui/joy/CircularProgress"; // Indicateur de chargement
 import Typography from "@mui/joy/Typography"; // Composant de texte stylisé
 import {
   EditIcon,
@@ -28,12 +27,12 @@ import {
   SaveIcon,
   CancelIcon,
   GradeIcon,
-} from "@/app/utils/icons"; // Icônes pour les actions
+} from "@/app/assets/icons"; // Icônes pour les actions
 import deleteItem from "@/app/components/requests/deleteItem"; // Fonction API pour supprimer un article
 import editItem from "@/app/components/requests/editItem"; // Fonction API pour éditer un article
-
-import theme from "@/app/theme"; // Thème de l'application
-import { Item } from "@/app/utils/types"; // Interface définissant la structure d'un article
+import Loading from "./shared/Loading";
+import theme from "@/app/assets/theme"; // Thème de l'application
+import { Item } from "@/app/types"; // Interface définissant la structure d'un article
 
 /**
  * Extension du module DataGrid pour ajouter des propriétés personnalisées
@@ -349,21 +348,7 @@ export const ConsumablesList: React.FC = () => {
 
   // Affichage de l'indicateur de chargement pendant le chargement des données
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress size="lg" />
-        <Typography level="h3" sx={{ ml: 2 }}>
-          Loading items...
-        </Typography>
-      </div>
-    );
+    return <Loading />;
   }
 
   // Affichage d'un message d'erreur avec possibilité de réessayer

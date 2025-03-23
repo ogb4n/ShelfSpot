@@ -1,4 +1,4 @@
-import { Item } from "@/app/utils/types";
+import { Item } from "@/app/types";
 import * as z from "zod";
 
 const createItem = async (

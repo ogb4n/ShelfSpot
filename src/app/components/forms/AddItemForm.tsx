@@ -10,7 +10,7 @@ import React, { useState, useEffect } from "react";
 import useGetRooms from "../../hooks/useGetRooms"; // Hook pour récupérer les pièces disponibles
 import useGetPlaces from "../../hooks/useGetPlaces"; // Hook pour récupérer les emplacements disponibles
 import useGetTags from "../../hooks/useGetTags"; // Hook pour récupérer les tags disponibles
-import { Item, Room, Place, Tag } from "@/app/utils/types"; // Types pour la validation des données
+import { Item, Room, Place, Tag } from "@/app/types"; // Types pour la validation des données
 import createItem from "@/app/components/requests/createItem"; // Fonction API pour créer un nouvel article
 import Switch from "@mui/joy/Switch"; // Composant interrupteur pour l'option consommable
 

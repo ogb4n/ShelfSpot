@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ApiModule } from "../types";
 import { prisma } from "@/app/utils/prisma";
-import { Item } from "@/app/utils/types";
+import { Item } from "@/app/types";
 
 export const itemsModule: ApiModule = {
   routes: [

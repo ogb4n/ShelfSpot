@@ -10,12 +10,12 @@ import useGetRooms from "@/app/hooks/useGetRooms";
 import Card from "@mui/joy/Card";
 import Button from "@mui/joy/Button";
 import React, { useState } from "react";
-import { DeleteOutlineIcon } from "../utils/icons";
+import { DeleteOutlineIcon } from "../assets/icons";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
-import { Room } from "../utils/types";
+import { Room } from "../types";
 import { BasicModal } from "./shared/BasicModal";
 import { EditRoomForm } from "./forms/EditRoomForm";
-import theme from "../theme";
+import theme from "../assets/theme";
 import deleteRoom from "./requests/deleteRoom";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
@@ -23,6 +23,7 @@ import ListItemContent from "@mui/joy/ListItemContent";
 import Typography from "@mui/joy/Typography";
 import Box from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
+import Loading from "./shared/Loading";
 
 /**
  * Composant d'affichage de la liste des pièces
@@ -47,7 +48,7 @@ export const RoomsList: React.FC = () => {
 
   // Affichage d'un indicateur de chargement pendant la récupération des données
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   // Affichage d'un message d'erreur si la récupération a échoué

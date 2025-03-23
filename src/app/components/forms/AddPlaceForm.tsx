@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import useGetRooms from "../../hooks/useGetRooms";
-import { Room } from "@/app/utils/types";
+import { Room } from "@/app/types";
 import createPlace from "@/app/components/requests/createPlace";
 
 export const AddPlaceForm: React.FC = () => {

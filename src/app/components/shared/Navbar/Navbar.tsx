@@ -16,12 +16,12 @@ import {
   SettingsRoundedIcon,
   LogoutRoundedIcon,
   LuCodepen,
-} from "@/app/utils/icons";
+} from "@/app/assets/icons";
 
 import { redirect } from "next/navigation";
 
 import { useSession, signOut } from "next-auth/react";
-import theme from "@/app/theme";
+import theme from "@/app/assets/theme";
 
 import { tabs } from "./constants";
 

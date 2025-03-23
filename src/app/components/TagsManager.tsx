@@ -13,7 +13,7 @@ import { BasicModal } from "./shared/BasicModal"; // Composant de fenêtre modal
 import { TagsList } from "./TagsList"; // Composant d'affichage de la liste des tags
 import { TagAddForm } from "./forms/TagAddForm"; // Formulaire d'ajout de tag
 import useGetTags from "../hooks/useGetTags"; // Hook personnalisé pour récupérer les tags
-import { Tag as ITag } from "../utils/types"; // Interface définissant la structure d'un tag
+import { Tag as ITag } from "../types"; // Interface définissant la structure d'un tag
 
 /**
  * Composant de gestion des tags

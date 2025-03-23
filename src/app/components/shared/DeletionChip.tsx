@@ -10,8 +10,8 @@ import * as React from "react";
 import Box from "@mui/joy/Box"; // Conteneur flexible
 import Chip from "@mui/joy/Chip"; // Composant de puce interactive
 import { useState } from "react"; // Hook pour la gestion d'état
-import { DeleteForever } from "@/app/utils/icons"; // Icône de suppression
-import theme from "@/app/theme"; // Thème de l'application
+import { DeleteForever } from "@/app/assets/icons"; // Icône de suppression
+import theme from "@/app/assets/theme"; // Thème de l'application
 import deleteTag from "@/app/components/requests/deleteTag"; // Fonction API pour supprimer un tag
 
 /**

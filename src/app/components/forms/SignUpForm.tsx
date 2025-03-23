@@ -12,7 +12,7 @@ import {
   Link,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import theme from "@/app/theme";
+import theme from "@/app/assets/theme";
 
 const FormSchema = z
   .object({

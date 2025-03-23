@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { IconSelector } from "../shared/IconSelector";
 import { type IconName } from "lucide-react/dynamic";
-import { Tag as ITag } from "../../utils/types";
+import { Tag as ITag } from "../../types";
 import createTag from "@/app/components/requests/createTag";
 
 interface TagAddFormProps {

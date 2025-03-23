@@ -1,7 +1,7 @@
 "use client";
 /**
  * Module de carte de gestion (ManageCard)
- * 
+ *
  * Ce composant affiche une carte permettant à l'utilisateur d'accéder
  * à la page de gestion des espaces. Il sert de raccourci visuel et
  * encourageant pour accéder aux fonctionnalités d'organisation.
@@ -13,14 +13,14 @@ import CardActions from "@mui/joy/CardActions"; // Zone d'actions de la carte
 import Typography from "@mui/joy/Typography"; // Composant de texte stylisé
 import Button from "@mui/joy/Button"; // Bouton d'action
 import { redirect } from "next/navigation"; // Fonction de redirection
-import theme from "@/app/theme"; // Thème de l'application
+import theme from "@/app/assets/theme"; // Thème de l'application
 
 /**
  * Composant de carte pour accéder à la gestion des espaces les plus utilisés
- * 
+ *
  * Affiche une carte avec un appel à l'action pour accéder à la page
  * de gestion des espaces (pièces, emplacements, etc.).
- * 
+ *
  * @returns {JSX.Element} Le composant rendu
  */
 export const MostUsedPlacesCard: React.FC = () => {
@@ -39,7 +39,7 @@ export const MostUsedPlacesCard: React.FC = () => {
           </Typography>
         </CardContent>
       </CardContent>
-      
+
       {/* Zone de boutons d'action */}
       <CardActions>
         {/* Bouton pour accéder à la page de gestion */}

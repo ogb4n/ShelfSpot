@@ -1,7 +1,7 @@
 "use client";
 /**
  * Module de carte d'articles (ItemsCard)
- * 
+ *
  * Ce composant affiche une carte résumant le nombre d'articles stockés dans l'inventaire.
  * Il permet également d'accéder rapidement au formulaire d'ajout d'un nouvel article.
  * La carte présente un compteur visuel et un indicateur de chargement.
@@ -14,15 +14,15 @@ import CircularProgress from "@mui/joy/CircularProgress"; // Indicateur circulai
 import Typography from "@mui/joy/Typography"; // Composant de texte stylisé
 import { BasicModal } from "./shared/BasicModal"; // Composant de fenêtre modale
 import { AddItemForm } from "./forms/AddItemForm"; // Formulaire d'ajout d'article
-import { InventoryIcon } from "@/app/utils/icons"; // Icône d'inventaire
-import theme from "../theme"; // Thème de l'application
+import { InventoryIcon } from "@/app/assets/icons"; // Icône d'inventaire
+import theme from "../assets/theme"; // Thème de l'application
 
 /**
  * Composant de carte affichant le nombre d'articles dans l'inventaire
- * 
+ *
  * Affiche une carte avec un indicateur circulaire du nombre d'articles
  * et un bouton pour ajouter un nouvel article via une fenêtre modale.
- * 
+ *
  * @returns {JSX.Element} Le composant rendu
  */
 export const ItemsCard: React.FC = () => {
@@ -73,21 +73,21 @@ export const ItemsCard: React.FC = () => {
         <CircularProgress size="lg" determinate value={itemsCount ?? 0}>
           <InventoryIcon />
         </CircularProgress>
-        
+
         {/* Informations textuelles */}
         <CardContent>
           {/* Titre de la carte */}
           <Typography level="body-md" fontWeight="bold">
             Items stored
           </Typography>
-          
+
           {/* Nombre d'articles ou indicateur de chargement */}
           <Typography level="h2">
             {loading ? "Loading..." : itemsCount}
           </Typography>
         </CardContent>
       </CardContent>
-      
+
       {/* Zone d'actions avec le bouton d'ajout d'article */}
       <CardActions>
         {/* Modale pour ajouter un nouvel article */}

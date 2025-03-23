@@ -4,16 +4,10 @@
  * Ce composant permet aux utilisateurs de visualiser et modifier leurs informations de profil
  */
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Input,
-  CircularProgress,
-  Alert,
-} from "@mui/joy"; // Composants UI de la bibliothèque Joy UI de Material
+import { Box, Typography, Button, Input, Alert } from "@mui/joy"; // Composants UI de la bibliothèque Joy UI de Material
 import { useSession } from "next-auth/react"; // Hook pour accéder à la session utilisateur
 import { ChangePassword } from "./ChangePassword"; // Composant pour modifier le mot de passe
+import Loading from "./shared/Loading"; // Composant d'indicateur de chargement
 
 /**
  * Interface définissant les propriétés du composant AccountManager
@@ -35,21 +29,21 @@ interface AccountManagerProps {
 /**
  * Composant de gestion de compte utilisateur
  * Permet d'afficher et de modifier les informations du profil utilisateur
- * 
+ *
  * @param {AccountManagerProps} props - Les propriétés du composant
  * @returns {JSX.Element} - Le composant rendu
  */
 export const AccountManager = ({ user }: AccountManagerProps) => {
   // Récupération des données de session et de la fonction de mise à jour
   const { data: session, update } = useSession();
-  
+
   // États locaux pour gérer l'interface et les données
   const [editing, setEditing] = useState(false); // Mode édition activé/désactivé
   const [name, setName] = useState(user?.name ?? ""); // Nom d'utilisateur
   const [email, setEmail] = useState(user?.email ?? ""); // Email de l'utilisateur (lecture seule)
-  const [isLoading, setIsLoading] = useState(false); // État de chargement lors des requêtes
+  const [loading, setLoading] = useState(false); // État de chargement lors des requêtes
   const [error, setError] = useState<string | null>(null); // Message d'erreur éventuel
-  
+
   // ID de l'utilisateur extrait de la session pour les requêtes API
   const userId = session?.user?.id;
 
@@ -59,7 +53,7 @@ export const AccountManager = ({ user }: AccountManagerProps) => {
    * Met également à jour la session côté client
    */
   const handleSave = async () => {
-    setIsLoading(true); // Active l'indicateur de chargement
+    setLoading(true); // Active l'indicateur de chargement
     setError(null); // Réinitialise les messages d'erreur
 
     try {
@@ -98,7 +92,7 @@ export const AccountManager = ({ user }: AccountManagerProps) => {
       console.error("Error updating profile:", err);
     } finally {
       // Désactivation de l'indicateur de chargement dans tous les cas
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -120,14 +114,14 @@ export const AccountManager = ({ user }: AccountManagerProps) => {
       <Typography typography={"h4"} mb={2} sx={{ font: "bold" }}>
         Your profile
       </Typography>
-      
+
       {/* Affichage des erreurs si présentes */}
       {error && (
         <Alert color="danger" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
-      
+
       {/* Interface conditionnelle basée sur le mode d'édition */}
       {editing ? (
         <>
@@ -149,21 +143,21 @@ export const AccountManager = ({ user }: AccountManagerProps) => {
               color="primary"
               onClick={handleSave}
               sx={{ mr: 1 }}
-              disabled={isLoading}
-              startDecorator={isLoading ? <CircularProgress size="sm" /> : null}
+              disabled={loading}
+              startDecorator={Loading ? <Loading /> : null}
             >
-              {isLoading ? "Saving..." : "Save"}
+              {loading ? "Saving..." : "Save"}
             </Button>
-            
+
             {/* Composant de changement de mot de passe */}
             <ChangePassword />
-            
+
             {/* Bouton d'annulation */}
             <Button
               variant="outlined"
               color="neutral"
               onClick={handleCancel}
-              disabled={isLoading}
+              disabled={loading}
               sx={{ mt: 2 }}
             >
               Cancel
@@ -177,7 +171,7 @@ export const AccountManager = ({ user }: AccountManagerProps) => {
           <Typography sx={{ mb: 2 }}>
             Email: {email || "Not provided"}
           </Typography>
-          
+
           {/* Bouton pour activer le mode édition */}
           <Button
             variant="soft"
