@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  shelfspot:
+    image: shelfspot
+    container_name: shelfspot
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    command: ["yarn", "start"]
