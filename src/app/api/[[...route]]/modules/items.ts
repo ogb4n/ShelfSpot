@@ -40,8 +40,6 @@ export const itemsModule: ApiModule = {
             const { name, quantity, status, roomId, placeId, tags }: Item =
               await req.json();
 
-            const tagsToString = tags?.join(",");
-
             if (!name || !roomId) {
               return NextResponse.json(
                 { error: "The fields 'name' and 'roomId' are required." },
@@ -66,8 +64,17 @@ export const itemsModule: ApiModule = {
                 name: name,
                 quantity: quantity,
                 status: status,
+                itemTags: {
+                  create: tags?.map((tag) => ({
+                    tag: {
+                      connectOrCreate: {
+                        where: { name: tag },
+                        create: { name: tag },
+                      },
+                    },
+                  })),
+                },
                 roomId: roomId,
-                tags: tagsToString,
                 placeId: placeId,
               },
               include: {
@@ -172,6 +179,62 @@ export const itemsModule: ApiModule = {
               { status: 500 }
             );
           }
+        },
+      },
+    },
+    {
+      path: "favourites",
+      handlers: {
+        GET: async () => {
+          try {
+            const favourites = await prisma.favourite.findMany({});
+
+            return NextResponse.json(favourites);
+          } catch (error) {
+            console.error("Error fetching favourites:", error);
+            return NextResponse.json(
+              { error: "Failed to fetch favourites." },
+              { status: 500 }
+            );
+          }
+        },
+        POST: async (req) => {
+          const { itemId, userId } = await req.json();
+
+          if (!itemId) {
+            return NextResponse.json(
+              { error: "The field 'itemId' is required." },
+              { status: 400 }
+            );
+          }
+
+          if (!userId) {
+            return NextResponse.json(
+              { error: "The field 'userId' is required." },
+              { status: 400 }
+            );
+          }
+
+          const favourite = await prisma.favourite.create({
+            data: {
+              itemId: itemId,
+              userId: userId,
+            },
+          });
+
+          return NextResponse.json(favourite);
+        },
+        DELETE: async (req) => {
+          const { searchParams } = new URL(req.url);
+          const id = parseInt(searchParams.get("id") as string, 10);
+
+          const favourite = await prisma.favourite.delete({
+            where: {
+              id,
+            },
+          });
+
+          return NextResponse.json(favourite);
         },
       },
     },
