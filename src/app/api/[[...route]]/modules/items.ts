@@ -40,8 +40,6 @@ export const itemsModule: ApiModule = {
             const { name, quantity, status, roomId, placeId, tags }: Item =
               await req.json();
 
-            const tagsToString = tags?.join(",");
-
             if (!name || !roomId) {
               return NextResponse.json(
                 { error: "The fields 'name' and 'roomId' are required." },
@@ -66,8 +64,17 @@ export const itemsModule: ApiModule = {
                 name: name,
                 quantity: quantity,
                 status: status,
+                itemTags: {
+                  create: tags?.map((tag) => ({
+                    tag: {
+                      connectOrCreate: {
+                        where: { name: tag },
+                        create: { name: tag },
+                      },
+                    },
+                  })),
+                },
                 roomId: roomId,
-                tags: tagsToString,
                 placeId: placeId,
               },
               include: {
@@ -172,6 +179,92 @@ export const itemsModule: ApiModule = {
               { status: 500 }
             );
           }
+        },
+      },
+    },
+    {
+      path: "favourites",
+      handlers: {
+        GET: async () => {
+          try {
+            const favourites = await prisma.favourite.findMany({
+              include: {
+                item: {
+                  include: {
+                    room: true,
+                    place: true,
+                  },
+                },
+              },
+            });
+
+            return NextResponse.json(favourites);
+          } catch (error) {
+            console.error("Error fetching favourites:", error);
+            return NextResponse.json(
+              { error: "Failed to fetch favourites." },
+              { status: 500 }
+            );
+          }
+        },
+        POST: async (req) => {
+          const { itemId, userName } = await req.json();
+
+          if (!itemId) {
+            return NextResponse.json(
+              { error: "The field 'itemId' is required." },
+              { status: 400 }
+            );
+          }
+
+          const user = await prisma.user.findFirst({
+            where: {
+              name: userName,
+            },
+          });
+
+          if (!user) {
+            return NextResponse.json(
+              { error: "User not found." },
+              { status: 404 }
+            );
+          }
+
+          const favourite = await prisma.favourite.create({
+            data: {
+              itemId: itemId,
+              userId: user.id,
+            },
+          });
+
+          return NextResponse.json(favourite);
+        },
+        DELETE: async (req) => {
+          const { searchParams } = new URL(req.url);
+          const itemId = parseInt(searchParams.get("id") as string, 10);
+
+          // First find the favorite entry by itemId
+          const favorite = await prisma.favourite.findFirst({
+            where: {
+              itemId: itemId,
+            },
+          });
+
+          if (!favorite) {
+            return NextResponse.json(
+              { error: "Favorite not found" },
+              { status: 404 }
+            );
+          }
+
+          // Then delete using the favorite's actual ID
+          const deletedFavorite = await prisma.favourite.delete({
+            where: {
+              id: favorite.id,
+            },
+          });
+
+          return NextResponse.json(deletedFavorite);
         },
       },
     },

@@ -11,7 +11,7 @@ export type Room = {
   icon?: string;
 };
 
-interface Item {
+export interface Item {
   id?: number;
   name: string;
   quantity: number;

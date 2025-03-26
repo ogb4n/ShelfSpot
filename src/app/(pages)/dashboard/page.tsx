@@ -15,7 +15,7 @@ const Dashboard = async () => {
         <MostUsedPlacesCard />
       </div>
       <div className="w-1/2 ml-12">
-        <BasicList />
+        <BasicList session={session} />
       </div>
     </main>
   );

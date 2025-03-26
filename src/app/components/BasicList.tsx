@@ -1,12 +1,4 @@
 "use client";
-/**
- * Module de liste d'articles de base (BasicList)
- *
- * Ce composant fournit une interface complète de gestion des articles sous forme de tableau éditable.
- * Il permet l'affichage, l'édition, la suppression et la mise à jour des articles en temps réel.
- * La grille de données utilise le composant DataGrid de MUI X qui offre des fonctionnalités avancées
- * comme le tri, la pagination, l'édition en ligne, etc.
- */
 import React, { useState, useEffect, useCallback } from "react";
 import {
   GridRowsProp,
@@ -20,9 +12,9 @@ import {
   GridRowId,
   GridRowModel,
   GridRowEditStopReasons,
-} from "@mui/x-data-grid"; // Composants de grille de données avancée de MUI X
-import CircularProgress from "@mui/joy/CircularProgress"; // Indicateur de chargement
-import Typography from "@mui/joy/Typography"; // Composant de texte stylisé
+} from "@mui/x-data-grid";
+import CircularProgress from "@mui/joy/CircularProgress";
+import Typography from "@mui/joy/Typography";
 import {
   EditIcon,
   DeleteIcon,
@@ -30,11 +22,11 @@ import {
   CancelIcon,
   GradeIcon,
 } from "@/app/assets/icons"; // Icônes personnalisées pour les actions
-import deleteItem from "@/app/components/requests/deleteItem"; // Fonction API pour supprimer un article
-import editItem from "@/app/components/requests/editItem"; // Fonction API pour éditer un article
+import deleteItem from "@/app/components/requests/deleteItem";
+import editItem from "@/app/components/requests/editItem";
 
-import theme from "@/app/assets/theme"; // Thème de l'application
-import { Item } from "@/app/types"; // Type pour les articles
+import theme from "@/app/assets/theme";
+import { Item } from "@/app/types";
 
 /**
  * Extension du module de la grille de données pour ajouter des propriétés personnalisées
@@ -66,7 +58,14 @@ function EditToolbar() {
  *
  * @returns {JSX.Element} Le composant de liste d'articles rendu
  */
-export const BasicList: React.FC = () => {
+
+interface BasicListProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  session: any;
+}
+
+export const BasicList: React.FC<BasicListProps> = ({ session }) => {
+  console.log("session", session);
   // État pour stocker les données des lignes du tableau
   const [rows, setRows] = useState<GridRowsProp>([]);
   // État pour gérer les modes d'édition des lignes (vue/édition)
@@ -79,6 +78,7 @@ export const BasicList: React.FC = () => {
   const [rooms, setRooms] = useState<string[]>([]);
   // État pour la liste des emplacements (utilisé dans les sélecteurs)
   const [places, setPlaces] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<Set<GridRowId>>(new Set());
 
   /**
    * Récupère la liste des articles depuis l'API
@@ -145,11 +145,79 @@ export const BasicList: React.FC = () => {
     }
   }, []);
 
+  const fetchUserFavorites = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/favourites`);
+      if (!response.ok) {
+        console.error("Failed to fetch favorites");
+        return;
+      }
+
+      const data = await response.json();
+      // Create a set of favorited item IDs for efficient lookup
+      setFavorites(
+        new Set(data.map((fav: { itemId: GridRowId }) => fav.itemId))
+      );
+    } catch (err) {
+      console.error("Error fetching favorites:", err);
+    }
+  }, []);
+
+  const handleFavClick = (id: GridRowId) => async () => {
+    const userName = session?.user?.name || "Unknown user";
+    const isFavorite = favorites.has(id);
+
+    try {
+      let response;
+
+      if (isFavorite) {
+        // If already favorited, send DELETE request to remove
+        response = await fetch(`/api/favourites?id=${id}`, {
+          method: "DELETE",
+        });
+      } else {
+        // If not favorited, send POST request to add
+        response = await fetch("/api/favourites", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ itemId: id, userName }),
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${isFavorite ? "remove from" : "add to"} favorites`
+        );
+      }
+
+      // Update local state to reflect the change
+      setFavorites((prevFavorites) => {
+        const newFavorites = new Set(prevFavorites);
+        if (isFavorite) {
+          newFavorites.delete(id);
+        } else {
+          newFavorites.add(id);
+        }
+        return newFavorites;
+      });
+
+      console.log(isFavorite ? "Removed from favorites" : "Added to favorites");
+    } catch (err) {
+      console.error(
+        `Error ${isFavorite ? "removing from" : "adding to"} favorites:`,
+        err
+      );
+    }
+  };
+
   // Effet pour charger les données initiales au montage du composant
   useEffect(() => {
-    fetchItems(); // Chargement des articles
-    fetchRoomsAndPlaces(); // Chargement des pièces et emplacements
-  }, [fetchItems, fetchRoomsAndPlaces]);
+    fetchItems();
+    fetchRoomsAndPlaces();
+    fetchUserFavorites();
+  }, [fetchItems, fetchRoomsAndPlaces, fetchUserFavorites]);
 
   /**
    * Gère l'arrêt de l'édition d'une ligne
@@ -333,12 +401,11 @@ export const BasicList: React.FC = () => {
             color="inherit"
           />,
           <GridActionsCellItem
-            key={`cancel-${id}`}
+            key={`fav-${id}`}
             icon={<GradeIcon />}
-            label="Cancel"
-            className="textPrimary"
-            onClick={handleCancelClick(id)}
-            color="inherit"
+            label="favourite"
+            onClick={handleFavClick(id)}
+            color={favorites.has(id) ? "primary" : "inherit"}
           />,
         ];
       },

@@ -15,7 +15,6 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import { Room } from "../types";
 import { BasicModal } from "./shared/BasicModal";
 import { EditRoomForm } from "./forms/EditRoomForm";
-import theme from "../assets/theme";
 import deleteRoom from "./requests/deleteRoom";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
@@ -74,7 +73,7 @@ export const RoomsList: React.FC = () => {
                     openLabel={<DriveFileRenameOutlineIcon />}
                     sx={{
                       backgroundColor:
-                        theme.colorSchemes.dark.palette.primary[500],
+                        "#f3f4f6" /* Couleur de fond de l'icône */,
                     }}
                     modalTitle="Edit room"
                     modalLabel="Change room details"

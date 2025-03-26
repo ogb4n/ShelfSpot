@@ -14,72 +14,78 @@ model User {
   name      String?
   admin     Boolean  @default(false)
   createdAt DateTime @default(now())
-  Wallet Wallet[]
+  favourites Favourite[]
+  
+  @@index([email]) // Ajout d'index pour accélération des recherches par email
 }
 
 model Item {
   id        Int     @id @default(autoincrement())
   name      String  
-  quantity     Int     @default(1)
+  quantity  Int     @default(1)
   image     String?
   price     Float?
   sellprice Float?
   status    String?
-  tags      String?
   consumable Boolean @default(false)
   placeId   Int?    
-  place     Place?  @relation(fields: [placeId], references: [id]) // Relation many-to-one avec Place
+  place     Place?  @relation(fields: [placeId], references: [id], onDelete: SetNull)
   roomId    Int?
-  room      Room?   @relation("RoomToItems", fields: [roomId], references: [id]) // Relation avec Room
+  room      Room?   @relation("RoomToItems", fields: [roomId], references: [id], onDelete: SetNull)
+  favourites Favourite[]
+  itemTags  ItemTag[] // Relation pour les tags normalisés
+  
+  @@index([placeId]) // Index pour accélérer les recherches par lieu
+  @@index([roomId])  // Index pour accélérer les recherches par pièce
 }
 
 model Place {
   id     Int     @id @default(autoincrement())
   name   String
   icon   String?
-  roomId Int?    // ID de la pièce parent
-  room   Room?   @relation("RoomToPlaces", fields: [roomId], references: [id])
-  items  Item[]  // Relation one-to-many avec Item
+  roomId Int?    
+  room   Room?   @relation("RoomToPlaces", fields: [roomId], references: [id], onDelete: SetNull)
+  items  Item[]  
+  
+  @@index([roomId]) // Optimisation pour les recherches par room
+  @@unique([name, roomId]) // Éviter les doublons de noms dans la même pièce
 }
+
 model Room {
   id     Int     @id @default(autoincrement())
-  name   String
+  name   String  @unique // Éviter les pièces en double
   icon   String?
-  places Place[] @relation("RoomToPlaces") // Lieux associés à cette pièce
-  items  Item[]  @relation("RoomToItems")  // Objets directement dans la pièce
+  places Place[] @relation("RoomToPlaces")
+  items  Item[]  @relation("RoomToItems")
 }
 
-model Tags {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique
-  icon  String?
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  icon     String?
+  itemTags ItemTag[] // Relation many-to-many normalisée
 }
 
-model Wallet {
-  id        Int     @id @default(autoincrement())
-  name      String  @unique
-  userId    Int
-  user      User    @relation(fields: [userId], references: [id])
-  balance   Float   @default(0)
-  createdAt DateTime @default(now())
-  Outcome Outcome[]
-  Income Income[]
+model ItemTag {
+  id     Int  @id @default(autoincrement())
+  itemId Int
+  tagId  Int
+  item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@unique([itemId, tagId]) // Éviter les duplications de relations
+  @@index([tagId])
+  @@index([itemId])
 }
 
-model Outcome {
-  id        Int     @id @default(autoincrement())
-  walletId  Int
-  wallet    Wallet  @relation(fields: [walletId], references: [id], onDelete: Cascade)
-  amount    Float
-  description String
-  createdAt DateTime @default(now())
-} 
-
-model Income {
-  id        Int     @id @default(autoincrement())
-  walletId  Int
-  wallet    Wallet  @relation(fields: [walletId], references: [id], onDelete: Cascade)
-  amount    Float
-  description String
-  createdAt DateTime @default(now())
+model Favourite {
+  id     Int    @id @default(autoincrement())
+  userId Int
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId Int
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, itemId]) // Un utilisateur ne peut ajouter qu'une fois un item aux favoris
+  @@index([userId])
+  @@index([itemId])
 }
