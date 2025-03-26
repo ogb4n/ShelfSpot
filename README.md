@@ -1,32 +1,32 @@
 ## ShelfSpot
 
-ShelfSpot est une application auto-hébergée conçue avec Next.js, imaginée pour vous aider à suivre et gérer l'inventaire de tous les articles de votre maison. Inspirée par Grocy, cette application offre une solution complète pour organiser et surveiller vos biens domestiques.
+ShelfSpot is a self-hosted application built with Next.js, designed to help you track and manage the inventory of all items in your home. Inspired by Grocy, this application offers a comprehensive solution for organizing and monitoring your household goods.
 
-## Fonctionnalités
+## Features
 
-- Gestion de l'inventaire : Ajoutez, modifiez et supprimez des articles avec des détails tels que la catégorie, la quantité, la date d'achat, la date d'expiration, etc.
-- Suivi des emplacements : Attribuez des emplacements spécifiques à chaque article pour une organisation optimale.
-- Alertes de stock : Recevez des notifications lorsque les niveaux de stock sont bas ou que des articles approchent de leur date d'expiration. _( pas encore implémenté )_
-- Historique des transactions : Consultez l'historique complet des ajouts, retraits et modifications d'articles. _( pas encore implémenté )_
-- Gestion des utilisateurs : Créez des comptes utilisateurs avec des rôles et des permissions personnalisés.
-- Interface conviviale : Profitez d'une interface utilisateur intuitive et responsive, accessible depuis n'importe quel appareil connecté à votre réseau domestique.
+- Inventory Management: Add, edit, and delete items with details such as category, quantity, purchase date, expiration date, etc.
+- Location Tracking: Assign specific locations to each item for optimal organization.
+- Stock Alerts: Receive notifications when stock levels are low or items are approaching their expiration date. _( not yet implemented )_
+- Transaction History: View the complete history of additions, removals, and modifications of items. _( not yet implemented )_
+- User Management: Create user accounts with customized roles and permissions.
+- User-friendly Interface: Enjoy an intuitive and responsive user interface, accessible from any device connected to your home network.
 
-## Prérequis
+## Prerequisites
 
-- Docker : Assurez-vous que Docker est installé sur votre machine. Vous pouvez télécharger Docker Desktop depuis le [site officiel](https://docs.docker.com/get-started/).
+- Docker: Make sure Docker is installed on your machine. You can download Docker Desktop from the [official website](https://docs.docker.com/get-started/).
 
-## Installation et Exécution
+## Installation and Setup
 
-- Cloner le dépôt :
+- Clone the repository:
 
 ```bash
 git clone https://github.com/ogb4n/shelfspot.git
 cd shelfspot
 ```
 
-- Configurer l'application :
+- Configure the application:
 
-dans config > default.json
+in config > default.json
 
 ```json
 {
@@ -36,40 +36,40 @@ dans config > default.json
 }
 ```
 
-- Copiez le fichier .env.example en .env :
+- Copy the .env.example file to .env:
 
 ```bash
 cp .env.example .env
 ```
 
-Modifiez le fichier .env pour y renseigner les informations nécessaires, telles que les variables d'environnement pour la base de données, les clés API, etc.
+Modify the .env file to include the necessary information, such as environment variables for the database, API keys, etc.
 
-Construire l'image Docker :
+Build the Docker image:
 
 ```bash
 docker build -t gestionnaire-stock-domestique .
 ```
 
-Exécuter le conteneur Docker :
+Run the Docker container:
 
-> Remarque : Le port 3000 est utilisé par défaut. Si vous souhaitez utiliser un autre port, modifiez le fichier Dockerfile en conséquence et ajustez le fichier docker-compose ci-dessous.
+> Note: Port 3000 is used by default. If you wish to use another port, modify the Dockerfile accordingly and adjust the docker-compose file used below.
 
 #### Docker Compose
 
-La méthode recommandée pour exécuter l'application ShelfSpot est d'utiliser Docker Compose. Une fois que vous avez construit l'image docker localement ou que vous avez récupéré l'image à partir de Docker Hub rendez-vous à l'interieur du dossier et effectuez la commande suivante :
+The recommended method for running the ShelfSpot application is to use Docker Compose. Once you have built the docker image locally or retrieved the image from Docker Hub, go inside the folder and run the following command:
 
 ```bash
 docker-compose up -d
 ```
 
-Accéder à l'application :
+Access the application:
 
-Ouvrez votre navigateur et rendez-vous sur http://localhost:3000 (ou le port que vous avez spécifié) pour accéder à l'application.
+Open your browser and go to http://localhost:3000 (or the port you specified) to access the application.
 
-Créez le premier compte qui sera automatiquement défini comme administrateur.
+Create the first account which will automatically be set as administrator.
 
-Vous êtes partis pour faire l'inventaire de votre maison !
+You're all set to inventory your home!
 
 ### Contribution
 
-Les contributions sont les bienvenues ! Si vous souhaitez signaler un bug, proposer une nouvelle fonctionnalité ou soumettre une pull request, veuillez consulter le fichier CONTRIBUTING.md pour plus de détails.
+Contributions are welcome! If you want to report a bug, suggest a new feature, or submit a pull request, please refer to the CONTRIBUTING.md file for more details.
