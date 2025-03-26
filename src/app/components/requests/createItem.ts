@@ -9,11 +9,9 @@ const createItem = async (
   const schema = z.object({
     name: z.string().min(1),
     stock: z.number().int().positive(),
-    price: z.number().int().positive(),
     status: z.string().min(1),
     roomId: z.number().int().positive(),
     placeId: z.number().int().positive(),
-    icon: z.string().min(1),
     tags: z.array(z.string()).optional(),
   });
   schema.parse(formData);

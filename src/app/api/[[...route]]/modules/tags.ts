@@ -9,7 +9,7 @@ export const tagsModule: ApiModule = {
       handlers: {
         GET: async () => {
           try {
-            const tags = await prisma.tags.findMany();
+            const tags = await prisma.tag.findMany();
             return NextResponse.json(tags);
           } catch (error) {
             console.error("Error fetching tags:", error);
@@ -32,9 +32,7 @@ export const tagsModule: ApiModule = {
         POST: async (req) => {
           try {
             const body = await req.json();
-            console.log("Parsed body:", body);
-
-            const tag = await prisma.tags.create({
+            const tag = await prisma.tag.create({
               data: {
                 name: body.name,
               },
@@ -64,7 +62,7 @@ export const tagsModule: ApiModule = {
             const body = await req.json();
             console.log("Parsed body:", body);
 
-            const tag = await prisma.tags.delete({
+            const tag = await prisma.tag.delete({
               where: {
                 id: body.id,
               },
