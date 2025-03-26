@@ -16,7 +16,6 @@ import { Place } from "@/app/types"; // Interface définissant la structure d'un
 import { BasicModal } from "@/app/components/shared/BasicModal"; // Composant de fenêtre modale
 import { EditPlaceForm } from "@/app/components/forms/EditPlaceForm"; // Formulaire d'édition d'emplacement
 import deletePlace from "./requests/deletePlace"; // Fonction API pour supprimer un emplacement
-import theme from "../assets/theme"; // Thème de l'application
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
 import ListItemContent from "@mui/joy/ListItemContent";
@@ -74,7 +73,7 @@ export const PlacesList: React.FC = () => {
                     openLabel={<DriveFileRenameOutlineIcon />}
                     sx={{
                       backgroundColor:
-                        theme.colorSchemes.dark.palette.primary[500],
+                        "#f3f4f6" /* Couleur de fond de l'icône */,
                     }}
                     modalTitle="Edit place"
                     modalLabel="Change place details"

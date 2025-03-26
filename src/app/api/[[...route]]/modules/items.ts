@@ -187,7 +187,16 @@ export const itemsModule: ApiModule = {
       handlers: {
         GET: async () => {
           try {
-            const favourites = await prisma.favourite.findMany({});
+            const favourites = await prisma.favourite.findMany({
+              include: {
+                item: {
+                  include: {
+                    room: true,
+                    place: true,
+                  },
+                },
+              },
+            });
 
             return NextResponse.json(favourites);
           } catch (error) {
@@ -199,7 +208,7 @@ export const itemsModule: ApiModule = {
           }
         },
         POST: async (req) => {
-          const { itemId, userId } = await req.json();
+          const { itemId, userName } = await req.json();
 
           if (!itemId) {
             return NextResponse.json(
@@ -208,17 +217,23 @@ export const itemsModule: ApiModule = {
             );
           }
 
-          if (!userId) {
+          const user = await prisma.user.findFirst({
+            where: {
+              name: userName,
+            },
+          });
+
+          if (!user) {
             return NextResponse.json(
-              { error: "The field 'userId' is required." },
-              { status: 400 }
+              { error: "User not found." },
+              { status: 404 }
             );
           }
 
           const favourite = await prisma.favourite.create({
             data: {
               itemId: itemId,
-              userId: userId,
+              userId: user.id,
             },
           });
 
@@ -226,15 +241,30 @@ export const itemsModule: ApiModule = {
         },
         DELETE: async (req) => {
           const { searchParams } = new URL(req.url);
-          const id = parseInt(searchParams.get("id") as string, 10);
+          const itemId = parseInt(searchParams.get("id") as string, 10);
 
-          const favourite = await prisma.favourite.delete({
+          // First find the favorite entry by itemId
+          const favorite = await prisma.favourite.findFirst({
             where: {
-              id,
+              itemId: itemId,
             },
           });
 
-          return NextResponse.json(favourite);
+          if (!favorite) {
+            return NextResponse.json(
+              { error: "Favorite not found" },
+              { status: 404 }
+            );
+          }
+
+          // Then delete using the favorite's actual ID
+          const deletedFavorite = await prisma.favourite.delete({
+            where: {
+              id: favorite.id,
+            },
+          });
+
+          return NextResponse.json(deletedFavorite);
         },
       },
     },
