@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import { IconSelector } from "../shared/IconSelector";
 import { type IconName } from "lucide-react/dynamic";
-import { Tag as ITag } from "../../utils/types";
+import { Tag as ITag } from "../../types";
+import createTag from "@/app/components/requests/createTag";
 
 interface TagAddFormProps {
   onAddTag: (newTag: ITag) => void;
@@ -37,47 +38,28 @@ export const TagAddForm: React.FC<TagAddFormProps> = ({ onAddTag }) => {
 
     setError(null);
     setSuccess(null);
-
-    try {
-      const response = await fetch("/api/tags/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'ajout du tag");
-      }
-
-      const newTag = await response.json();
-
-      onAddTag(newTag); // Mise à jour de la liste des tags
-      setSuccess("Tag ajouté avec succès !");
-      setFormData({ name: "", icon: "home" }); // Réinitialisation du formulaire
-    } catch (err) {
-      setError((err as Error).message);
-    }
+    const response = await createTag(formData, setError, setSuccess);
+    onAddTag(response);
+    setFormData({ name: "", icon: "home" });
   };
 
   return (
     <form onSubmit={handleSubmit} className="p-4 space-y-4">
       <label htmlFor="name" className="font-semibold">
-        Nom du tag
+        Tag name
       </label>
       <input
         type="text"
         id="name"
         required
-        className="w-full border-gray-300 rounded p-2"
+        className="w-full border-gray-300 rounded-sm p-2"
         value={formData.name}
         onChange={handleChange}
       />
 
       <IconSelector selectedIcon={formData.icon} onSelect={handleIconSelect} />
 
-      <button type="submit">Créer un tag</button>
+      <button type="submit">Create a tag</button>
 
       {error && <p className="text-red-500">{error}</p>}
       {success && <p className="text-green-500">{success}</p>}

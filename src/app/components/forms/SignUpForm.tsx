@@ -12,6 +12,7 @@ import {
   Link,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
+import theme from "@/app/assets/theme";
 
 const FormSchema = z
   .object({
@@ -78,7 +79,7 @@ const SignUpForm = () => {
       </Typography>
       <Box display="flex" flexDirection="column" gap={2}>
         <TextField
-          label="Nom d'utilisateur"
+          label="Username"
           variant="outlined"
           {...form.register("username")}
           error={!!form.formState.errors.username}
@@ -86,7 +87,7 @@ const SignUpForm = () => {
           fullWidth
         />
         <TextField
-          label="Adresse email"
+          label="Email Address"
           variant="outlined"
           {...form.register("email")}
           error={!!form.formState.errors.email}
@@ -94,7 +95,7 @@ const SignUpForm = () => {
           fullWidth
         />
         <TextField
-          label="Mot de passe"
+          label="Password"
           type="password"
           variant="outlined"
           {...form.register("password")}
@@ -103,7 +104,7 @@ const SignUpForm = () => {
           fullWidth
         />
         <TextField
-          label="Confirmation du mot de passe"
+          label="Confirm your password"
           type="password"
           variant="outlined"
           {...form.register("confirmPassword")}
@@ -115,16 +116,18 @@ const SignUpForm = () => {
       <Button
         type="submit"
         variant="contained"
-        color="primary"
         fullWidth
-        sx={{ mt: 3 }}
+        sx={{
+          backgroundColor: theme.colorSchemes.dark.palette.primary[500],
+          mt: 3,
+        }}
       >
         Register
       </Button>
       <Divider sx={{ my: 2 }}>or</Divider>
       <Typography textAlign="center" variant="body2">
         I already have an account to{" "}
-        <Link href="/login" underline="hover" color="primary">
+        <Link href="/login" underline="hover">
           log in
         </Link>
       </Typography>

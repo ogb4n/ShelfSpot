@@ -1,17 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { geistSans, geistMono, roboto } from "../../public/fonts/googlefonts";
 import "./globals.css";
 import React from "react";
-import { Providers } from "./contexts/ContextsProviders";
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { Providers } from "./utils/providers";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import Sheet from "@mui/joy/Sheet";
 
 export const metadata: Metadata = {
   title: "ShelfSpot",
@@ -26,15 +19,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased`}
         style={{ margin: 0, padding: 0, overflow: "hidden" }}
       >
-        <div style={{ display: "flex", height: "100vh" }}>
-          <header style={{ flexShrink: 0 }}></header>
-          <div style={{ flexGrow: 1, overflow: "auto" }}>
+        <Sheet style={{ display: "flex", height: "100vh" }}>
+          <Sheet style={{ flexGrow: 1, overflow: "auto" }}>
             <Providers>{children}</Providers>
-          </div>
-        </div>
+          </Sheet>
+        </Sheet>
       </body>
     </html>
   );
