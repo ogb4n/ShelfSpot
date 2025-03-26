@@ -13,10 +13,21 @@ export const itemsModule: ApiModule = {
             const items = await prisma.item.findMany({
               include: {
                 room: true,
-                place: true, // Add this line to include place data
+                place: true,
+                itemTags: {
+                  include: {
+                    tag: true,
+                  },
+                },
               },
             });
-            return NextResponse.json(items);
+
+            const transformedItems = items.map((item) => ({
+              ...item,
+              tags: item.itemTags.map((itemTag) => itemTag.tag.name),
+              itemTags: undefined,
+            }));
+            return NextResponse.json(transformedItems);
           } catch (error) {
             console.error("Error fetching items:", error);
 

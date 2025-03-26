@@ -36,19 +36,13 @@ export const AddItemForm: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
 
   // Utilisation des hooks personnalisés pour récupérer les données
-  const { rooms } = useGetRooms(); // Récupère la liste des pièces
-  const { places } = useGetPlaces(); // Récupère la liste des emplacements
-  const { tags } = useGetTags(); // Récupère la liste des tags
+  const { rooms } = useGetRooms();
+  const { places } = useGetPlaces();
+  const { tags } = useGetTags();
 
-  // État pour filtrer les emplacements en fonction de la pièce sélectionnée
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
-  // État pour gérer l'option "article consommable"
   const [checked, setChecked] = React.useState<boolean>(false);
 
-  /**
-   * Effet pour filtrer les emplacements en fonction de la pièce sélectionnée
-   * Lorsqu'une pièce est choisie, seuls les emplacements associés à cette pièce sont affichés
-   */
   useEffect(() => {
     if (formData.room?.id) {
       const filtered = places.filter(
@@ -70,16 +64,41 @@ export const AddItemForm: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { id, value } = e.target;
+    const numValue =
+      id === "stock" || id === "price" || id === "roomId" || id === "placeId"
+        ? Number(value)
+        : value;
 
-    setFormData((prev) => ({
-      ...prev,
-      [id]:
-        id === "stock" || id === "price" || id === "roomId" || id === "placeId"
-          ? Number(value)
-          : value,
-    }));
+    setFormData((prev) => {
+      const updatedData = { ...prev, [id]: numValue };
+
+      // Additional updates for select fields
+      if (id === "roomId") {
+        // Find the selected room object
+        const selectedRoom = rooms.find(
+          (room: Room) => room.id === Number(value)
+        ) ?? { id: 0, name: "", icon: "" };
+        updatedData.room = selectedRoom;
+        // Reset place when room changes
+        updatedData.place = { id: 0, name: "", icon: "", roomId: 0 };
+        updatedData.placeId = 0;
+      }
+
+      if (id === "placeId") {
+        // Find the selected place object
+        const selectedPlace = places.find(
+          (place: Place) => place.id === Number(value)
+        ) ?? { id: 0, name: "", icon: "", roomId: 0 };
+        updatedData.place = selectedPlace;
+      }
+
+      if (id === "stock") {
+        updatedData.quantity = Number(value);
+      }
+
+      return updatedData;
+    });
   };
-
   /**
    * Gère la sélection/désélection des tags
    * Ajoute ou retire un tag de la liste des tags sélectionnés
@@ -139,7 +158,7 @@ export const AddItemForm: React.FC = () => {
         type="number"
         value={formData.quantity}
         onChange={handleChange}
-        min="0"
+        min="1"
         required
         className="border border-gray-300 rounded-sm p-2 w-full"
       />
@@ -181,25 +200,41 @@ export const AddItemForm: React.FC = () => {
         ))}
       </select>
 
+      <label htmlFor="status" className="font-semibold">
+        Status
+      </label>
+      <input
+        id="status"
+        type="text"
+        value={formData.status}
+        onChange={handleChange}
+        required
+        className="border border-gray-300 rounded-sm p-2 w-full"
+      />
+
       {/* Sélection de tags avec interface visuelle */}
       <label className="font-semibold" htmlFor="tags">
         Tags
       </label>
       <div className="flex flex-wrap gap-2">
-        {tags.map((tag: Tag) => (
-          <button
-            key={tag.id}
-            type="button"
-            className={`px-3 py-1 rounded ${
-              formData.tags?.includes(tag.name)
-                ? "bg-blue-500 text-white" // Style pour les tags sélectionnés
-                : "bg-gray-200" // Style pour les tags non sélectionnés
-            }`}
-            onClick={() => handleTagChange(tag.name)}
-          >
-            {tag.name}
-          </button>
-        ))}
+        {Array.isArray(tags) && tags.length > 0 ? (
+          tags.map((tag: Tag) => (
+            <button
+              key={tag.id}
+              type="button"
+              className={`px-3 py-1 rounded ${
+                formData.tags?.includes(tag.name)
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200"
+              }`}
+              onClick={() => handleTagChange(tag.name)}
+            >
+              {tag.name}
+            </button>
+          ))
+        ) : (
+          <p className="text-gray-500">No tags available</p>
+        )}
       </div>
 
       {/* Option pour indiquer si l'article est consommable */}

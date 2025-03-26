@@ -98,13 +98,14 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       const data: Item[] = await response.json();
       // Formatage des données pour la grille avec gestion des valeurs nulles
       setRows(
-        data.map((item) => ({
+        data.map((item: Item) => ({
           id: item.id,
           name: item.name,
           quantity: item.quantity,
           place: item.place ? item.place.name : "N/A", // Gestion des emplacements manquants
           room: item.room ? item.room.name : "N/A", // Gestion des pièces manquantes
-          status: item.status ?? "N/A", // Gestion du statut manquant
+          status: item.status ?? "N/A",
+          tags: item.tags.join(", "),
         }))
       );
     } catch (err) {
