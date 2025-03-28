@@ -6,6 +6,7 @@ import { RoomsList } from "@/app/components/RoomsList";
 import AddIcon from "@mui/icons-material/Add";
 import { AddPlaceForm } from "@/app/components/forms/AddPlaceForm";
 import { AddRoomForm } from "@/app/components/forms/AddRoomForm";
+import { AddContainerForm } from "@/app/components/forms/AddContainerForm";
 
 const Manage = () => {
   return (
@@ -29,6 +30,16 @@ const Manage = () => {
         <AddRoomForm />
       </BasicModal>
       <RoomsList />
+
+      <Divider />
+      <BasicModal
+        openLabel="add containers"
+        modalTitle="Container addition"
+        icon={<AddIcon />}
+        modalLabel="containers are boxes to put your things in"
+      >
+        <AddContainerForm />
+      </BasicModal>
     </main>
   );
 };
