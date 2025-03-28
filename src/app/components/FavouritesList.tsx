@@ -20,9 +20,11 @@ interface FavouriteItem {
     name: string;
     quantity: number;
     place?: {
+      id: number;
       name: string;
     };
     room?: {
+      id: number;
       name: string;
     };
   };
