@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { ApiModule } from "../types";
 import { prisma } from "@/app/utils/prisma";
+import * as z from "zod";
 
-export const ContainersModule: ApiModule = {
+export const containersModule: ApiModule = {
   routes: [
     {
       path: "containers",
@@ -28,18 +29,48 @@ export const ContainersModule: ApiModule = {
             );
           }
         },
+        DELETE: async (req) => {
+          const containerDeleteSchema = z.object({
+            id: z.number(),
+          });
+          try {
+            const { id } = containerDeleteSchema.parse(await req.json());
+            const existingContainer = await prisma.container.findUnique({
+              where: { id },
+            });
+            if (!existingContainer) {
+              return NextResponse.json(
+                { message: "Container not found" },
+                { status: 404 }
+              );
+            }
+            await prisma.container.delete({ where: { id } });
+            return NextResponse.json({
+              message: "Container deleted successfully",
+            });
+          } catch (error: unknown) {
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "An unknown error occurred";
+            return NextResponse.json(
+              { message: errorMessage },
+              { status: 500 }
+            );
+          }
+        },
         POST: async (req) => {
           try {
             const body = await req.json();
 
-            if (body.roomId) {
-              const roomExists = await prisma.room.findUnique({
-                where: { id: body.roomId },
+            if (body.placeId) {
+              const placeExists = await prisma.place.findUnique({
+                where: { id: body.placeId },
               });
 
-              if (!roomExists) {
+              if (!placeExists) {
                 return NextResponse.json(
-                  { error: `Room with id ${body.roomId} does not exist` },
+                  { error: `Place with id ${body.placeId} does not exist` },
                   { status: 400 }
                 );
               }
@@ -48,24 +79,62 @@ export const ContainersModule: ApiModule = {
             const container = await prisma.container.create({
               data: {
                 name: body.name,
-                roomId: body.roomId,
+                icon: body.icon || "box",
                 placeId: body.placeId,
               },
             });
 
             return NextResponse.json(container);
-          } catch (error) {
-            console.error("Error creating container:", error);
-
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } catch (error: any) {
+            console.error("Error in POST /api/containers/add:", error);
             return NextResponse.json(
               {
-                error: "Failed to create container.",
-                details:
-                  error instanceof Error ? error.message : "Unknown error",
+                error: "Failed to process the request",
+                details: error.message,
               },
-              { status: 500 }
+              {
+                status: 500,
+              }
             );
           }
+        },
+      },
+    },
+    {
+      path: "containers/edit",
+      handlers: {
+        POST: async (req) => {
+          const body = await req.json();
+
+          if (!body || typeof body !== "object") {
+            return NextResponse.json(
+              { error: "Invalid request body" },
+              { status: 400 }
+            );
+          }
+
+          const containerId = body.id;
+          const containerExists = await prisma.container.findUnique({
+            where: { id: containerId },
+          });
+
+          if (!containerExists) {
+            return NextResponse.json(
+              { error: `Container with ID ${containerId} does not exist.` },
+              { status: 404 }
+            );
+          }
+
+          const updatedContainer = await prisma.container.update({
+            where: { id: containerId },
+            data: {
+              name: body.name,
+              icon: body.icon,
+            },
+          });
+
+          return NextResponse.json(updatedContainer);
         },
       },
     },

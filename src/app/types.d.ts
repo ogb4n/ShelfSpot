@@ -11,6 +11,14 @@ export type Room = {
   icon?: string;
 };
 
+export type Container = {
+  name: string;
+  id: number;
+  icon: string;
+  placeId?: number;
+  roomId?: number;
+};
+
 export interface Item {
   id?: number;
   name: string;
