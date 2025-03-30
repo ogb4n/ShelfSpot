@@ -1,34 +1,61 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import useGetPlaces from "../../hooks/useGetPlaces";
-import { Place, Room } from "@/app/types";
-import createContainer from "@/app/components/requests/createContainer";
 import { IconSelector } from "../shared/IconSelector";
 import { type IconName } from "lucide-react/dynamic";
+import editContainer from "@/app/components/requests/editContainer";
 import useGetRooms from "@/app/hooks/useGetRooms";
+import useGetPlaces from "@/app/hooks/useGetPlaces";
+import { Place, Room } from "@/app/types";
+import Loading from "../shared/Loading";
 
-/**
- * Form component for adding new containers
- *
- * @returns {JSX.Element} Rendered form component
- */
-export const AddContainerForm: React.FC = () => {
+interface EditContainerFormProps {
+  containerId: number;
+}
+
+export const EditContainerForm: React.FC<EditContainerFormProps> = ({
+  containerId,
+}) => {
   const [formData, setFormData] = useState({
     name: "",
-    placeId: 0,
-    roomId: 0,
     icon: "box" as IconName,
+    roomId: 0,
+    placeId: 0,
   });
-
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const { places } = useGetPlaces();
+  const [loading, setLoading] = useState(true);
   const { rooms } = useGetRooms();
-
-  // Use filteredPlaces as state that updates when roomId changes
+  const { places } = useGetPlaces();
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
 
-  // Update filteredPlaces whenever roomId or places change
+  // Fetch container data when component mounts
+  useEffect(() => {
+    const fetchContainer = async () => {
+      try {
+        const response = await fetch(`/api/containers?id=${containerId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch container data");
+        }
+
+        const container = await response.json();
+        setFormData({
+          name: container.name || "",
+          icon: container.icon || "box",
+          roomId: container.roomId || 0,
+          placeId: container.placeId || 0,
+        });
+      } catch (error) {
+        setError("Failed to load container data");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContainer();
+  }, [containerId]);
+
+  // Filter places when room changes
   useEffect(() => {
     if (formData.roomId) {
       const placesInRoom = places.filter(
@@ -46,7 +73,7 @@ export const AddContainerForm: React.FC = () => {
     } else {
       setFilteredPlaces([]);
     }
-  }, [formData.roomId, formData.placeId, places]);
+  }, [formData.roomId, places]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -57,10 +84,9 @@ export const AddContainerForm: React.FC = () => {
       ...prev,
       [id]:
         id === "roomId" || id === "placeId"
-          ? (() => {
-              const numericValue = value ? Number(value) : 0;
-              return numericValue;
-            })()
+          ? value
+            ? Number(value)
+            : 0
           : value,
     }));
   };
@@ -77,12 +103,23 @@ export const AddContainerForm: React.FC = () => {
     setError(null);
     setSuccess(null);
 
-    await createContainer(
-      (msg) => setSuccess(msg),
-      (msg) => setError(msg),
-      formData
-    );
+    try {
+      await editContainer(containerId, {
+        name: formData.name,
+        icon: formData.icon,
+        placeId: formData.placeId,
+        roomId: formData.roomId,
+      });
+      setSuccess("Container updated successfully!");
+    } catch (err) {
+      setError("Error updating container");
+      console.error(err);
+    }
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <form onSubmit={handleSubmit} className="p-4 space-y-4">
@@ -106,7 +143,6 @@ export const AddContainerForm: React.FC = () => {
         value={formData.roomId || ""}
         onChange={handleChange}
         className="w-full border-gray-300 rounded-sm p-2"
-        required
       >
         <option value="">Select a room</option>
         {rooms.map((room: Room) => (
@@ -124,8 +160,7 @@ export const AddContainerForm: React.FC = () => {
         value={formData.placeId || ""}
         onChange={handleChange}
         className="w-full border-gray-300 rounded-sm p-2"
-        required
-        disabled={!formData.roomId} // Disable if no room is selected
+        disabled={!formData.roomId}
       >
         <option value="">Select a place</option>
         {filteredPlaces.map((place: Place) => (
@@ -140,9 +175,9 @@ export const AddContainerForm: React.FC = () => {
 
       <button
         type="submit"
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
       >
-        Add Container
+        Save Changes
       </button>
 
       {error && <p className="text-red-500">{error}</p>}

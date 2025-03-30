@@ -42,6 +42,7 @@ import { EditPlaceForm } from "@/app/components/forms/EditPlaceForm";
 import { AddRoomForm } from "@/app/components/forms/AddRoomForm";
 import { AddPlaceForm } from "@/app/components/forms/AddPlaceForm";
 import { AddContainerForm } from "@/app/components/forms/AddContainerForm";
+import { EditContainerForm } from "@/app/components/forms/EditContainerForm";
 
 // API Functions
 import deleteRoom from "@/app/components/requests/deleteRoom";
@@ -283,8 +284,7 @@ export const Manager: React.FC = () => {
                               modalTitle="Edit container"
                               modalLabel="Change container details"
                             >
-                              ui
-                              {/* <EditContainerForm containerId={container.id} /> */}
+                              <EditContainerForm containerId={container.id} />
                             </BasicModal>
 
                             <Button

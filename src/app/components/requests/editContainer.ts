@@ -1,6 +1,6 @@
 const editContainer = async (
   id: number,
-  formData: { name: string; icon: string }
+  formData: { name: string; icon: string; placeId?: number; roomId?: number }
 ) => {
   try {
     const res = await fetch("/api/containers/edit", {

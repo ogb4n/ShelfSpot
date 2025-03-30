@@ -131,6 +131,8 @@ export const containersModule: ApiModule = {
             data: {
               name: body.name,
               icon: body.icon,
+              placeId: body.placeId || undefined,
+              roomId: body.roomId || undefined,
             },
           });
 
