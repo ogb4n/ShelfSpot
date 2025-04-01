@@ -27,6 +27,8 @@ export interface Item {
   roomId: number;
   placeId?: number;
   tags: string[];
+  containerId?: number;
+  container?: { id: number; name: string; icon: string; placeId: number; roomId: number; } | null;
   room: { id: number; name: string; icon: string } | null;
   place: { id: number; name: string; icon: string; roomId: number } | null;
   status: string | null;

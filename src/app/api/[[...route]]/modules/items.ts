@@ -14,6 +14,7 @@ export const itemsModule: ApiModule = {
               include: {
                 room: true,
                 place: true,
+                container: true,
                 itemTags: {
                   include: {
                     tag: true,
@@ -91,6 +92,7 @@ export const itemsModule: ApiModule = {
               include: {
                 room: true,
                 place: true,
+                container: true,
               },
             });
 
@@ -151,6 +153,9 @@ export const itemsModule: ApiModule = {
                 },
                 room: {
                   connect: { id: room.id },
+                },
+                container: {
+                  connect: { id: body.containerId },
                 },
                 status: body.status ?? "",
               },

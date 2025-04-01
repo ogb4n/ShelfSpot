@@ -79,6 +79,8 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
   // État pour la liste des emplacements (utilisé dans les sélecteurs)
   const [places, setPlaces] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<Set<GridRowId>>(new Set());
+  // État pour la liste des containers (utilisé dans les sélecteurs)
+  const [containers, setContainers] = useState<string[]>([]);
 
   /**
    * Récupère la liste des articles depuis l'API
@@ -104,6 +106,7 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
           quantity: item.quantity,
           place: item.place ? item.place.name : "N/A", // Gestion des emplacements manquants
           room: item.room ? item.room.name : "N/A", // Gestion des pièces manquantes
+          container: item.container?.name ?? "N/A", // Gestion des containers manquants
           status: item.status ?? "N/A",
           tags: item.tags.join(", "),
         }))
@@ -125,15 +128,23 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       // Appels API parallèles pour récupérer les pièces et les emplacements
       const roomsResponse = await fetch("/api/rooms");
       const placesResponse = await fetch("/api/places");
+      const containersResponse = await fetch("/api/containers");
 
-      if (!roomsResponse.ok || !placesResponse.ok) {
+      if (!roomsResponse.ok || !placesResponse.ok || !containersResponse.ok) {
+        console.error("Failed to fetch rooms or places");
+        setError("Failed to load rooms or places. Please try again.");
         throw new Error("Failed to fetch rooms or places");
       }
 
       // Traitement des données reçues
       const roomsData = await roomsResponse.json();
       const placesData = await placesResponse.json();
+      const containersData = await containersResponse.json();
 
+      // Extraction des noms des containers pour la liste déroulante
+      setContainers(
+        containersData.map((container: { id: number; name: string }) => container.name)
+      );
       // Extraction des noms des pièces et emplacements pour les listes déroulantes
       setRooms(
         roomsData.map((room: { id: number; name: string }) => room.name)
@@ -163,6 +174,7 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       console.error("Error fetching favorites:", err);
     }
   }, []);
+
 
   const handleFavClick = (id: GridRowId) => async () => {
     const userName = session?.user?.name || "Unknown user";
@@ -342,6 +354,14 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       type: "singleSelect", // Menu déroulant avec sélection unique
       editable: true,
       valueOptions: rooms, // Options de sélection basées sur les pièces disponibles
+    },
+    {
+      field: "container",
+      headerName: "Container",
+      flex: 1,
+      type: "singleSelect", // Menu déroulant avec sélection unique
+      editable: true,
+      valueOptions: containers, // Options de sélection basées sur les containers disponibles
     },
     {
       field: "tags",
