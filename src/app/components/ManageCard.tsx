@@ -13,7 +13,6 @@ import CardActions from "@mui/joy/CardActions"; // Zone d'actions de la carte
 import Typography from "@mui/joy/Typography"; // Composant de texte stylisé
 import Button from "@mui/joy/Button"; // Bouton d'action
 import { redirect } from "next/navigation"; // Fonction de redirection
-import theme from "@/app/assets/theme"; // Thème de l'application
 
 /**
  * Composant de carte pour accéder à la gestion des espaces les plus utilisés
@@ -27,7 +26,6 @@ export const MostUsedPlacesCard: React.FC = () => {
   return (
     <Card
       variant="solid"
-      sx={{ backgroundColor: theme.colorSchemes.dark.palette.secondary[500] }}
       invertedColors
     >
       {/* Contenu principal de la carte */}

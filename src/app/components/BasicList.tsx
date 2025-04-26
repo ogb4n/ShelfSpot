@@ -25,8 +25,7 @@ import {
 import deleteItem from "@/app/components/requests/deleteItem";
 import editItem from "@/app/components/requests/editItem";
 
-import theme from "@/app/assets/theme";
-import { Item } from "@/app/types";
+import { Item, Room, Place } from "@/app/types";
 
 /**
  * Extension du module de la grille de données pour ajouter des propriétés personnalisées
@@ -66,29 +65,28 @@ interface BasicListProps {
 
 export const BasicList: React.FC<BasicListProps> = ({ session }) => {
   console.log("session", session);
-  // État pour stocker les données des lignes du tableau
   const [rows, setRows] = useState<GridRowsProp>([]);
-  // État pour gérer les modes d'édition des lignes (vue/édition)
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-  // État pour le chargement des données
   const [loading, setLoading] = useState<boolean>(true);
-  // État pour les messages d'erreur
   const [error, setError] = useState<string | null>(null);
-  // État pour la liste des pièces (utilisé dans les sélecteurs)
   const [rooms, setRooms] = useState<string[]>([]);
-  // État pour la liste des emplacements (utilisé dans les sélecteurs)
   const [places, setPlaces] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<Set<GridRowId>>(new Set());
-  // État pour la liste des containers (utilisé dans les sélecteurs)
   const [containers, setContainers] = useState<string[]>([]);
+
+  // Nouveaux états pour stocker les objets complets et gérer les relations
+  const [roomsData, setRoomsData] = useState<Room[]>([]);
+  const [placesData, setPlacesData] = useState<Place[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  const [filteredPlaces, setFilteredPlaces] = useState<string[]>([]);
 
   /**
    * Récupère la liste des articles depuis l'API
    * Transforme les données pour les adapter au format de la grille
    */
   const fetchItems = useCallback(async () => {
-    setLoading(true); // Active l'indicateur de chargement
-    setError(null); // Réinitialise les erreurs précédentes
+    setLoading(true);
+    setError(null);
 
     try {
       // Appel à l'API pour récupérer les articles
@@ -98,17 +96,22 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       }
       // Traitement des données reçues
       const data: Item[] = await response.json();
+
+      console.log("Raw item data:", data); // Debugging to see the actual data structure
+
       // Formatage des données pour la grille avec gestion des valeurs nulles
       setRows(
         data.map((item: Item) => ({
           id: item.id,
           name: item.name,
           quantity: item.quantity,
-          place: item.place ? item.place.name : "N/A", // Gestion des emplacements manquants
-          room: item.room ? item.room.name : "N/A", // Gestion des pièces manquantes
-          container: item.container?.name ?? "N/A", // Gestion des containers manquants
+          place: item.place ? item.place.name : "N/A",
+          room: item.room ? item.room.name : "N/A",
+          container: item.container ? item.container.name : "N/A", // Use correct property access
           status: item.status ?? "N/A",
-          tags: item.tags.join(", "),
+          tags: Array.isArray(item.tags) ? item.tags.join(", ") : "",
+          // Store the container ID to use when updating items
+          containerId: item.container?.id,
         }))
       );
     } catch (err) {
@@ -137,9 +140,13 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       }
 
       // Traitement des données reçues
-      const roomsData = await roomsResponse.json();
-      const placesData = await placesResponse.json();
+      const roomsDataFetched = await roomsResponse.json();
+      const placesDataFetched = await placesResponse.json();
       const containersData = await containersResponse.json();
+
+      // Stockage des données complètes
+      setRoomsData(roomsDataFetched);
+      setPlacesData(placesDataFetched);
 
       // Extraction des noms des containers pour la liste déroulante
       setContainers(
@@ -147,10 +154,10 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       );
       // Extraction des noms des pièces et emplacements pour les listes déroulantes
       setRooms(
-        roomsData.map((room: { id: number; name: string }) => room.name)
+        roomsDataFetched.map((room: { id: number; name: string }) => room.name)
       );
       setPlaces(
-        placesData.map((place: { id: number; name: string }) => place.name)
+        placesDataFetched.map((place: { id: number; name: string }) => place.name)
       );
     } catch (err) {
       console.error("Error fetching rooms or places:", err);
@@ -231,6 +238,52 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
     fetchRoomsAndPlaces();
     fetchUserFavorites();
   }, [fetchItems, fetchRoomsAndPlaces, fetchUserFavorites]);
+
+  // Effet pour filtrer les places en fonction de la room sélectionnée
+  useEffect(() => {
+    if (selectedRoom) {
+      // Trouver l'ID de la room sélectionnée
+      const selectedRoomObj = roomsData.find(room => room.name === selectedRoom);
+      if (selectedRoomObj) {
+        // Filtrer les places qui appartiennent à cette room
+        const placesInRoom = placesData
+          .filter(place => place.roomId === selectedRoomObj.id)
+          .map(place => place.name);
+
+        setFilteredPlaces(placesInRoom);
+      }
+    } else {
+      // Si aucune room n'est sélectionnée, on montre toutes les places
+      setFilteredPlaces(places);
+    }
+  }, [selectedRoom, roomsData, placesData, places]);
+
+  // Fonction pour mettre à jour la room sélectionnée lorsqu'on modifie une cellule de la grille
+  const handleCellEditStart = (params: any) => {
+    if (params.field === 'room') {
+      // On sauvegarde la room actuelle pour pouvoir filtrer les places
+      const rowIndex = rows.findIndex((row) => row.id === params.id);
+      if (rowIndex !== -1) {
+        const currentRow = rows[rowIndex];
+        setSelectedRoom(currentRow.room);
+      }
+    }
+  };
+
+  // Fonction pour gérer la modification d'une cellule
+  const handleCellEditCommit = (params: any) => {
+    if (params.field === 'room') {
+      // Quand on change la room, on met à jour le filtre des places
+      setSelectedRoom(params.value);
+
+      // Si c'est une nouvelle valeur de room, on réinitialise la place dans la ligne
+      const rowIndex = rows.findIndex((row) => row.id === params.id);
+      if (rowIndex !== -1) {
+        const updatedRow = { ...rows[rowIndex], room: params.value, place: "N/A" };
+        setRows(rows.map(row => row.id === params.id ? updatedRow : row));
+      }
+    }
+  };
 
   /**
    * Gère l'arrêt de l'édition d'une ligne
@@ -345,7 +398,7 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       flex: 1,
       editable: true,
       type: "singleSelect", // Menu déroulant avec sélection unique
-      valueOptions: places, // Options de sélection basées sur les emplacements disponibles
+      valueOptions: selectedRoom ? filteredPlaces : places, // Affichage des emplacements filtrés ou tous les emplacements
     },
     {
       field: "room",
@@ -390,7 +443,7 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
               key={`save-${id}`}
               icon={<SaveIcon />}
               label="Save"
-              sx={{ color: theme.colorSchemes.dark.palette.primary[500] }}
+              sx={{ color: "#335C67" }} // Couleur fixe au lieu du thème
               onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
@@ -458,7 +511,7 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       <div style={{ textAlign: "center", marginTop: "20px" }}>
         <Typography
           level="h3"
-          sx={{ color: theme.colorSchemes.dark.palette.danger[500] }}
+          sx={{ color: "#9E2A2B" }} // Couleur fixe au lieu du thème
         >
           {error}
         </Typography>
@@ -486,6 +539,42 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
         slots={{ toolbar: EditToolbar }} // Personnalisation de la barre d'outils
         slotProps={{
           toolbar: { setRows, setRowModesModel }, // Propriétés passées à la barre d'outils
+        }}
+        onCellEditStart={handleCellEditStart}
+        onCellEditCommit={handleCellEditCommit}
+        sx={{
+          border: `1px solid #424242`,
+          '& .MuiDataGrid-root': {
+            backgroundColor: '#181818',
+            color: '#fff',
+          },
+          '& .MuiDataGrid-cell': {
+            borderColor: '#424242',
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: '#232323',
+            color: '#fff',
+            borderColor: '#424242',
+          },
+          '& .MuiDataGrid-columnSeparator': {
+            color: '#424242',
+          },
+          '& .MuiDataGrid-footerContainer': {
+            backgroundColor: '#202020',
+            borderColor: '#424242',
+          },
+          '& .MuiTablePagination-root': {
+            color: '#fff',
+          },
+          '& .MuiDataGrid-row.Mui-selected': {
+            backgroundColor: '#1976d2',
+            '&:hover': {
+              backgroundColor: '#1565c0',
+            },
+          },
+          '& .MuiDataGrid-row:hover': {
+            backgroundColor: '#232323',
+          },
         }}
         initialState={{
           pagination: {

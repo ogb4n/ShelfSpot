@@ -15,7 +15,7 @@ import Typography from "@mui/joy/Typography"; // Composant de texte stylisé
 import { BasicModal } from "./shared/BasicModal"; // Composant de fenêtre modale
 import { AddItemForm } from "./forms/AddItemForm"; // Formulaire d'ajout d'article
 import { InventoryIcon } from "@/app/assets/icons"; // Icône d'inventaire
-import theme from "../assets/theme"; // Thème de l'application
+// Suppression de l'import du thème
 
 /**
  * Composant de carte affichant le nombre d'articles dans l'inventaire
@@ -64,7 +64,7 @@ export const ItemsCard: React.FC = () => {
   return (
     <Card
       variant="solid"
-      sx={{ backgroundColor: theme.colorSchemes.dark.palette.primary[500] }}
+      sx={{ backgroundColor: "#335C67" }} // Couleur fixe au lieu du thème
       invertedColors
     >
       {/* Zone principale de contenu avec l'indicateur et les informations */}

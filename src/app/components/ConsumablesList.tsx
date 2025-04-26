@@ -31,7 +31,6 @@ import {
 import deleteItem from "@/app/components/requests/deleteItem"; // Fonction API pour supprimer un article
 import editItem from "@/app/components/requests/editItem"; // Fonction API pour éditer un article
 import Loading from "./shared/Loading";
-import theme from "@/app/assets/theme"; // Thème de l'application
 import { Item } from "@/app/types"; // Interface définissant la structure d'un article
 
 /**
@@ -302,7 +301,7 @@ export const ConsumablesList: React.FC = () => {
               key={`save-${id}`}
               icon={<SaveIcon />}
               label="Save"
-              sx={{ color: theme.colorSchemes.dark.palette.primary[500] }}
+              sx={{ color: "#335C67" }} // Couleur fixe au lieu du thème
               onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
@@ -357,7 +356,7 @@ export const ConsumablesList: React.FC = () => {
       <div style={{ textAlign: "center", marginTop: "20px" }}>
         <Typography
           level="h3"
-          sx={{ color: theme.colorSchemes.dark.palette.danger[500] }}
+          sx={{ color: "#9E2A2B" }} // Couleur fixe au lieu du thème
         >
           {error}
         </Typography>
@@ -395,6 +394,40 @@ export const ConsumablesList: React.FC = () => {
         }}
         pageSizeOptions={[5]} // Options de taille de page disponibles
         disableRowSelectionOnClick // Désactive la sélection au clic
+        sx={{
+          border: `1px solid #424242`,
+          '& .MuiDataGrid-root': {
+            backgroundColor: '#181818',
+            color: '#fff',
+          },
+          '& .MuiDataGrid-cell': {
+            borderColor: '#424242',
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: '#232323',
+            color: '#fff',
+            borderColor: '#424242',
+          },
+          '& .MuiDataGrid-columnSeparator': {
+            color: '#424242',
+          },
+          '& .MuiDataGrid-footerContainer': {
+            backgroundColor: '#202020',
+            borderColor: '#424242',
+          },
+          '& .MuiTablePagination-root': {
+            color: '#fff',
+          },
+          '& .MuiDataGrid-row.Mui-selected': {
+            backgroundColor: '#1976d2',
+            '&:hover': {
+              backgroundColor: '#1565c0',
+            },
+          },
+          '& .MuiDataGrid-row:hover': {
+            backgroundColor: '#232323',
+          },
+        }}
       />
     </div>
   );

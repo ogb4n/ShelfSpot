@@ -132,131 +132,113 @@ export const AddItemForm: React.FC = () => {
 
   // Rendu du formulaire avec tous ses champs et options
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="p-4 bg-white shadow-sm rounded-sm space-y-4"
-    >
-      {/* Champ pour le nom de l'article */}
-      <label htmlFor="name" className="font-semibold">
+    <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+      <label htmlFor="name" className="font-semibold text-gray-200">
         Item Name
       </label>
       <input
-        id="name"
         type="text"
+        id="name"
+        name="name"
+        className="w-full bg-[#2a2a2a] text-white border-gray-600 rounded-sm p-2"
         value={formData.name}
         onChange={handleChange}
         required
-        className="border border-gray-300 rounded-sm p-2 w-full"
       />
 
-      {/* Champ pour la quantité en stock */}
-      <label htmlFor="stock" className="font-semibold">
-        Stock
+      <label htmlFor="quantity" className="font-semibold text-gray-200">
+        Quantity
       </label>
       <input
-        id="stock"
         type="number"
+        id="quantity"
+        name="quantity"
+        className="w-full bg-[#2a2a2a] text-white border-gray-600 rounded-sm p-2"
         value={formData.quantity}
         onChange={handleChange}
-        min="1"
         required
-        className="border border-gray-300 rounded-sm p-2 w-full"
+        min="1"
       />
 
-      {/* Sélecteur de pièce avec options dynamiques */}
-      <label htmlFor="roomId" className="font-semibold">
+      <label htmlFor="roomId" className="font-semibold text-gray-200">
         Room
       </label>
       <select
         id="roomId"
-        value={formData.room?.id}
-        onChange={handleChange}
-        className="border border-gray-300 rounded-sm p-2 w-full"
+        name="roomId"
+        className="w-full bg-[#2a2a2a] text-white border-gray-600 rounded-sm p-2"
+        value={formData.roomId || ""}
+        onChange={handleSelectChange}
+        required
       >
         <option value="">Select a room</option>
-        {rooms.map((room: Room) => (
+        {rooms.map((room) => (
           <option key={room.id} value={room.id}>
             {room.name}
           </option>
         ))}
       </select>
 
-      {/* Sélecteur d'emplacement filtré selon la pièce choisie */}
-      <label htmlFor="placeId" className="font-semibold">
+      <label htmlFor="placeId" className="font-semibold text-gray-200">
         Place
       </label>
       <select
         id="placeId"
-        value={formData.place?.id}
-        onChange={handleChange}
-        className="border border-gray-300 rounded-sm p-2 w-full"
-        disabled={!formData.room?.id} // Désactivé tant qu'une pièce n'est pas sélectionnée
+        name="placeId"
+        className="w-full bg-[#2a2a2a] text-white border-gray-600 rounded-sm p-2"
+        value={formData.placeId || ""}
+        onChange={handleSelectChange}
+        required
+        disabled={!formData.roomId}
       >
         <option value="">Select a place</option>
-        {filteredPlaces.map((place: Place) => (
+        {filteredPlaces.map((place) => (
           <option key={place.id} value={place.id}>
             {place.name}
           </option>
         ))}
       </select>
 
-      <label htmlFor="status" className="font-semibold">
-        Status
+      <label htmlFor="containerId" className="font-semibold text-gray-200">
+        Container (optional)
+      </label>
+      <select
+        id="containerId"
+        name="containerId"
+        className="w-full bg-[#2a2a2a] text-white border-gray-600 rounded-sm p-2"
+        value={formData.containerId || ""}
+        onChange={handleSelectChange}
+      >
+        <option value="">Select a container</option>
+        {filteredContainers.map((container) => (
+          <option key={container.id} value={container.id}>
+            {container.name}
+          </option>
+        ))}
+      </select>
+
+      <label htmlFor="tags" className="font-semibold text-gray-200">
+        Tags (optional, comma separated)
       </label>
       <input
-        id="status"
         type="text"
-        value={formData.status}
+        id="tags"
+        name="tags"
+        className="w-full bg-[#2a2a2a] text-white border-gray-600 rounded-sm p-2"
+        value={formData.tags}
         onChange={handleChange}
-        required
-        className="border border-gray-300 rounded-sm p-2 w-full"
+        placeholder="tag1, tag2, tag3"
       />
 
-      {/* Sélection de tags avec interface visuelle */}
-      <label className="font-semibold" htmlFor="tags">
-        Tags
-      </label>
-      <div className="flex flex-wrap gap-2">
-        {Array.isArray(tags) && tags.length > 0 ? (
-          tags.map((tag: Tag) => (
-            <button
-              key={tag.id}
-              type="button"
-              className={`px-3 py-1 rounded ${
-                formData.tags?.includes(tag.name)
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
-              }`}
-              onClick={() => handleTagChange(tag.name)}
-            >
-              {tag.name}
-            </button>
-          ))
-        ) : (
-          <p className="text-gray-500">No tags available</p>
-        )}
-      </div>
-
-      {/* Option pour indiquer si l'article est consommable */}
-      <label className="font-semibold" htmlFor="consumable">
-        Is the item a consumable ?
-      </label>
-      <Switch
-        checked={checked}
-        onChange={(event) => setChecked(event.target.checked)}
-      />
-
-      {/* Affichage des messages d'erreur et de succès */}
-      {error && <p className="text-red-500">{error}</p>}
-      {success && <p className="text-green-500">{success}</p>}
-
-      {/* Bouton de soumission du formulaire */}
       <button
         type="submit"
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600"
+        className="mt-2 px-4 py-2 bg-[#335C67] text-white rounded hover:bg-[#274956] transition-colors"
       >
         Create Item
       </button>
+
+      {error && <p className="text-[#9E2A2B]">{error}</p>}
+      {success && <p className="text-[#4FAE62]">{success}</p>}
     </form>
   );
 };

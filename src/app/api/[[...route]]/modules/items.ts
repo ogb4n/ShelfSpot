@@ -143,22 +143,35 @@ export const itemsModule: ApiModule = {
             const room = await prisma.room.findFirstOrThrow({
               where: { name: body.room },
             });
+            
+            // Prepare update data
+            const updateData: any = {
+              name: body.name ?? "",
+              quantity: Number(body.quantity) || 0,
+              place: {
+                connect: { id: place.id },
+              },
+              room: {
+                connect: { id: room.id },
+              },
+              status: body.status ?? "",
+            };
+            
+            // Only include container connection if containerId is defined
+            if (body.containerId && body.containerId !== undefined) {
+              updateData.container = {
+                connect: { id: body.containerId }
+              };
+            } else {
+              // If no container is selected, disconnect any existing container
+              updateData.container = {
+                disconnect: true
+              };
+            }
+            
             const item = await prisma.item.update({
               where: { id: body.id },
-              data: {
-                name: body.name ?? "",
-                quantity: Number(body.quantity) || 0,
-                place: {
-                  connect: { id: place.id },
-                },
-                room: {
-                  connect: { id: room.id },
-                },
-                container: {
-                  connect: { id: body.containerId },
-                },
-                status: body.status ?? "",
-              },
+              data: updateData,
             });
 
             return NextResponse.json(item);
@@ -183,11 +196,23 @@ export const itemsModule: ApiModule = {
               },
               include: {
                 room: true,
-                place: true, // Add place relationship
+                place: true,
+                container: true,
+                itemTags: {
+                  include: {
+                    tag: true,
+                  },
+                },
               },
             });
 
-            return NextResponse.json(consumables);
+            const transformedConsumables = consumables.map((item) => ({
+              ...item,
+              tags: item.itemTags ? item.itemTags.map((itemTag) => itemTag.tag.name) : [],
+              itemTags: undefined,
+            }));
+
+            return NextResponse.json(transformedConsumables);
           } catch (error) {
             console.error("Error fetching consumables:", error);
             return NextResponse.json(

@@ -13,7 +13,6 @@ import { Icon } from "./shared/Icon"; // Composant d'affichage d'icônes
 import { DeletionChip } from "./shared/DeletionChip"; // Composant pour supprimer un tag
 import { Tag as ITag } from "../types"; // Interface définissant la structure d'un tag
 import { type IconName } from "lucide-react/dynamic"; // Type pour les noms d'icônes
-import theme from "../assets/theme"; // Thème de l'application
 /**
  * Interface définissant les propriétés du composant TagsList
  *
@@ -40,7 +39,6 @@ export const TagsList: React.FC<TagsListProps> = ({ tags, onDelete }) => {
     return (
       <Typography
         sx={{
-          color: theme.colorSchemes.dark.palette.disabled[500],
           margin: 2,
         }}
       >

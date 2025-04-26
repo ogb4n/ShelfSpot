@@ -12,7 +12,6 @@ import {
   Link,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import theme from "@/app/assets/theme";
 
 const FormSchema = z
   .object({
@@ -118,7 +117,6 @@ const SignUpForm = () => {
         variant="contained"
         fullWidth
         sx={{
-          backgroundColor: theme.colorSchemes.dark.palette.primary[500],
           mt: 3,
         }}
       >
