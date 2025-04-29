@@ -4,7 +4,6 @@
  * Ce composant permet aux utilisateurs de modifier leur mot de passe
  */
 import React, { useState } from "react";
-import { Box, Typography, Button, Input, Alert } from "@mui/joy"; // Composants UI de Joy UI
 
 /**
  * Composant de changement de mot de passe
@@ -31,64 +30,67 @@ export const ChangePassword = () => {
       setError("Les mots de passe ne correspondent pas.");
       return;
     }
-    
+
     // Réinitialisation de l'erreur en cas de correspondance
     setError(null);
-    
+
     // TODO: Implémentation de l'appel API pour changer le mot de passe
     console.log("Nouveau mot de passe sauvegardé:", password);
-    
+
     // Mise à jour de l'état pour afficher le message de succès
     setSuccess(true);
-    
+
     // Réinitialisation des champs du formulaire
     setPassword("");
     setConfirmPassword("");
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <div className="mt-8">
       {/* Titre de la section */}
-      <Typography component="h2" mb={2}>
+      <h2 className="text-xl font-medium mb-4 text-white">
         Change Password
-      </Typography>
-      
+      </h2>
+
       {/* Affichage conditionnel des messages d'erreur */}
       {error && (
-        <Alert color="danger" sx={{ mb: 2 }}>
+        <div className="p-2 mb-4 bg-red-900/30 border border-red-500 text-red-300 rounded-sm">
           {error}
-        </Alert>
+        </div>
       )}
-      
+
       {/* Affichage conditionnel du message de succès */}
       {success && (
-        <Alert color="success" sx={{ mb: 2 }}>
+        <div className="p-2 mb-4 bg-green-900/30 border border-green-500 text-green-300 rounded-sm">
           Mot de passe changé avec succès !
-        </Alert>
+        </div>
       )}
-      
+
       {/* Champ pour saisir le nouveau mot de passe */}
-      <Input
+      <input
         type="password"
         placeholder="Nouveau mot de passe"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        sx={{ mb: 2 }}
+        className="p-2 mb-4 w-full bg-[#3a3a3a] text-white border border-gray-600 rounded-sm"
       />
-      
+
       {/* Champ pour confirmer le nouveau mot de passe */}
-      <Input
+      <input
         type="password"
-        placeholder="Change your password"
+        placeholder="Confirmer le mot de passe"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
-        sx={{ mb: 2 }}
+        className="p-2 mb-4 w-full bg-[#3a3a3a] text-white border border-gray-600 rounded-sm"
       />
-      
+
       {/* Bouton de soumission du formulaire */}
-      <Button variant="solid" color="primary" onClick={handleChangePassword}>
+      <button
+        className="px-4 py-2 bg-[#335C67] text-white rounded hover:bg-[#274956] transition-colors"
+        onClick={handleChangePassword}
+      >
         Change your password
-      </Button>
-    </Box>
+      </button>
+    </div>
   );
 };

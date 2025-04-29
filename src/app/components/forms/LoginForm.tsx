@@ -3,7 +3,6 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button, TextField, Typography, Box } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 
@@ -45,44 +44,46 @@ export const LoginForm = () => {
   };
 
   return (
-    <Box
-      component="form"
+    <form
       onSubmit={form.handleSubmit(onSubmit)}
-      noValidate
-      sx={{ maxWidth: 400, mx: "auto", mt: 4 }}
+      className="max-w-md mx-auto mt-8 p-6 bg-[#2a2a2a] rounded-md"
     >
-      <Typography variant="h4" component="h1" textAlign="center" mb={3}>
+      <h1 className="text-2xl font-bold mb-6 text-center text-white">
         Login
-      </Typography>
-      <Box display="flex" flexDirection="column" gap={2}>
-        <TextField
-          label="Email"
-          variant="outlined"
-          {...form.register("email")}
-          error={!!form.formState.errors.email}
-          helperText={form.formState.errors.email?.message}
-          fullWidth
-        />
-        <TextField
-          label="Password"
-          type="password"
-          variant="outlined"
-          {...form.register("password")}
-          error={!!form.formState.errors.password}
-          helperText={form.formState.errors.password?.message}
-          fullWidth
-        />
-      </Box>
-      <Button
+      </h1>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <input
+            className="p-2 bg-[#3a3a3a] text-white border border-gray-600 rounded-sm w-full"
+            placeholder="Email"
+            {...form.register("email")}
+          />
+          {form.formState.errors.email && (
+            <span className="text-sm text-red-500">
+              {form.formState.errors.email.message}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-col gap-1">
+          <input
+            type="password"
+            className="p-2 bg-[#3a3a3a] text-white border border-gray-600 rounded-sm w-full"
+            placeholder="Password"
+            {...form.register("password")}
+          />
+          {form.formState.errors.password && (
+            <span className="text-sm text-red-500">
+              {form.formState.errors.password.message}
+            </span>
+          )}
+        </div>
+      </div>
+      <button
         type="submit"
-        variant="contained"
-        fullWidth
-        sx={{
-          mt: 3,
-        }}
+        className="w-full mt-6 p-2 bg-[#335C67] text-white rounded hover:bg-[#274956] transition-colors"
       >
         Login
-      </Button>
-    </Box>
+      </button>
+    </form>
   );
 };

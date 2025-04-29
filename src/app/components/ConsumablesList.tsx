@@ -8,20 +8,6 @@
  */
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  GridRowsProp,
-  GridRowModesModel,
-  GridRowModes,
-  DataGrid,
-  GridColDef,
-  GridToolbarContainer,
-  GridActionsCellItem,
-  GridEventListener,
-  GridRowId,
-  GridRowModel,
-  GridRowEditStopReasons,
-} from "@mui/x-data-grid"; // Composants de grille de données avancée
-import Typography from "@mui/joy/Typography"; // Composant de texte stylisé
-import {
   EditIcon,
   DeleteIcon,
   SaveIcon,
@@ -33,28 +19,15 @@ import editItem from "@/app/components/requests/editItem"; // Fonction API pour 
 import Loading from "./shared/Loading";
 import { Item } from "@/app/types"; // Interface définissant la structure d'un article
 
-/**
- * Extension du module DataGrid pour ajouter des propriétés personnalisées
- * à la barre d'outils de la grille
- */
-declare module "@mui/x-data-grid" {
-  interface ToolbarPropsOverrides {
-    setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
-    setRowModesModel: (
-      newModel: (oldModel: GridRowModesModel) => GridRowModesModel
-    ) => void;
-  }
-}
-
-/**
- * Composant de barre d'outils personnalisée pour la grille de données
- * Actuellement vide mais peut être étendu pour ajouter des fonctionnalités
- *
- * @returns {JSX.Element} Barre d'outils de la grille
- */
-function EditToolbar() {
-  return <GridToolbarContainer></GridToolbarContainer>;
-}
+type ItemRow = {
+  id: number;
+  name: string;
+  quantity: number;
+  place: string;
+  room: string;
+  status?: string;
+  isNew?: boolean;
+};
 
 /**
  * Composant principal de liste des consommables
@@ -64,9 +37,14 @@ function EditToolbar() {
  */
 export const ConsumablesList: React.FC = () => {
   // État pour stocker les données des lignes du tableau
-  const [rows, setRows] = useState<GridRowsProp>([]);
-  // État pour gérer les modes d'édition des lignes (vue/édition)
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  const [rows, setRows] = useState<ItemRow[]>([]);
+  // État pour suivre quelle ligne est en cours d'édition (null si aucune)
+  const [editingId, setEditingId] = useState<number | null>(null);
+  // État pour stocker les valeurs temporaires pendant l'édition
+  const [editValues, setEditValues] = useState<Partial<ItemRow>>({});
+  // État pour la pagination
+  const [page, setPage] = useState(0);
+  const [rowsPerPage] = useState(5);
   // État pour le chargement des données
   const [loading, setLoading] = useState<boolean>(true);
   // État pour les messages d'erreur
@@ -97,7 +75,7 @@ export const ConsumablesList: React.FC = () => {
       // Formatage des données pour la grille avec gestion des valeurs nulles
       setRows(
         data.map((item) => ({
-          id: item.id,
+          id: item.id ?? -1, // Ensure id is always a number, using -1 as a fallback
           name: item.name,
           quantity: item.quantity,
           place: item.place ? item.place.name : "N/A", // Gestion des emplacements manquants
@@ -152,198 +130,93 @@ export const ConsumablesList: React.FC = () => {
   }, [fetchItems, fetchRoomsAndPlaces]);
 
   /**
-   * Gère l'arrêt de l'édition d'une ligne
-   * Empêche la sortie automatique du mode édition lors d'un clic en dehors
-   *
-   * @param {Object} params - Paramètres de l'événement
-   * @param {Object} event - L'événement d'arrêt d'édition
-   */
-  const handleRowEditStop: GridEventListener<"rowEditStop"> = (
-    params,
-    event
-  ) => {
-    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true; // Empêche la sortie du mode édition
-    }
-  };
-
-  /**
    * Active le mode édition pour une ligne spécifique
    *
-   * @param {GridRowId} id - L'identifiant de la ligne à éditer
-   * @returns {Function} Fonction de gestionnaire d'événements
+   * @param {number} id - L'identifiant de la ligne à éditer
    */
-  const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  const handleEditClick = (id: number) => {
+    const row = rows.find(row => row.id === id);
+    if (row) {
+      setEditingId(id);
+      setEditValues({ ...row });
+    }
   };
 
   /**
    * Sauvegarde les modifications et quitte le mode édition
    *
-   * @param {GridRowId} id - L'identifiant de la ligne modifiée
-   * @returns {Function} Fonction de gestionnaire d'événements
+   * @param {number} id - L'identifiant de la ligne modifiée
    */
-  const handleSaveClick = (id: GridRowId) => () => {
-    return setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View },
-    });
+  const handleSaveClick = async (id: number) => {
+    try {
+      // Get the current row and merge with edit values
+      const currentRow = rows.find(row => row.id === id);
+      if (!currentRow) return;
+      
+      const updatedRow: ItemRow = {
+        ...currentRow,
+        ...editValues,
+        id, // Ensure id is a number
+        isNew: false,
+      };
+      
+      await editItem(updatedRow); // Appel API pour mettre à jour l'article
+
+      // Mettre à jour l'interface avec les nouvelles données
+      setRows(rows.map((row) => (row.id === id ? updatedRow : row)));
+      setEditingId(null);
+      setEditValues({});
+    } catch (err) {
+      console.error("Error saving row:", err);
+      setError("Failed to update item. Please try again.");
+    }
   };
 
   /**
    * Supprime un article consommable après confirmation
    *
-   * @param {GridRowId} id - L'identifiant de la ligne à supprimer
-   * @returns {Function} Fonction de gestionnaire d'événements asynchrone
+   * @param {number} id - L'identifiant de la ligne à supprimer
    */
-  const handleDeleteClick = (id: GridRowId) => async () => {
-    await deleteItem(id); // Appel API pour supprimer l'article
-    return setRows(rows.filter((row) => row.id !== id)); // Mise à jour de l'UI
+  const handleDeleteClick = async (id: number) => {
+    if (window.confirm("Are you sure you want to delete this item?")) {
+      try {
+        await deleteItem(id); // Appel API pour supprimer l'article
+        setRows(rows.filter((row) => row.id !== id)); // Mise à jour de l'UI
+      } catch (err) {
+        console.error("Error deleting item:", err);
+        setError("Failed to delete item. Please try again.");
+      }
+    }
   };
 
   /**
    * Annule les modifications en cours et quitte le mode édition
    *
-   * @param {GridRowId} id - L'identifiant de la ligne en édition
-   * @returns {Function} Fonction de gestionnaire d'événements
+   * @param {number} id - L'identifiant de la ligne en édition
    */
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true }, // Ignore les modifications
-    });
-
-    // Si c'est une nouvelle ligne, la supprimer du tableau
-    const editedRow = rows.find((row) => row.id === id);
-    if (editedRow!.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
-    }
+  const handleCancelClick = (id: number) => {
+    setEditingId(null);
+    setEditValues({});
   };
 
   /**
-   * Traite la mise à jour d'une ligne après édition
-   * Envoie les modifications à l'API et met à jour l'état local
-   *
-   * @param {GridRowModel} newRow - Les nouvelles données de la ligne
-   * @returns {Promise<GridRowModel>} La ligne mise à jour
+   * Gère les changements dans les champs d'édition
    */
-  const processRowUpdate = async (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false };
-    await editItem(updatedRow); // Appel API pour mettre à jour l'article
-
-    // Mise à jour de l'UI avec les nouvelles données
-    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    return updatedRow;
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setEditValues(prev => ({
+      ...prev,
+      [name]: name === 'quantity' ? Number(value) : value
+    }));
   };
 
-  /**
-   * Met à jour le modèle des modes de ligne
-   *
-   * @param {GridRowModesModel} newRowModesModel - Le nouveau modèle de modes
-   */
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel);
-  };
+  // Pagination - calculer l'index de début et de fin pour les lignes à afficher
+  const indexOfLastRow = (page + 1) * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = rows.slice(indexOfFirstRow, indexOfLastRow);
 
-  /**
-   * Définition des colonnes de la grille avec leurs propriétés
-   * Chaque colonne peut avoir des types différents (texte, nombre, sélection, etc.)
-   */
-  const columns: GridColDef[] = [
-    { field: "name", headerName: "Item", flex: 1, editable: true },
-    {
-      field: "quantity",
-      headerName: "Qty.",
-      type: "number",
-      flex: 0.5,
-      editable: true,
-    },
-    {
-      field: "place",
-      headerName: "Place",
-      flex: 1,
-      editable: true,
-      type: "singleSelect", // Menu déroulant avec sélection unique
-      valueOptions: places, // Options de sélection basées sur les emplacements disponibles
-    },
-    {
-      field: "room",
-      headerName: "Room",
-      flex: 1,
-      type: "singleSelect", // Menu déroulant avec sélection unique
-      editable: true,
-      valueOptions: rooms, // Options de sélection basées sur les pièces disponibles
-    },
-    {
-      field: "tags",
-      headerName: "Tags",
-      flex: 1,
-    },
-    {
-      field: "actions",
-      type: "actions",
-      headerName: "Actions",
-      width: 100,
-      cellClassName: "actions",
-      /**
-       * Détermine quelles actions afficher selon le mode de la ligne
-       *
-       * @param {Object} params - Les paramètres de la cellule
-       * @returns {Array<JSX.Element>} Les actions à afficher
-       */
-      getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-        // Actions en mode édition (Sauvegarder, Annuler)
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              key={`save-${id}`}
-              icon={<SaveIcon />}
-              label="Save"
-              sx={{ color: "#335C67" }} // Couleur fixe au lieu du thème
-              onClick={handleSaveClick(id)}
-            />,
-            <GridActionsCellItem
-              key={`cancel-${id}`}
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelClick(id)}
-              color="inherit"
-            />,
-          ];
-        }
-
-        // Actions en mode visualisation (Éditer, Supprimer, etc.)
-        return [
-          <GridActionsCellItem
-            key={`edit-${id}`}
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            onClick={handleEditClick(id)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            key={`delete-${id}`}
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            key={`cancel-${id}`}
-            icon={<GradeIcon />}
-            label="Cancel"
-            className="textPrimary"
-            onClick={handleCancelClick(id)}
-            color="inherit"
-          />,
-        ];
-      },
-    },
-  ];
+  // Calcul du nombre total de pages
+  const totalPages = Math.ceil(rows.length / rowsPerPage);
 
   // Affichage de l'indicateur de chargement pendant le chargement des données
   if (loading) {
@@ -353,16 +226,11 @@ export const ConsumablesList: React.FC = () => {
   // Affichage d'un message d'erreur avec possibilité de réessayer
   if (error) {
     return (
-      <div style={{ textAlign: "center", marginTop: "20px" }}>
-        <Typography
-          level="h3"
-          sx={{ color: "#9E2A2B" }} // Couleur fixe au lieu du thème
-        >
-          {error}
-        </Typography>
+      <div className="text-center mt-8">
+        <h3 className="text-xl text-red-400 mb-2">{error}</h3>
         <button
           onClick={fetchItems}
-          style={{ marginTop: "10px", padding: "10px", cursor: "pointer" }}
+          className="mt-2 px-4 py-2 bg-[#335C67] text-white rounded hover:bg-[#274956] transition-colors"
         >
           Retry
         </button>
@@ -370,65 +238,186 @@ export const ConsumablesList: React.FC = () => {
     );
   }
 
-  // Rendu principal du composant avec la grille de données
+  // Rendu principal du composant avec la table personnalisée
   return (
-    <div style={{ height: 400, width: "100%" }}>
-      <DataGrid
-        rows={rows} // Données des lignes
-        columns={columns} // Configuration des colonnes
-        editMode="row" // Mode d'édition par ligne complète
-        rowModesModel={rowModesModel} // État des modes d'édition
-        onRowModesModelChange={handleRowModesModelChange} // Gestion des changements de mode
-        onRowEditStop={handleRowEditStop} // Gestion de l'arrêt d'édition
-        processRowUpdate={processRowUpdate} // Traitement des mises à jour
-        slots={{ toolbar: EditToolbar }} // Personnalisation de la barre d'outils
-        slotProps={{
-          toolbar: { setRows, setRowModesModel }, // Propriétés passées à la barre d'outils
-        }}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5, // Nombre d'éléments par page
-            },
-          },
-        }}
-        pageSizeOptions={[5]} // Options de taille de page disponibles
-        disableRowSelectionOnClick // Désactive la sélection au clic
-        sx={{
-          border: `1px solid #424242`,
-          '& .MuiDataGrid-root': {
-            backgroundColor: '#181818',
-            color: '#fff',
-          },
-          '& .MuiDataGrid-cell': {
-            borderColor: '#424242',
-          },
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: '#232323',
-            color: '#fff',
-            borderColor: '#424242',
-          },
-          '& .MuiDataGrid-columnSeparator': {
-            color: '#424242',
-          },
-          '& .MuiDataGrid-footerContainer': {
-            backgroundColor: '#202020',
-            borderColor: '#424242',
-          },
-          '& .MuiTablePagination-root': {
-            color: '#fff',
-          },
-          '& .MuiDataGrid-row.Mui-selected': {
-            backgroundColor: '#1976d2',
-            '&:hover': {
-              backgroundColor: '#1565c0',
-            },
-          },
-          '& .MuiDataGrid-row:hover': {
-            backgroundColor: '#232323',
-          },
-        }}
-      />
+    <div className="w-full">
+      {/* Table container */}
+      <div className="overflow-x-auto border border-gray-700 rounded">
+        <table className="min-w-full divide-y divide-gray-700">
+          <thead className="bg-[#232323]">
+            <tr>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                Item
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                Qty.
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                Place
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                Room
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                Tags
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-[#1a1a1a] divide-y divide-gray-700">
+            {currentRows.length > 0 ? (
+              currentRows.map((row) => (
+                <tr key={row.id} className="hover:bg-[#232323]">
+                  {/* Item Name */}
+                  <td className="px-4 py-3">
+                    {editingId === row.id ? (
+                      <input
+                        type="text"
+                        name="name"
+                        value={editValues.name || ''}
+                        onChange={handleEditChange}
+                        className="w-full p-1 bg-[#3a3a3a] border border-gray-600 rounded text-white text-sm"
+                      />
+                    ) : (
+                      <span className="text-gray-200">{row.name}</span>
+                    )}
+                  </td>
+
+                  {/* Quantity */}
+                  <td className="px-4 py-3">
+                    {editingId === row.id ? (
+                      <input
+                        type="number"
+                        name="quantity"
+                        value={editValues.quantity || 0}
+                        onChange={handleEditChange}
+                        className="w-full p-1 bg-[#3a3a3a] border border-gray-600 rounded text-white text-sm"
+                      />
+                    ) : (
+                      <span className="text-gray-200">{row.quantity}</span>
+                    )}
+                  </td>
+
+                  {/* Place */}
+                  <td className="px-4 py-3">
+                    {editingId === row.id ? (
+                      <select
+                        name="place"
+                        value={editValues.place || ''}
+                        onChange={handleEditChange}
+                        className="w-full p-1 bg-[#3a3a3a] border border-gray-600 rounded text-white text-sm"
+                      >
+                        {places.map(place => (
+                          <option key={place} value={place}>{place}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="text-gray-200">{row.place}</span>
+                    )}
+                  </td>
+
+                  {/* Room */}
+                  <td className="px-4 py-3">
+                    {editingId === row.id ? (
+                      <select
+                        name="room"
+                        value={editValues.room || ''}
+                        onChange={handleEditChange}
+                        className="w-full p-1 bg-[#3a3a3a] border border-gray-600 rounded text-white text-sm"
+                      >
+                        {rooms.map(room => (
+                          <option key={room} value={room}>{room}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="text-gray-200">{row.room}</span>
+                    )}
+                  </td>
+
+                  {/* Tags */}
+                  <td className="px-4 py-3">
+                    <span className="text-gray-200">-</span>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-4 py-3 space-x-2">
+                    {editingId === row.id ? (
+                      <>
+                        <button
+                          onClick={() => handleSaveClick(row.id)}
+                          className="p-1 inline-flex items-center justify-center text-green-500 hover:bg-green-900/30 rounded"
+                        >
+                          <SaveIcon className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleCancelClick(row.id)}
+                          className="p-1 inline-flex items-center justify-center text-gray-400 hover:bg-gray-700/50 rounded"
+                        >
+                          <CancelIcon className="w-5 h-5" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleEditClick(row.id)}
+                          className="p-1 inline-flex items-center justify-center text-blue-400 hover:bg-blue-900/30 rounded"
+                        >
+                          <EditIcon className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(row.id)}
+                          className="p-1 inline-flex items-center justify-center text-red-400 hover:bg-red-900/30 rounded"
+                        >
+                          <DeleteIcon className="w-5 h-5" />
+                        </button>
+                        <button
+                          className="p-1 inline-flex items-center justify-center text-yellow-400 hover:bg-yellow-900/30 rounded"
+                        >
+                          <GradeIcon className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="px-4 py-6 text-center text-gray-400">
+                  No items available
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between px-4 py-3 bg-[#202020] border-t border-gray-700 text-sm">
+        <div className="text-gray-400">
+          Showing {indexOfFirstRow + 1} to {Math.min(indexOfLastRow, rows.length)} of {rows.length} entries
+        </div>
+        <div className="flex">
+          <button
+            onClick={() => setPage(prev => Math.max(0, prev - 1))}
+            disabled={page === 0}
+            className="px-3 py-1 border border-gray-700 rounded-l bg-[#2a2a2a] text-white disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <div className="px-4 py-1 border-t border-b border-gray-700 bg-[#333] text-white">
+            {page + 1} of {totalPages}
+          </div>
+          <button
+            onClick={() => setPage(prev => Math.min(totalPages - 1, prev + 1))}
+            disabled={page >= totalPages - 1}
+            className="px-3 py-1 border border-gray-700 rounded-r bg-[#2a2a2a] text-white disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

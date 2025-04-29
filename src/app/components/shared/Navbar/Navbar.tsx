@@ -1,16 +1,5 @@
 "use client";
 import * as React from "react";
-import GlobalStyles from "@mui/joy/GlobalStyles";
-import Box from "@mui/joy/Box";
-import Divider from "@mui/joy/Divider";
-import IconButton from "@mui/joy/IconButton";
-import Input from "@mui/joy/Input";
-import List from "@mui/joy/List";
-import ListItem from "@mui/joy/ListItem";
-import ListItemButton from "@mui/joy/ListItemButton";
-import ListItemContent from "@mui/joy/ListItemContent";
-import Typography from "@mui/joy/Typography";
-import Sheet from "@mui/joy/Sheet";
 import {
   SearchRoundedIcon,
   SettingsRoundedIcon,
@@ -19,147 +8,100 @@ import {
 } from "@/app/assets/icons";
 
 import { redirect } from "next/navigation";
-
 import { useSession, signOut } from "next-auth/react";
-
 import { tabs } from "./constants";
 
-export const Sidebar: React.FC = () => {
+export const Navbar: React.FC = () => {
   const handleSignOut = async () => {
     await signOut();
   };
 
   const session = useSession();
-
   const user = session.data?.user;
+
+  // Add CSS variables to :root to maintain sidebar width consistency
+  React.useEffect(() => {
+    document.documentElement.style.setProperty('--sidebar-width', '220px');
+    // Ensure the sidebar is visible by default
+    document.documentElement.style.setProperty('--sideNavigation-slideIn', '1');
+  }, []);
+
   return (
-    <Sheet
-      className="Sidebar"
-      sx={{
-        position: { xs: "fixed", md: "sticky" },
-        transform: {
-          xs: "translateX(calc(100% * (var(--SideNavigation-slideIn, 0) - 1)))",
-          md: "none",
-        },
-        transition: "transform 0.4s, width 0.4s",
-        zIndex: 10000,
-        height: "100dvh",
-        width: "var(--Sidebar-width)",
+    <aside
+      className="sidebar fixed md:sticky h-screen w-[220px] flex flex-col gap-4 p-4 z-50 border-r border-gray-700 bg-[#1a1a1a]"
+      style={{
         top: 0,
-        p: 2,
-        flexShrink: 0,
-        display: "flex",
-        flexDirection: "column",
-        gap: 2,
-        borderRight: "1px solid",
-        borderColor: "divider",
       }}
     >
-      <GlobalStyles
-        styles={{
-          ":root": {
-            "--Sidebar-width": "220px",
-          },
-        }}
-      />
-      <Box
-        className="Sidebar-overlay"
-        sx={{
-          position: "fixed",
-          zIndex: 9998,
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          opacity: "var(--SideNavigation-slideIn)",
-          transition: "opacity 0.4s",
-          transform: {
-            xs: "translateX(calc(100% * (var(--SideNavigation-slideIn, 0) - 1) + var(--SideNavigation-slideIn, 0) * var(--Sidebar-width, 0px)))",
-            lg: "translateX(-100%)",
-          },
-        }}
-      />
-      <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-        <IconButton
+      {/* Logo and app name */}
+      <div className="flex items-center gap-2">
+        <button
           onClick={() => redirect("dashboard")}
-          variant="soft"
-          size="sm"
+          className="p-1.5 rounded-md bg-[#335C67]/20 text-[#335C67]"
         >
           <LuCodepen />
-        </IconButton>
-        <Typography level="title-lg">ShelfSpot</Typography>
-      </Box>
-      <Input
-        size="sm"
-        startDecorator={<SearchRoundedIcon />}
-        placeholder="Search"
-      />
-      <Box
-        sx={{
-          minHeight: 0,
-          overflow: "hidden auto",
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          "& .ListItemButton-root": {
-            gap: 1.5,
-          },
-        }}
-      >
-        <List
-          size="sm"
-          sx={{
-            gap: 1,
-            "--List-nestedInsetStart": "30px",
-            "--ListItem-radius": (theme) => theme.vars.radius.sm,
-          }}
-        >
+        </button>
+        <h1 className="text-lg font-bold text-white">ShelfSpot</h1>
+      </div>
+
+      {/* Search input */}
+      <div className="relative">
+        <input
+          className="w-full pl-8 pr-2 py-1.5 bg-[#2a2a2a] text-white border border-gray-700 rounded-md text-sm"
+          placeholder="Search"
+        />
+        <SearchRoundedIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+      </div>
+
+      {/* Navigation menu */}
+      <div className="flex-grow overflow-y-auto flex flex-col">
+        {/* Main navigation links */}
+        <ul className="space-y-1">
           {tabs.map((tab) => (
-            <ListItem key={tab.label}>
-              <ListItemButton onClick={() => redirect(tab.href)}>
-                {tab.icon()}
-                <ListItemContent>
-                  <Typography level="title-sm">{tab.label}</Typography>
-                </ListItemContent>
-              </ListItemButton>
-            </ListItem>
+            <li key={tab.label}>
+              <button
+                onClick={() => redirect(tab.href)}
+                className="flex items-center gap-2 p-2 w-full rounded-md hover:bg-[#2a2a2a] transition-colors"
+              >
+                <span className="text-gray-400">{tab.icon()}</span>
+                <span className="text-sm font-medium text-white">{tab.label}</span>
+              </button>
+            </li>
           ))}
-        </List>
-        <List
-          size="sm"
-          sx={{
-            mt: "auto",
-            flexGrow: 0,
-            "--ListItem-radius": (theme) => theme.vars.radius.sm,
-            "--List-gap": "8px",
-            mb: 2,
-          }}
-        >
-          <ListItem>
-            <ListItemButton onClick={() => redirect("/settings")}>
-              <SettingsRoundedIcon />
-              Configure
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Box>
-      <Divider />
-      <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-        <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Typography level="title-sm">{user?.name}</Typography>
-          <Typography level="body-xs">{user?.email}</Typography>
-        </Box>
-        <IconButton
-          size="sm"
-          variant="plain"
-          color="neutral"
+        </ul>
+
+        {/* Settings link */}
+        <ul className="mt-auto mb-4">
+          <li>
+            <button
+              onClick={() => redirect("/settings")}
+              className="flex items-center gap-2 p-2 w-full rounded-md hover:bg-[#2a2a2a] transition-colors"
+            >
+              <span className="text-gray-400"><SettingsRoundedIcon /></span>
+              <span className="text-sm font-medium text-white">Configure</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      {/* Divider */}
+      <div className="h-px bg-gray-700 w-full"></div>
+
+      {/* User info and logout */}
+      <div className="flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium truncate text-white">{user?.name}</p>
+          <p className="text-xs truncate text-gray-400">{user?.email}</p>
+        </div>
+        <button
+          className="p-1.5 rounded-full hover:bg-[#2a2a2a] text-gray-400"
           onClick={() => handleSignOut()}
         >
-          <LogoutRoundedIcon />
-        </IconButton>
-      </Box>
-    </Sheet>
+          <LogoutRoundedIcon className="w-5 h-5" />
+        </button>
+      </div>
+    </aside>
   );
 };
 
-export default Sidebar;
+export default Navbar;

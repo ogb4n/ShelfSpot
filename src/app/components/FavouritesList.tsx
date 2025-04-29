@@ -1,12 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Card from "@mui/joy/Card";
-import Typography from "@mui/joy/Typography";
-import List from "@mui/joy/List";
-import ListItem from "@mui/joy/ListItem";
-import ListItemContent from "@mui/joy/ListItemContent";
-import Button from "@mui/joy/Button";
-import Box from "@mui/joy/Box";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useSession } from "next-auth/react";
 import Loading from "./shared/Loading";
@@ -84,66 +77,57 @@ export const FavouritesList: React.FC = () => {
 
   if (error) {
     return (
-      <Card variant="outlined" sx={{ p: 3, mt: 2 }}>
-        <Typography color="danger">{error}</Typography>
-      </Card>
+      <div className="p-4 mt-4 border border-gray-600 rounded-md bg-[#2a2a2a]">
+        <p className="text-red-500">{error}</p>
+      </div>
     );
   }
 
   if (favourites.length === 0) {
     return (
-      <Card variant="outlined" sx={{ p: 3, mt: 2 }}>
-        <Typography>You don&apos;t have any favourite items yet.</Typography>
-      </Card>
+      <div className="p-4 mt-4 border border-gray-600 rounded-md bg-[#2a2a2a]">
+        <p className="text-gray-300">You don&apos;t have any favourite items yet.</p>
+      </div>
     );
   }
 
   return (
-    <Card variant="outlined" sx={{ width: "100%", maxWidth: 800, mx: "auto" }}>
-      <Typography level="h3" sx={{ mb: 2 }}>
+    <div className="w-full max-w-3xl mx-auto border border-gray-600 rounded-md bg-[#2a2a2a] p-4">
+      <h3 className="text-xl font-bold mb-4 text-white">
         Your Favourites
-      </Typography>
-      <List>
+      </h3>
+      <ul className="space-y-3">
         {favourites.map((favourite) => (
-          <ListItem
+          <li
             key={favourite.id}
-            sx={{
-              borderRadius: "sm",
-              mb: 1,
-              boxShadow: "sm",
-              bgcolor: "background.surface",
-            }}
-            endAction={
-              <Button
-                variant="soft"
-                color="danger"
-                size="sm"
-                onClick={() => handleRemoveFavourite(favourite.id)}
-                startDecorator={<DeleteOutlineIcon />}
-              >
-                Remove
-              </Button>
-            }
+            className="border border-gray-700 rounded-md bg-[#333] p-3 mb-2 flex justify-between items-start"
           >
-            <ListItemContent>
-              <Typography level="title-md">
+            <div>
+              <h4 className="font-medium text-white">
                 {favourite.item?.name ?? "Unknown Item"}
-              </Typography>
-              <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
-                <Typography level="body-sm">
+              </h4>
+              <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-300">
+                <p>
                   Quantity: {favourite.item?.quantity ?? "N/A"}
-                </Typography>
-                <Typography level="body-sm">
+                </p>
+                <p>
                   Room: {favourite.item?.room?.name ?? "N/A"}
-                </Typography>
-                <Typography level="body-sm">
+                </p>
+                <p>
                   Place: {favourite.item?.place?.name ?? "N/A"}
-                </Typography>
-              </Box>
-            </ListItemContent>
-          </ListItem>
+                </p>
+              </div>
+            </div>
+            <button
+              className="px-3 py-1 bg-red-900/30 text-red-400 rounded-md hover:bg-red-900/50 transition-colors flex items-center gap-1 text-sm"
+              onClick={() => handleRemoveFavourite(favourite.id)}
+            >
+              <DeleteOutlineIcon className="w-4 h-4" />
+              Remove
+            </button>
+          </li>
         ))}
-      </List>
-    </Card>
+      </ul>
+    </div>
   );
 };

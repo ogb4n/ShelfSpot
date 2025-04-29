@@ -3,9 +3,6 @@ import Navbar from "@/app/components/shared/Navbar/Navbar";
 import React from "react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { geistSans, geistMono, roboto } from "../../../public/fonts/googlefonts";
-import { Providers } from "../utils/providers";
-import Sheet from "@mui/joy/Sheet";
 
 export const metadata: Metadata = {
   title: "ShelfSpot",
@@ -22,15 +19,13 @@ export default async function RootLayout({
     redirect("/register");
     return null;
   }
-  
+
   return (
     <>
-      <header style={{ flexShrink: 0 }}>
-        <Navbar />
-      </header>
-      <Sheet style={{ flexGrow: 1, overflow: "auto" }}>
-        <Providers>{children}</Providers>
-      </Sheet>
+      <Navbar />
+      <main className="flex-1 ml-[220px]">
+        {children}
+      </main>
     </>
   );
 }

@@ -4,7 +4,6 @@
  * Ce composant permet aux utilisateurs de visualiser et modifier leurs informations de profil
  */
 import React, { useState } from "react";
-import { Box, Typography, Button, Input, Alert } from "@mui/joy"; // Composants UI de la bibliothèque Joy UI de Material
 import { useSession } from "next-auth/react"; // Hook pour accéder à la session utilisateur
 import { ChangePassword } from "./ChangePassword"; // Composant pour modifier le mot de passe
 import Loading from "./shared/Loading"; // Composant d'indicateur de chargement
@@ -18,12 +17,12 @@ import Loading from "./shared/Loading"; // Composant d'indicateur de chargement
  */
 interface AccountManagerProps {
   user:
-    | {
-        name?: string | null;
-        email?: string | null;
-        image?: string | null;
-      }
-    | undefined;
+  | {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  }
+  | undefined;
 }
 
 /**
@@ -109,80 +108,78 @@ export const AccountManager = ({ user }: AccountManagerProps) => {
 
   // Rendu du composant
   return (
-    <Box>
+    <div className="w-full">
       {/* Titre du composant */}
-      <Typography typography={"h4"} mb={2} sx={{ font: "bold" }}>
+      <h2 className="text-2xl font-bold mb-4 text-white">
         Your profile
-      </Typography>
+      </h2>
 
       {/* Affichage des erreurs si présentes */}
       {error && (
-        <Alert color="danger" sx={{ mb: 2 }}>
+        <div className="p-3 mb-4 bg-red-900/30 border border-red-500 text-red-300 rounded-sm">
           {error}
-        </Alert>
+        </div>
       )}
 
       {/* Interface conditionnelle basée sur le mode d'édition */}
       {editing ? (
         <>
           {/* Formulaire d'édition */}
-          <Input
+          <input
+            className="p-2 mb-4 w-full bg-[#3a3a3a] text-white border border-gray-600 rounded-sm"
             placeholder="Username"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            sx={{ mb: 2 }}
           />
           {/* L'email est affiché mais non modifiable */}
-          <Typography sx={{ mb: 2 }}>
+          <p className="mb-4 text-gray-300">
             Email: {email || "Not provided"}
-          </Typography>
-          <Box>
+          </p>
+          <div className="flex flex-wrap gap-2 items-center">
             {/* Bouton de sauvegarde avec indicateur de chargement */}
-            <Button
-              variant="solid"
-              color="primary"
+            <button
+              className="px-4 py-2 bg-[#335C67] text-white rounded hover:bg-[#274956] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               onClick={handleSave}
-              sx={{ mr: 1 }}
               disabled={loading}
-              startDecorator={Loading ? <Loading /> : null}
             >
+              {loading && <span className="w-4 h-4">
+                <svg className="animate-spin w-full h-full" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray="60 30" />
+                </svg>
+              </span>}
               {loading ? "Saving..." : "Save"}
-            </Button>
+            </button>
 
             {/* Composant de changement de mot de passe */}
             <ChangePassword />
 
             {/* Bouton d'annulation */}
-            <Button
-              variant="outlined"
-              color="neutral"
+            <button
+              className="px-4 py-2 bg-transparent border border-gray-400 text-gray-300 rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-2"
               onClick={handleCancel}
               disabled={loading}
-              sx={{ mt: 2 }}
             >
               Cancel
-            </Button>
-          </Box>
+            </button>
+          </div>
         </>
       ) : (
         <>
           {/* Mode affichage (non-édition) */}
-          <Typography sx={{ mb: 2 }}>Username: {name || "Unknown"}</Typography>
-          <Typography sx={{ mb: 2 }}>
+          <p className="mb-3 text-gray-300">Username: {name || "Unknown"}</p>
+          <p className="mb-3 text-gray-300">
             Email: {email || "Not provided"}
-          </Typography>
+          </p>
 
           {/* Bouton pour activer le mode édition */}
-          <Button
-            variant="soft"
-            color="primary"
+          <button
+            className="px-4 py-2 bg-[#335C67]/20 border border-[#335C67] text-[#4a9eb2] rounded hover:bg-[#335C67]/30 transition-colors mt-2"
             onClick={() => setEditing(true)}
-            sx={{ mt: 2 }}
           >
             Edit Profile
-          </Button>
+          </button>
         </>
       )}
-    </Box>
+    </div>
   );
 };

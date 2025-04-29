@@ -7,11 +7,6 @@
  * encourageant pour accéder aux fonctionnalités d'organisation.
  */
 import * as React from "react";
-import Card from "@mui/joy/Card"; // Composant de carte
-import CardContent from "@mui/joy/CardContent"; // Contenu de la carte
-import CardActions from "@mui/joy/CardActions"; // Zone d'actions de la carte
-import Typography from "@mui/joy/Typography"; // Composant de texte stylisé
-import Button from "@mui/joy/Button"; // Bouton d'action
 import { redirect } from "next/navigation"; // Fonction de redirection
 
 /**
@@ -24,31 +19,25 @@ import { redirect } from "next/navigation"; // Fonction de redirection
  */
 export const MostUsedPlacesCard: React.FC = () => {
   return (
-    <Card
-      variant="solid"
-      invertedColors
-    >
+    <div className="bg-[#222] text-white rounded-md overflow-hidden shadow-md">
       {/* Contenu principal de la carte */}
-      <CardContent orientation="horizontal">
-        <CardContent>
-          {/* Texte d'appel à l'action */}
-          <Typography level="body-md" fontWeight="bold">
-            Order your spaces
-          </Typography>
-        </CardContent>
-      </CardContent>
+      <div className="p-4">
+        {/* Texte d'appel à l'action */}
+        <p className="font-bold text-sm">
+          Order your spaces
+        </p>
+      </div>
 
       {/* Zone de boutons d'action */}
-      <CardActions>
+      <div className="px-4 py-2 bg-[#333]/50 border-t border-white/10">
         {/* Bouton pour accéder à la page de gestion */}
-        <Button
-          variant="outlined"
-          color="neutral"
+        <button
+          className="px-4 py-1 bg-transparent border border-white/50 text-white hover:bg-white/10 rounded transition-colors"
           onClick={() => redirect("/manage")}
         >
           Manage
-        </Button>
-      </CardActions>
-    </Card>
+        </button>
+      </div>
+    </div>
   );
 };

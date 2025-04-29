@@ -8,7 +8,6 @@
  * Les tags peuvent être utilisés pour catégoriser et rechercher des éléments.
  */
 import React, { useState, useEffect } from "react";
-import { Box, Typography } from "@mui/joy"; // Composants UI de base
 import { BasicModal } from "./shared/BasicModal"; // Composant de fenêtre modale
 import { TagsList } from "./TagsList"; // Composant d'affichage de la liste des tags
 import { TagAddForm } from "./forms/TagAddForm"; // Formulaire d'ajout de tag
@@ -60,17 +59,19 @@ export const TagsManager: React.FC = () => {
   };
 
   return (
-    <Box>
+    <div className="mb-8">
       {/* Titre de la section */}
-      <Typography typography={"h4"}>Your tags</Typography>
+      <h2 className="text-2xl font-bold mb-4 text-white">Your tags</h2>
 
       {/* Liste des tags avec gestion de la suppression */}
       <TagsList tags={tags} onDelete={handleDeleteTag} />
 
       {/* Modale pour ajouter un nouveau tag */}
-      <BasicModal openLabel="add tags" modalLabel="" modalTitle="Tag addition">
-        <TagAddForm onAddTag={handleAddTag} />
-      </BasicModal>
-    </Box>
+      <div className="mt-4">
+        <BasicModal openLabel="add tags" modalLabel="" modalTitle="Tag addition">
+          <TagAddForm onAddTag={handleAddTag} />
+        </BasicModal>
+      </div>
+    </div>
   );
 };

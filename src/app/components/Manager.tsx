@@ -7,18 +7,6 @@
  * to avoid code duplication and improve maintainability.
  */
 import React, { useState } from "react";
-import Card from "@mui/joy/Card";
-import Button from "@mui/joy/Button";
-import Typography from "@mui/joy/Typography";
-import Box from "@mui/joy/Box";
-import List from "@mui/joy/List";
-import ListItem from "@mui/joy/ListItem";
-import ListItemContent from "@mui/joy/ListItemContent";
-import Divider from "@mui/joy/Divider";
-import Tabs from "@mui/joy/Tabs";
-import TabList from "@mui/joy/TabList";
-import Tab from "@mui/joy/Tab";
-import TabPanel from "@mui/joy/TabPanel";
 
 // Icons
 import { DeleteOutlineIcon } from "@/app/assets/icons";
@@ -92,26 +80,34 @@ export const Manager: React.FC = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <Typography level="h4" className="mb-4">
+      <h2 className="text-2xl font-bold mb-6 text-white">
         Space Management
-      </Typography>
+      </h2>
 
-      <Tabs
-        value={activeTab}
-        onChange={(_, newValue) => setActiveTab(newValue as number)}
-        aria-label="Storage management tabs"
-      >
-        <TabList>
-          <Tab>Rooms</Tab>
-          <Tab>Places</Tab>
-          <Tab>Containers</Tab>
-        </TabList>
+      <div className="w-full">
+        {/* Custom tabs */}
+        <div className="border-b border-gray-700 mb-6">
+          <div className="flex">
+            {["Rooms", "Places", "Containers"].map((tab, index) => (
+              <button
+                key={tab}
+                className={`px-4 py-2 font-medium text-sm ${activeTab === index
+                    ? "border-b-2 border-[#335C67] text-[#335C67]"
+                    : "text-gray-400 hover:text-white"
+                  }`}
+                onClick={() => setActiveTab(index)}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Rooms Tab */}
-        <TabPanel value={0}>
-          <Card className="p-4" variant="outlined">
-            <Box className="flex justify-between items-center mb-4">
-              <Typography typography="h5">Rooms</Typography>
+        {activeTab === 0 && (
+          <div className="border border-gray-700 rounded-md bg-[#2a2a2a] p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-white">Rooms</h3>
               <BasicModal
                 openLabel="Add Room"
                 modalTitle="Add a new room"
@@ -119,71 +115,57 @@ export const Manager: React.FC = () => {
               >
                 <AddRoomForm />
               </BasicModal>
-            </Box>
+            </div>
 
             {loadingRooms ? (
               <Loading />
             ) : roomsError ? (
-              <Typography color="danger">Error: {roomsError}</Typography>
+              <p className="text-red-500">Error: {roomsError}</p>
             ) : (
-              <List>
+              <ul className="divide-y divide-gray-700">
                 {rooms.length > 0 ? (
-                  rooms.map((room: Room, index: number) => (
-                    <React.Fragment key={room.id}>
-                      <ListItem
-                        className="py-3"
-                        endAction={
-                          <Box className="flex gap-2">
-                            <BasicModal
-                              openLabel={<DriveFileRenameOutlineIcon />}
-                              sx={{ backgroundColor: "#f3f4f6" }}
-                              modalTitle="Edit room"
-                              modalLabel="Change room details"
-                            >
-                              <EditRoomForm roomId={room.id} />
-                            </BasicModal>
+                  rooms.map((room: Room) => (
+                    <li key={room.id} className="py-3 flex justify-between items-center">
+                      <span className="text-gray-200">{room.name}</span>
+                      <div className="flex gap-2">
+                        <BasicModal
+                          openLabel={<DriveFileRenameOutlineIcon />}
+                          modalTitle="Edit room"
+                          modalLabel="Change room details"
+                          sx={{ backgroundColor: "#333" }}
+                        >
+                          <EditRoomForm roomId={room.id} />
+                        </BasicModal>
 
-                            <Button
-                              onClick={() => handleDeleteRoom(room.id)}
-                              variant="soft"
-                              color="danger"
-                              size="sm"
-                              disabled={deletingRoom === room.id}
-                            >
-                              {deletingRoom === room.id ? (
-                                "Deleting..."
-                              ) : (
-                                <DeleteOutlineIcon />
-                              )}
-                            </Button>
-                          </Box>
-                        }
-                      >
-                        <ListItemContent>
-                          <Typography>{room.name}</Typography>
-                        </ListItemContent>
-                      </ListItem>
-                      {index < rooms.length - 1 && <Divider />}
-                    </React.Fragment>
+                        <button
+                          onClick={() => handleDeleteRoom(room.id)}
+                          className="p-1.5 bg-red-900/30 text-red-400 rounded hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          disabled={deletingRoom === room.id}
+                        >
+                          {deletingRoom === room.id ? (
+                            <span className="text-xs">...</span>
+                          ) : (
+                            <DeleteOutlineIcon />
+                          )}
+                        </button>
+                      </div>
+                    </li>
                   ))
                 ) : (
-                  <Typography
-                    level="body-sm"
-                    className="text-center py-4 text-gray-500"
-                  >
+                  <p className="text-center py-4 text-gray-500 text-sm">
                     No rooms available
-                  </Typography>
+                  </p>
                 )}
-              </List>
+              </ul>
             )}
-          </Card>
-        </TabPanel>
+          </div>
+        )}
 
         {/* Places Tab */}
-        <TabPanel value={1}>
-          <Card className="p-4" variant="outlined">
-            <Box className="flex justify-between items-center mb-4">
-              <Typography typography="h5">Places</Typography>
+        {activeTab === 1 && (
+          <div className="border border-gray-700 rounded-md bg-[#2a2a2a] p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-white">Places</h3>
               <BasicModal
                 openLabel="Add Place"
                 modalTitle="Add a new place"
@@ -191,71 +173,57 @@ export const Manager: React.FC = () => {
               >
                 <AddPlaceForm />
               </BasicModal>
-            </Box>
+            </div>
 
             {loadingPlaces ? (
               <Loading />
             ) : placesError ? (
-              <Typography color="danger">Error: {placesError}</Typography>
+              <p className="text-red-500">Error: {placesError}</p>
             ) : (
-              <List>
+              <ul className="divide-y divide-gray-700">
                 {places.length > 0 ? (
-                  places.map((place: Place, index: number) => (
-                    <React.Fragment key={place.id}>
-                      <ListItem
-                        className="py-3"
-                        endAction={
-                          <Box className="flex gap-2">
-                            <BasicModal
-                              openLabel={<DriveFileRenameOutlineIcon />}
-                              sx={{ backgroundColor: "#f3f4f6" }}
-                              modalTitle="Edit place"
-                              modalLabel="Change place details"
-                            >
-                              <EditPlaceForm placeId={place.id} />
-                            </BasicModal>
+                  places.map((place: Place) => (
+                    <li key={place.id} className="py-3 flex justify-between items-center">
+                      <span className="text-gray-200">{place.name}</span>
+                      <div className="flex gap-2">
+                        <BasicModal
+                          openLabel={<DriveFileRenameOutlineIcon />}
+                          modalTitle="Edit place"
+                          modalLabel="Change place details"
+                          sx={{ backgroundColor: "#333" }}
+                        >
+                          <EditPlaceForm placeId={place.id} />
+                        </BasicModal>
 
-                            <Button
-                              onClick={() => handleDeletePlace(place.id)}
-                              variant="soft"
-                              color="danger"
-                              size="sm"
-                              disabled={deletingPlace === place.id}
-                            >
-                              {deletingPlace === place.id ? (
-                                "Deleting..."
-                              ) : (
-                                <DeleteOutlineIcon />
-                              )}
-                            </Button>
-                          </Box>
-                        }
-                      >
-                        <ListItemContent>
-                          <Typography>{place.name}</Typography>
-                        </ListItemContent>
-                      </ListItem>
-                      {index < places.length - 1 && <Divider />}
-                    </React.Fragment>
+                        <button
+                          onClick={() => handleDeletePlace(place.id)}
+                          className="p-1.5 bg-red-900/30 text-red-400 rounded hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          disabled={deletingPlace === place.id}
+                        >
+                          {deletingPlace === place.id ? (
+                            <span className="text-xs">...</span>
+                          ) : (
+                            <DeleteOutlineIcon />
+                          )}
+                        </button>
+                      </div>
+                    </li>
                   ))
                 ) : (
-                  <Typography
-                    level="body-sm"
-                    className="text-center py-4 text-gray-500"
-                  >
+                  <p className="text-center py-4 text-gray-500 text-sm">
                     No places available
-                  </Typography>
+                  </p>
                 )}
-              </List>
+              </ul>
             )}
-          </Card>
-        </TabPanel>
+          </div>
+        )}
 
         {/* Containers Tab */}
-        <TabPanel value={2}>
-          <Card className="p-4" variant="outlined">
-            <Box className="flex justify-between items-center mb-4">
-              <Typography typography="h5">Containers</Typography>
+        {activeTab === 2 && (
+          <div className="border border-gray-700 rounded-md bg-[#2a2a2a] p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-white">Containers</h3>
               <BasicModal
                 openLabel="Add Container"
                 modalTitle="Add a new container"
@@ -263,68 +231,52 @@ export const Manager: React.FC = () => {
               >
                 <AddContainerForm />
               </BasicModal>
-            </Box>
+            </div>
 
             {loadingContainers ? (
               <Loading />
             ) : containersError ? (
-              <Typography color="danger">Error: {containersError}</Typography>
+              <p className="text-red-500">Error: {containersError}</p>
             ) : (
-              <List>
+              <ul className="divide-y divide-gray-700">
                 {containers && containers.length > 0 ? (
-                  containers.map((container: Container, index: number) => (
-                    <React.Fragment key={container.id}>
-                      <ListItem
-                        className="py-3"
-                        endAction={
-                          <Box className="flex gap-2">
-                            <BasicModal
-                              openLabel={<DriveFileRenameOutlineIcon />}
-                              sx={{ backgroundColor: "#f3f4f6" }}
-                              modalTitle="Edit container"
-                              modalLabel="Change container details"
-                            >
-                              <EditContainerForm containerId={container.id} />
-                            </BasicModal>
+                  containers.map((container: Container) => (
+                    <li key={container.id} className="py-3 flex justify-between items-center">
+                      <span className="text-gray-200">{container.name}</span>
+                      <div className="flex gap-2">
+                        <BasicModal
+                          openLabel={<DriveFileRenameOutlineIcon />}
+                          modalTitle="Edit container"
+                          modalLabel="Change container details"
+                          sx={{ backgroundColor: "#333" }}
+                        >
+                          <EditContainerForm containerId={container.id} />
+                        </BasicModal>
 
-                            <Button
-                              onClick={() =>
-                                handleDeleteContainer(container.id)
-                              }
-                              variant="soft"
-                              color="danger"
-                              size="sm"
-                              disabled={deletingContainer === container.id}
-                            >
-                              {deletingContainer === container.id ? (
-                                "Deleting..."
-                              ) : (
-                                <DeleteOutlineIcon />
-                              )}
-                            </Button>
-                          </Box>
-                        }
-                      >
-                        <ListItemContent>
-                          <Typography>{container.name}</Typography>
-                        </ListItemContent>
-                      </ListItem>
-                      {index < containers.length - 1 && <Divider />}
-                    </React.Fragment>
+                        <button
+                          onClick={() => handleDeleteContainer(container.id)}
+                          className="p-1.5 bg-red-900/30 text-red-400 rounded hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          disabled={deletingContainer === container.id}
+                        >
+                          {deletingContainer === container.id ? (
+                            <span className="text-xs">...</span>
+                          ) : (
+                            <DeleteOutlineIcon />
+                          )}
+                        </button>
+                      </div>
+                    </li>
                   ))
                 ) : (
-                  <Typography
-                    level="body-sm"
-                    className="text-center py-4 text-gray-500"
-                  >
+                  <p className="text-center py-4 text-gray-500 text-sm">
                     No containers available
-                  </Typography>
+                  </p>
                 )}
-              </List>
+              </ul>
             )}
-          </Card>
-        </TabPanel>
-      </Tabs>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

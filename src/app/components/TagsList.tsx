@@ -7,7 +7,6 @@
  * de suppression pour chaque tag via un composant DeletionChip.
  */
 import * as React from "react";
-import { List, Box, Typography } from "@mui/joy"; // Composants UI de base
 import { Tag } from "./shared/Tag"; // Composant d'affichage d'un tag
 import { Icon } from "./shared/Icon"; // Composant d'affichage d'icônes
 import { DeletionChip } from "./shared/DeletionChip"; // Composant pour supprimer un tag
@@ -37,23 +36,19 @@ export const TagsList: React.FC<TagsListProps> = ({ tags, onDelete }) => {
   // Affichage d'un message si aucun tag n'est disponible
   if (!tags.length) {
     return (
-      <Typography
-        sx={{
-          margin: 2,
-        }}
-      >
+      <p className="text-gray-400 m-4">
         No tags available
-      </Typography>
+      </p>
     );
   }
 
   // Affichage de la liste des tags
   return (
-    <List sx={{ maxWidth: 300 }}>
-      <Box alignItems={"center"}>
+    <ul className="max-w-xs space-y-2 p-2">
+      <div className="flex flex-col items-start">
         {/* Parcours du tableau des tags pour les afficher */}
         {tags.map((tag) => (
-          <Box key={tag.id} display={"flex"} gap={1} alignItems={"center"}>
+          <div key={tag.id} className="flex gap-2 items-center mb-2">
             {/* Composant Tag avec son libellé et son icône */}
             <Tag
               label={tag.name}
@@ -63,9 +58,9 @@ export const TagsList: React.FC<TagsListProps> = ({ tags, onDelete }) => {
             />
             {/* Composant pour supprimer le tag */}
             <DeletionChip tagId={tag.id} onDelete={onDelete} />
-          </Box>
+          </div>
         ))}
-      </Box>
-    </List>
+      </div>
+    </ul>
   );
 };

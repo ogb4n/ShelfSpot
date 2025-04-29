@@ -10,7 +10,8 @@ import React, { useState, useEffect } from "react";
 import useGetRooms from "../../hooks/useGetRooms"; // Hook pour récupérer les pièces disponibles
 import useGetPlaces from "../../hooks/useGetPlaces"; // Hook pour récupérer les emplacements disponibles
 import useGetTags from "../../hooks/useGetTags"; // Hook pour récupérer les tags disponibles
-import { Item, Room, Place, Tag } from "@/app/types"; // Types pour la validation des données
+import useGetContainers from "../../hooks/useGetContainers"; // Hook pour récupérer les conteneurs disponibles
+import { Item, Room, Place, Tag, Container } from "@/app/types"; // Types pour la validation des données
 import createItem from "@/app/components/requests/createItem"; // Fonction API pour créer un nouvel article
 import Switch from "@mui/joy/Switch"; // Composant interrupteur pour l'option consommable
 
@@ -39,8 +40,10 @@ export const AddItemForm: React.FC = () => {
   const { rooms } = useGetRooms();
   const { places } = useGetPlaces();
   const { tags } = useGetTags();
+  const { containers = [] } = useGetContainers(); // Add proper hook for containers
 
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
+  const [filteredContainers, setFilteredContainers] = useState<Container[]>([]);
   const [checked, setChecked] = React.useState<boolean>(false);
 
   useEffect(() => {
@@ -49,10 +52,17 @@ export const AddItemForm: React.FC = () => {
         (place: Place) => place.roomId === formData.room?.id
       );
       setFilteredPlaces(filtered);
+      
+      // Also filter containers by the selected room
+      const roomContainers = containers.filter(
+        (container: Container) => container.roomId === formData.room?.id
+      );
+      setFilteredContainers(roomContainers);
     } else {
       setFilteredPlaces([]);
+      setFilteredContainers([]);
     }
-  }, [formData.room?.id, places]);
+  }, [formData.room?.id, places, containers]);
 
   /**
    * Gère les changements dans les champs du formulaire
@@ -99,6 +109,17 @@ export const AddItemForm: React.FC = () => {
       return updatedData;
     });
   };
+
+  /**
+   * Gère les changements dans les champs select du formulaire
+   * Utilitaire spécifique pour les menus déroulants, utilise handleChange en interne
+   *
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - L'événement de changement
+   */
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    handleChange(e);
+  };
+
   /**
    * Gère la sélection/désélection des tags
    * Ajoute ou retire un tag de la liste des tags sélectionnés
@@ -172,7 +193,7 @@ export const AddItemForm: React.FC = () => {
         required
       >
         <option value="">Select a room</option>
-        {rooms.map((room) => (
+        {Array.isArray(rooms) && rooms.map((room: Room) => (
           <option key={room.id} value={room.id}>
             {room.name}
           </option>
