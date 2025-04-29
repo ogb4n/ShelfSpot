@@ -6,9 +6,11 @@
  * Il est utilisé dans différents formulaires où l'utilisateur peut associer une icône
  * à un élément (catégorie, tag, etc.).
  */
-import React from "react";
+import React, { useMemo } from "react";
 import { availableIcons } from "@/app/assets/icons"; // Liste des icônes disponibles
+import { LucideIcon, icons } from "lucide-react";
 import { type IconName } from "lucide-react/dynamic"; // Type pour les noms d'icônes
+import { Fragment } from "react";
 
 /**
  * Interface définissant les propriétés du composant IconSelector
@@ -32,27 +34,51 @@ export const IconSelector: React.FC<IconSelectorProps> = ({
   selectedIcon,
   onSelect,
 }) => {
-  return (
-    <div>
-      {/* Étiquette pour le sélecteur */}
-      <label htmlFor="icon-selector" className="font-semibold">
-        Icon
-      </label>
+  // Charger dynamiquement les icônes disponibles
+  const iconComponents = useMemo(() => {
+    return availableIcons.map((name) => {
+      const LucideIcon = icons[name];
+      return { name, icon: <LucideIcon size={20} /> };
+    });
+  }, []);
 
-      {/* Menu déroulant de sélection d'icône */}
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onSelect(e.target.value as IconName);
+  };
+
+  return (
+    <div className="relative">
       <select
-        id="icon-selector"
         value={selectedIcon}
-        onChange={(e) => onSelect(e.target.value as IconName)} // Conversion du type et appel du callback
-        className="w-full border-gray-300 rounded-sm p-2"
+        onChange={handleChange}
+        className="w-full bg-[#2a2a2a] text-white border-gray-600 rounded-sm p-2 pl-10 appearance-none"
+        style={{ paddingLeft: "2.5rem" }}
       >
-        {/* Génération dynamique des options à partir de la liste des icônes disponibles */}
-        {availableIcons.map((icon) => (
-          <option key={icon} value={icon}>
-            {icon}
+        {iconComponents.map(({ name, icon }) => (
+          <option key={name} value={name} className="flex items-center">
+            {name}
           </option>
         ))}
       </select>
+      <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
+        {icons[selectedIcon] && React.createElement(icons[selectedIcon], { size: 20, color: "#ffffff" })}
+      </div>
+      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-white"
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
     </div>
   );
 };

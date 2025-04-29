@@ -1,57 +1,45 @@
 import React from "react";
-import { CircularProgress, Box, Typography } from "@mui/material";
 
 interface LoadingProps {
   size?: number;
-  color?:
-    | "primary"
-    | "secondary"
-    | "error"
-    | "info"
-    | "success"
-    | "warning"
-    | "inherit";
+  color?: string;
   text?: string;
   fullScreen?: boolean;
 }
 
 const Loading: React.FC<LoadingProps> = ({
   size = 40,
-  color = "primary",
+  color = "#335C67",
   text = "Chargement...",
   fullScreen = false,
 }) => {
-  const containerStyle: React.CSSProperties = fullScreen
-    ? {
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        backgroundColor: "rgba(255, 255, 255, 0.8)",
-        zIndex: 9999,
-      }
-    : {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        padding: "1rem",
-      };
-
   return (
-    <Box sx={containerStyle}>
-      <CircularProgress size={size} color={color} />
-      {text && (
-        <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-          {text}
-        </Typography>
-      )}
-    </Box>
+    <div
+      className={`flex items-center justify-center flex-col ${fullScreen
+          ? "fixed top-0 left-0 w-full h-full bg-black/30 z-50"
+          : "p-4"
+        }`}
+    >
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg
+          className="animate-spin"
+          style={{ width: size, height: size }}
+          viewBox="0 0 50 50"
+        >
+          <circle
+            cx="25"
+            cy="25"
+            r="20"
+            fill="none"
+            stroke={color}
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeDasharray="80, 150"
+          />
+        </svg>
+      </div>
+      {text && <p className="mt-4 text-gray-400 text-sm">{text}</p>}
+    </div>
   );
 };
 

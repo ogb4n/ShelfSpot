@@ -7,15 +7,9 @@
  * La carte présente un compteur visuel et un indicateur de chargement.
  */
 import * as React from "react";
-import Card from "@mui/joy/Card"; // Composant de carte
-import CardContent from "@mui/joy/CardContent"; // Contenu de la carte
-import CardActions from "@mui/joy/CardActions"; // Zone d'actions de la carte
-import CircularProgress from "@mui/joy/CircularProgress"; // Indicateur circulaire
-import Typography from "@mui/joy/Typography"; // Composant de texte stylisé
 import { BasicModal } from "./shared/BasicModal"; // Composant de fenêtre modale
 import { AddItemForm } from "./forms/AddItemForm"; // Formulaire d'ajout d'article
 import { InventoryIcon } from "@/app/assets/icons"; // Icône d'inventaire
-import theme from "../assets/theme"; // Thème de l'application
 
 /**
  * Composant de carte affichant le nombre d'articles dans l'inventaire
@@ -62,34 +56,46 @@ export const ItemsCard: React.FC = () => {
   }, []); // Dépendances vides, exécuté uniquement au montage du composant
 
   return (
-    <Card
-      variant="solid"
-      sx={{ backgroundColor: theme.colorSchemes.dark.palette.primary[500] }}
-      invertedColors
-    >
+    <div className="bg-[#335C67] text-white rounded-md overflow-hidden shadow-md">
       {/* Zone principale de contenu avec l'indicateur et les informations */}
-      <CardContent orientation="horizontal">
+      <div className="p-4 flex flex-row items-center">
         {/* Indicateur circulaire avec l'icône d'inventaire */}
-        <CircularProgress size="lg" determinate value={itemsCount ?? 0}>
-          <InventoryIcon />
-        </CircularProgress>
+        <div className="relative w-16 h-16 flex items-center justify-center rounded-full border-4 border-white/30">
+          <div className="absolute">
+            <InventoryIcon />
+          </div>
+          <svg className="w-full h-full" viewBox="0 0 100 100">
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="10"
+              strokeDasharray={`${(itemsCount ?? 0) * 2.83} 283`}
+              strokeDashoffset="0"
+              transform="rotate(-90 50 50)"
+              className="opacity-70"
+            />
+          </svg>
+        </div>
 
         {/* Informations textuelles */}
-        <CardContent>
+        <div className="ml-4">
           {/* Titre de la carte */}
-          <Typography level="body-md" fontWeight="bold">
+          <p className="font-bold text-sm">
             Items stored
-          </Typography>
+          </p>
 
           {/* Nombre d'articles ou indicateur de chargement */}
-          <Typography level="h2">
+          <h2 className="text-2xl font-bold">
             {loading ? "Loading..." : itemsCount}
-          </Typography>
-        </CardContent>
-      </CardContent>
+          </h2>
+        </div>
+      </div>
 
       {/* Zone d'actions avec le bouton d'ajout d'article */}
-      <CardActions>
+      <div className="px-4 py-2 bg-[#274956]/50 border-t border-white/10">
         {/* Modale pour ajouter un nouvel article */}
         <BasicModal
           openLabel="Add item"
@@ -98,7 +104,7 @@ export const ItemsCard: React.FC = () => {
         >
           <AddItemForm />
         </BasicModal>
-      </CardActions>
-    </Card>
+      </div>
+    </div>
   );
 };

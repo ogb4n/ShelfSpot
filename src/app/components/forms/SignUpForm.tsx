@@ -3,16 +3,8 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import {
-  Button,
-  TextField,
-  Typography,
-  Box,
-  Divider,
-  Link,
-} from "@mui/material";
 import { useRouter } from "next/navigation";
-import theme from "@/app/assets/theme";
+import Link from "next/link";
 
 const FormSchema = z
   .object({
@@ -68,70 +60,94 @@ const SignUpForm = () => {
   };
 
   return (
-    <Box
-      component="form"
+    <form
       onSubmit={form.handleSubmit(onSubmit)}
-      noValidate
-      sx={{ maxWidth: 400, mx: "auto", mt: 4 }}
+      className="max-w-md mx-auto mt-8 p-6 bg-[#2a2a2a] rounded-md"
     >
-      <Typography variant="h4" component="h1" textAlign="center" mb={3}>
+      <h1 className="text-2xl font-bold mb-6 text-center text-white">
         Account creation
-      </Typography>
-      <Box display="flex" flexDirection="column" gap={2}>
-        <TextField
-          label="Username"
-          variant="outlined"
-          {...form.register("username")}
-          error={!!form.formState.errors.username}
-          helperText={form.formState.errors.username?.message}
-          fullWidth
-        />
-        <TextField
-          label="Email Address"
-          variant="outlined"
-          {...form.register("email")}
-          error={!!form.formState.errors.email}
-          helperText={form.formState.errors.email?.message}
-          fullWidth
-        />
-        <TextField
-          label="Password"
-          type="password"
-          variant="outlined"
-          {...form.register("password")}
-          error={!!form.formState.errors.password}
-          helperText={form.formState.errors.password?.message}
-          fullWidth
-        />
-        <TextField
-          label="Confirm your password"
-          type="password"
-          variant="outlined"
-          {...form.register("confirmPassword")}
-          error={!!form.formState.errors.confirmPassword}
-          helperText={form.formState.errors.confirmPassword?.message}
-          fullWidth
-        />
-      </Box>
-      <Button
+      </h1>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <input
+            className="p-2 bg-[#3a3a3a] text-white border border-gray-600 rounded-sm w-full"
+            placeholder="Username"
+            {...form.register("username")}
+          />
+          {form.formState.errors.username && (
+            <span className="text-sm text-red-500">
+              {form.formState.errors.username.message}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <input
+            className="p-2 bg-[#3a3a3a] text-white border border-gray-600 rounded-sm w-full"
+            placeholder="Email Address"
+            type="email"
+            {...form.register("email")}
+          />
+          {form.formState.errors.email && (
+            <span className="text-sm text-red-500">
+              {form.formState.errors.email.message}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <input
+            className="p-2 bg-[#3a3a3a] text-white border border-gray-600 rounded-sm w-full"
+            placeholder="Password"
+            type="password"
+            {...form.register("password")}
+          />
+          {form.formState.errors.password && (
+            <span className="text-sm text-red-500">
+              {form.formState.errors.password.message}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <input
+            className="p-2 bg-[#3a3a3a] text-white border border-gray-600 rounded-sm w-full"
+            placeholder="Confirm your password"
+            type="password"
+            {...form.register("confirmPassword")}
+          />
+          {form.formState.errors.confirmPassword && (
+            <span className="text-sm text-red-500">
+              {form.formState.errors.confirmPassword.message}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <button
         type="submit"
-        variant="contained"
-        fullWidth
-        sx={{
-          backgroundColor: theme.colorSchemes.dark.palette.primary[500],
-          mt: 3,
-        }}
+        className="w-full mt-6 p-2 bg-[#335C67] text-white rounded hover:bg-[#274956] transition-colors"
       >
         Register
-      </Button>
-      <Divider sx={{ my: 2 }}>or</Divider>
-      <Typography textAlign="center" variant="body2">
+      </button>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-600"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-[#2a2a2a] text-gray-400">or</span>
+        </div>
+      </div>
+
+      <p className="text-center text-sm text-gray-400">
         I already have an account to{" "}
-        <Link href="/login" underline="hover">
+        <Link href="/login" className="text-[#335C67] hover:underline">
           log in
         </Link>
-      </Typography>
-    </Box>
+      </p>
+    </form>
   );
 };
 

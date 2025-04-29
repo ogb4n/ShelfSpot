@@ -9,19 +9,13 @@
  */
 
 import * as React from "react";
-import Button from "@mui/joy/Button"; // Bouton pour ouvrir la modale
-import Modal from "@mui/joy/Modal"; // Composant de base pour la modale
-import ModalClose from "@mui/joy/ModalClose"; // Bouton de fermeture de la modale
-import Typography from "@mui/joy/Typography"; // Composant de texte stylisé
-import Sheet from "@mui/joy/Sheet"; // Conteneur stylisé
-import { SxProps } from "@mui/material"; // Type pour les propriétés de style
 
 /**
  * Interface définissant les propriétés du composant BasicModal
  * 
  * @property {string | React.ReactNode} openLabel - Texte ou élément à afficher dans le bouton d'ouverture
  * @property {string} modalTitle - Titre de la modale
- * @property {SxProps} sx - Propriétés de style supplémentaires (optionnel)
+ * @property {React.CSSProperties} sx - Propriétés de style supplémentaires (optionnel)
  * @property {string} modalLabel - Sous-titre ou description de la modale
  * @property {React.ReactNode} icon - Icône à afficher dans le bouton d'ouverture (optionnel)
  * @property {React.ReactNode} children - Contenu à afficher dans la modale
@@ -29,7 +23,7 @@ import { SxProps } from "@mui/material"; // Type pour les propriétés de style
 interface BasicModalProps {
   openLabel: string | React.ReactNode;
   modalTitle: string;
-  sx?: SxProps;
+  sx?: React.CSSProperties;
   modalLabel: string;
   icon?: React.ReactNode;
   children: React.ReactNode;
@@ -52,55 +46,73 @@ export const BasicModal: React.FC<BasicModalProps> = ({
 }) => {
   // État pour contrôler l'ouverture/fermeture de la modale
   const [open, setOpen] = React.useState<boolean>(false);
-  
+  const dialogRef = React.useRef<HTMLDialogElement>(null);
+
+  React.useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    if (open) {
+      dialog.showModal();
+    } else {
+      dialog.close();
+    }
+  }, [open]);
+
   return (
     <React.Fragment>
       {/* Bouton déclencheur pour ouvrir la modale */}
-      <Button variant="outlined" sx={sx} onClick={() => setOpen(true)}>
+      <button
+        style={sx}
+        onClick={() => setOpen(true)}
+        className="px-4 py-2 bg-transparent border border-[#335C67] text-[#335C67] hover:bg-[#335C67]/10 rounded transition-colors flex items-center gap-2"
+      >
         {icon} {openLabel}
-      </Button>
-      
-      {/* Composant modale avec gestion de l'état d'ouverture */}
-      <Modal
-        aria-labelledby="modal-title" // Pour l'accessibilité - associe le titre à la modale
-        aria-describedby="modal-desc" // Pour l'accessibilité - associe la description à la modale
-        open={open}
-        onClose={() => setOpen(false)} // Ferme la modale quand l'utilisateur clique à l'extérieur
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }} // Centre la modale
+      </button>
+
+      {/* Composant dialog natif pour la modale */}
+      <dialog
+        ref={dialogRef}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-desc"
+        className="fixed inset-0 m-auto bg-transparent p-0"
+        onClick={(e) => {
+          // Close when clicking outside the dialog content
+          if (e.target === dialogRef.current) setOpen(false);
+        }}
       >
         {/* Contenu de la modale avec style */}
-        <Sheet
-          variant="outlined"
-          sx={{ maxWidth: 500, borderRadius: "md", p: 3, boxShadow: "lg" }}
-        >
+        <div className="bg-[#2a2a2a] max-w-lg border border-gray-600 rounded-md p-6 shadow-xl">
           {/* Bouton de fermeture en haut à droite */}
-          <ModalClose variant="plain" sx={{ m: 1 }} />
-          
+          <button
+            onClick={() => setOpen(false)}
+            className="absolute right-3 top-3 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white"
+          >
+            ×
+          </button>
+
           {/* Titre de la modale */}
-          <Typography
-            component="h2"
+          <h2
             id="modal-title"
-            level="h4"
-            textColor="inherit"
-            sx={{ fontWeight: "lg", mb: 1 }}
+            className="text-xl font-bold mb-2 text-white"
           >
             {modalTitle}
-          </Typography>
-          
+          </h2>
+
           {/* Sous-titre ou description de la modale */}
-          <Typography
+          <p
             id="modal-desc"
-            level="body-md"
-            fontWeight="bold"
-            textColor="text.tertiary"
+            className="text-sm font-medium text-gray-400 mb-4"
           >
             {modalLabel}
-          </Typography>
+          </p>
 
           {/* Contenu principal de la modale (transmis via children) */}
-          {children}
-        </Sheet>
-      </Modal>
+          <div className="mt-4">
+            {children}
+          </div>
+        </div>
+      </dialog>
     </React.Fragment>
   );
 };

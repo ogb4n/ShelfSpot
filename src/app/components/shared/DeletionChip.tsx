@@ -7,11 +7,8 @@
  * éléments nécessitant une suppression via une interface visuelle compacte.
  */
 import * as React from "react";
-import Box from "@mui/joy/Box"; // Conteneur flexible
-import Chip from "@mui/joy/Chip"; // Composant de puce interactive
 import { useState } from "react"; // Hook pour la gestion d'état
 import { DeleteForever } from "@/app/assets/icons"; // Icône de suppression
-import theme from "@/app/assets/theme"; // Thème de l'application
 import deleteTag from "@/app/components/requests/deleteTag"; // Fonction API pour supprimer un tag
 
 /**
@@ -54,19 +51,16 @@ export const DeletionChip: React.FC<DeletionChipProps> = ({
   };
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
-      {/* Puce cliquable stylisée en rouge pour indiquer une action destructive */}
-      <Chip
-        variant="outlined"
+    <div className="flex items-center">
+      {/* Button styled as a chip for delete action */}
+      <button
         onClick={() => handleDelete(tagId)}
-        sx={{
-          color: theme.colorSchemes.dark.palette.danger[500],
-          justifyContent: "center",
-        }}
+        className="flex items-center justify-center p-1 border border-red-400 text-red-400 rounded-full hover:bg-red-400/10 transition-colors"
+        disabled={deleting === tagId}
+        aria-label="Delete"
       >
-        {/* Icône de suppression définitive */}
-        <DeleteForever sx={{ height: 22, width: 22, mb: 0.2 }} />
-      </Chip>
-    </Box>
+        <DeleteForever className="h-5 w-5" />
+      </button>
+    </div>
   );
 };

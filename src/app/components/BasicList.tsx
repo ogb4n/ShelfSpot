@@ -24,9 +24,7 @@ import {
 } from "@/app/assets/icons"; // Icônes personnalisées pour les actions
 import deleteItem from "@/app/components/requests/deleteItem";
 import editItem from "@/app/components/requests/editItem";
-
-import theme from "@/app/assets/theme";
-import { Item } from "@/app/types";
+import { Item, Room, Place } from "@/app/types";
 
 /**
  * Extension du module de la grille de données pour ajouter des propriétés personnalisées
@@ -43,103 +41,114 @@ declare module "@mui/x-data-grid" {
 
 /**
  * Composant de barre d'outils personnalisée pour la grille de données
- * Actuellement vide mais peut être utilisé pour ajouter des boutons ou des fonctionnalités
- * comme "Ajouter un article", "Filtrer", etc.
- *
- * @returns {JSX.Element} Barre d'outils de la grille
+ * Affiche le titre et permet d'ajouter des contrôles supplémentaires
  */
 function EditToolbar() {
-  return <GridToolbarContainer></GridToolbarContainer>;
+  return (
+    <GridToolbarContainer
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        p: 2,
+        borderBottom: "1px solid #333",
+      }}
+    >
+      <Typography level="title-lg">Inventory Items</Typography>
+    </GridToolbarContainer>
+  );
 }
 
 /**
  * Composant principal de liste d'articles
  * Gère l'affichage et l'édition des articles dans une grille de données interactive
- *
- * @returns {JSX.Element} Le composant de liste d'articles rendu
+ * avec un style inspiré de Shadcn UI
  */
-
 interface BasicListProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any;
 }
 
 export const BasicList: React.FC<BasicListProps> = ({ session }) => {
-  console.log("session", session);
-  // État pour stocker les données des lignes du tableau
   const [rows, setRows] = useState<GridRowsProp>([]);
-  // État pour gérer les modes d'édition des lignes (vue/édition)
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-  // État pour le chargement des données
   const [loading, setLoading] = useState<boolean>(true);
-  // État pour les messages d'erreur
   const [error, setError] = useState<string | null>(null);
-  // État pour la liste des pièces (utilisé dans les sélecteurs)
   const [rooms, setRooms] = useState<string[]>([]);
-  // État pour la liste des emplacements (utilisé dans les sélecteurs)
   const [places, setPlaces] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<Set<GridRowId>>(new Set());
+  const [containers, setContainers] = useState<string[]>([]);
+
+  // États pour stocker les objets complets et gérer les relations
+  const [roomsData, setRoomsData] = useState<Room[]>([]);
+  const [placesData, setPlacesData] = useState<Place[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  const [filteredPlaces, setFilteredPlaces] = useState<string[]>([]);
 
   /**
    * Récupère la liste des articles depuis l'API
-   * Transforme les données pour les adapter au format de la grille
    */
   const fetchItems = useCallback(async () => {
-    setLoading(true); // Active l'indicateur de chargement
-    setError(null); // Réinitialise les erreurs précédentes
+    setLoading(true);
+    setError(null);
 
     try {
-      // Appel à l'API pour récupérer les articles
       const response = await fetch("/api/items");
       if (!response.ok) {
         throw new Error("Failed to fetch items");
       }
-      // Traitement des données reçues
       const data: Item[] = await response.json();
-      // Formatage des données pour la grille avec gestion des valeurs nulles
+
       setRows(
         data.map((item: Item) => ({
           id: item.id,
           name: item.name,
           quantity: item.quantity,
-          place: item.place ? item.place.name : "N/A", // Gestion des emplacements manquants
-          room: item.room ? item.room.name : "N/A", // Gestion des pièces manquantes
+          place: item.place ? item.place.name : "N/A",
+          room: item.room ? item.room.name : "N/A",
+          container: item.container ? item.container.name : "N/A",
           status: item.status ?? "N/A",
-          tags: item.tags.join(", "),
+          tags: Array.isArray(item.tags) ? item.tags.join(", ") : "",
+          containerId: item.container?.id,
         }))
       );
     } catch (err) {
       console.error("Error fetching items:", err);
       setError("Failed to load items. Please try again.");
     } finally {
-      setLoading(false); // Désactive l'indicateur de chargement
+      setLoading(false);
     }
   }, []);
 
   /**
    * Récupère la liste des pièces et des emplacements pour les sélecteurs
-   * Ces données sont utilisées dans les menus déroulants d'édition
    */
   const fetchRoomsAndPlaces = useCallback(async () => {
     try {
-      // Appels API parallèles pour récupérer les pièces et les emplacements
       const roomsResponse = await fetch("/api/rooms");
       const placesResponse = await fetch("/api/places");
+      const containersResponse = await fetch("/api/containers");
 
-      if (!roomsResponse.ok || !placesResponse.ok) {
+      if (!roomsResponse.ok || !placesResponse.ok || !containersResponse.ok) {
+        console.error("Failed to fetch rooms or places");
+        setError("Failed to load rooms or places. Please try again.");
         throw new Error("Failed to fetch rooms or places");
       }
 
-      // Traitement des données reçues
-      const roomsData = await roomsResponse.json();
-      const placesData = await placesResponse.json();
+      const roomsDataFetched = await roomsResponse.json();
+      const placesDataFetched = await placesResponse.json();
+      const containersData = await containersResponse.json();
 
-      // Extraction des noms des pièces et emplacements pour les listes déroulantes
+      setRoomsData(roomsDataFetched);
+      setPlacesData(placesDataFetched);
+
+      setContainers(
+        containersData.map((container: { id: number; name: string }) => container.name)
+      );
       setRooms(
-        roomsData.map((room: { id: number; name: string }) => room.name)
+        roomsDataFetched.map((room: { id: number; name: string }) => room.name)
       );
       setPlaces(
-        placesData.map((place: { id: number; name: string }) => place.name)
+        placesDataFetched.map((place: { id: number; name: string }) => place.name)
       );
     } catch (err) {
       console.error("Error fetching rooms or places:", err);
@@ -155,7 +164,6 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       }
 
       const data = await response.json();
-      // Create a set of favorited item IDs for efficient lookup
       setFavorites(
         new Set(data.map((fav: { itemId: GridRowId }) => fav.itemId))
       );
@@ -172,12 +180,10 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       let response;
 
       if (isFavorite) {
-        // If already favorited, send DELETE request to remove
         response = await fetch(`/api/favourites?id=${id}`, {
           method: "DELETE",
         });
       } else {
-        // If not favorited, send POST request to add
         response = await fetch("/api/favourites", {
           method: "POST",
           headers: {
@@ -193,7 +199,6 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
         );
       }
 
-      // Update local state to reflect the change
       setFavorites((prevFavorites) => {
         const newFavorites = new Set(prevFavorites);
         if (isFavorite) {
@@ -203,8 +208,6 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
         }
         return newFavorites;
       });
-
-      console.log(isFavorite ? "Removed from favorites" : "Added to favorites");
     } catch (err) {
       console.error(
         `Error ${isFavorite ? "removing from" : "adding to"} favorites:`,
@@ -213,45 +216,72 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
     }
   };
 
-  // Effet pour charger les données initiales au montage du composant
+  // Effet pour charger les données initiales
   useEffect(() => {
     fetchItems();
     fetchRoomsAndPlaces();
     fetchUserFavorites();
   }, [fetchItems, fetchRoomsAndPlaces, fetchUserFavorites]);
 
-  /**
-   * Gère l'arrêt de l'édition d'une ligne
-   * Empêche la sortie automatique du mode édition lors d'un clic en dehors
-   *
-   * @param {Object} params - Paramètres de l'événement
-   * @param {Object} event - L'événement d'arrêt d'édition
-   */
+  // Effet pour filtrer les places en fonction de la room sélectionnée
+  useEffect(() => {
+    if (selectedRoom) {
+      const selectedRoomObj = roomsData.find(room => room.name === selectedRoom);
+      if (selectedRoomObj) {
+        const placesInRoom = placesData
+          .filter(place => place.roomId === selectedRoomObj.id)
+          .map(place => place.name);
+
+        setFilteredPlaces(placesInRoom);
+      }
+    } else {
+      setFilteredPlaces(places);
+    }
+  }, [selectedRoom, roomsData, placesData, places]);
+
+  // Double-click handler to start editing
+  const handleRowDoubleClick = (params: any) => {
+    setRowModesModel({
+      ...rowModesModel,
+      [params.id]: { mode: GridRowModes.Edit }
+    });
+  };
+
+  const handleCellEditStart = (params: any) => {
+    if (params.field === 'room') {
+      const rowIndex = rows.findIndex((row) => row.id === params.id);
+      if (rowIndex !== -1) {
+        const currentRow = rows[rowIndex];
+        setSelectedRoom(currentRow.room);
+      }
+    }
+  };
+
+  const handleCellEditCommit = (params: any) => {
+    if (params.field === 'room') {
+      setSelectedRoom(params.value);
+
+      const rowIndex = rows.findIndex((row) => row.id === params.id);
+      if (rowIndex !== -1) {
+        const updatedRow = { ...rows[rowIndex], room: params.value, place: "N/A" };
+        setRows(rows.map(row => row.id === params.id ? updatedRow : row));
+      }
+    }
+  };
+
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
     params,
     event
   ) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true; // Empêche la sortie du mode édition
+      event.defaultMuiPrevented = true;
     }
   };
 
-  /**
-   * Active le mode édition pour une ligne spécifique
-   *
-   * @param {GridRowId} id - L'identifiant de la ligne à éditer
-   * @returns {Function} Fonction de gestionnaire d'événements
-   */
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
 
-  /**
-   * Sauvegarde les modifications et quitte le mode édition
-   *
-   * @param {GridRowId} id - L'identifiant de la ligne modifiée
-   * @returns {Function} Fonction de gestionnaire d'événements
-   */
   const handleSaveClick = (id: GridRowId) => () => {
     return setRowModesModel({
       ...rowModesModel,
@@ -259,65 +289,34 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
     });
   };
 
-  /**
-   * Supprime un article après confirmation
-   *
-   * @param {GridRowId} id - L'identifiant de la ligne à supprimer
-   * @returns {Function} Fonction de gestionnaire d'événements asynchrone
-   */
   const handleDeleteClick = (id: GridRowId) => async () => {
-    await deleteItem(id); // Appel API pour supprimer l'article
-    return setRows(rows.filter((row) => row.id !== id)); // Mise à jour de l'UI
+    await deleteItem(id);
+    return setRows(rows.filter((row) => row.id !== id));
   };
 
-  /**
-   * Annule les modifications en cours et quitte le mode édition
-   *
-   * @param {GridRowId} id - L'identifiant de la ligne en édition
-   * @returns {Function} Fonction de gestionnaire d'événements
-   */
   const handleCancelClick = (id: GridRowId) => () => {
     setRowModesModel({
       ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true }, // Ignore les modifications
+      [id]: { mode: GridRowModes.View, ignoreModifications: true },
     });
 
-    // Si c'est une nouvelle ligne, la supprimer du tableau
     const editedRow = rows.find((row) => row.id === id);
     if (editedRow!.isNew) {
       setRows(rows.filter((row) => row.id !== id));
     }
   };
 
-  /**
-   * Traite la mise à jour d'une ligne après édition
-   * Envoie les modifications à l'API et met à jour l'état local
-   *
-   * @param {GridRowModel} newRow - Les nouvelles données de la ligne
-   * @returns {Promise<GridRowModel>} La ligne mise à jour
-   */
   const processRowUpdate = async (newRow: GridRowModel) => {
     const updatedRow = { ...newRow, isNew: false };
-    await editItem(updatedRow); // Appel API pour mettre à jour l'article
-
-    // Mise à jour de l'UI avec les nouvelles données
+    await editItem(updatedRow);
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     return updatedRow;
   };
 
-  /**
-   * Met à jour le modèle des modes de ligne
-   *
-   * @param {GridRowModesModel} newRowModesModel - Le nouveau modèle de modes
-   */
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
     setRowModesModel(newRowModesModel);
   };
 
-  /**
-   * Définition des colonnes de la grille avec leurs propriétés
-   * Chaque colonne peut avoir des types différents (texte, nombre, sélection, etc.)
-   */
   const columns: GridColDef[] = [
     { field: "name", headerName: "Item", flex: 1, editable: true },
     {
@@ -332,16 +331,24 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       headerName: "Place",
       flex: 1,
       editable: true,
-      type: "singleSelect", // Menu déroulant avec sélection unique
-      valueOptions: places, // Options de sélection basées sur les emplacements disponibles
+      type: "singleSelect",
+      valueOptions: selectedRoom ? filteredPlaces : places,
     },
     {
       field: "room",
       headerName: "Room",
       flex: 1,
-      type: "singleSelect", // Menu déroulant avec sélection unique
+      type: "singleSelect",
       editable: true,
-      valueOptions: rooms, // Options de sélection basées sur les pièces disponibles
+      valueOptions: rooms,
+    },
+    {
+      field: "container",
+      headerName: "Container",
+      flex: 1,
+      type: "singleSelect",
+      editable: true,
+      valueOptions: containers,
     },
     {
       field: "tags",
@@ -354,23 +361,16 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
       headerName: "Actions",
       width: 100,
       cellClassName: "actions",
-      /**
-       * Détermine quelles actions afficher selon le mode de la ligne
-       *
-       * @param {Object} params - Les paramètres de la cellule
-       * @returns {Array<JSX.Element>} Les actions à afficher
-       */
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
-        // Actions en mode édition (Sauvegarder, Annuler)
         if (isInEditMode) {
           return [
             <GridActionsCellItem
               key={`save-${id}`}
               icon={<SaveIcon />}
               label="Save"
-              sx={{ color: theme.colorSchemes.dark.palette.primary[500] }}
+              sx={{ color: "#335C67" }}
               onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
@@ -384,7 +384,6 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
           ];
         }
 
-        // Actions en mode visualisation (Éditer, Supprimer, etc.)
         return [
           <GridActionsCellItem
             key={`edit-${id}`}
@@ -413,7 +412,6 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
     },
   ];
 
-  // Affichage de l'indicateur de chargement pendant le chargement des données
   if (loading) {
     return (
       <div
@@ -432,13 +430,12 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
     );
   }
 
-  // Affichage d'un message d'erreur avec possibilité de réessayer
   if (error) {
     return (
       <div style={{ textAlign: "center", marginTop: "20px" }}>
         <Typography
           level="h3"
-          sx={{ color: theme.colorSchemes.dark.palette.danger[500] }}
+          sx={{ color: "#9E2A2B" }}
         >
           {error}
         </Typography>
@@ -452,31 +449,85 @@ export const BasicList: React.FC<BasicListProps> = ({ session }) => {
     );
   }
 
-  // Rendu principal du composant avec la grille de données
   return (
     <div style={{ height: 400, width: "100%" }}>
       <DataGrid
-        rows={rows} // Données des lignes
-        columns={columns} // Configuration des colonnes
-        editMode="row" // Mode d'édition par ligne complète
-        rowModesModel={rowModesModel} // État des modes d'édition
-        onRowModesModelChange={handleRowModesModelChange} // Gestion des changements de mode
-        onRowEditStop={handleRowEditStop} // Gestion de l'arrêt d'édition
-        processRowUpdate={processRowUpdate} // Traitement des mises à jour
-        slots={{ toolbar: EditToolbar }} // Personnalisation de la barre d'outils
+        rows={rows}
+        columns={columns}
+        editMode="row"
+        rowModesModel={rowModesModel}
+        onRowModesModelChange={handleRowModesModelChange}
+        onRowEditStop={handleRowEditStop}
+        processRowUpdate={processRowUpdate}
+        onRowDoubleClick={handleRowDoubleClick}
+        slots={{ toolbar: EditToolbar }}
         slotProps={{
-          toolbar: { setRows, setRowModesModel }, // Propriétés passées à la barre d'outils
+          toolbar: { setRows, setRowModesModel },
+        }}
+        onCellEditStart={handleCellEditStart}
+        sx={{
+          border: '1px solid #333',
+          '& .MuiDataGrid-root': {
+            backgroundColor: '#111',
+            color: '#fff',
+            fontSize: '0.95rem',
+          },
+          '& .MuiDataGrid-cell': {
+            borderColor: '#333',
+            padding: '12px 16px',
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: '#1a1a1a',
+            color: '#fff',
+            borderColor: '#333',
+            borderRadius: '0',
+            fontSize: '1rem',
+          },
+          '& .MuiDataGrid-columnSeparator': {
+            color: '#333',
+          },
+          '& .MuiDataGrid-footerContainer': {
+            backgroundColor: '#1a1a1a',
+            borderColor: '#333',
+            borderRadius: '0',
+          },
+          '& .MuiTablePagination-root': {
+            color: '#fff',
+          },
+          '& .MuiDataGrid-row.Mui-selected': {
+            backgroundColor: '#2563eb',
+            '&:hover': {
+              backgroundColor: '#1d4ed8',
+            },
+          },
+          '& .MuiDataGrid-row:hover': {
+            backgroundColor: '#1a1a1a',
+          },
+          '& .MuiDataGrid-cell:focus-within': {
+            outline: 'none',
+          },
+          '& .MuiDataGrid-row.Mui-hovered': {
+            backgroundColor: '#1a1a1a',
+          },
+          '& .MuiDataGrid-row.Mui-even': {
+            backgroundColor: '#151515',
+          },
+          '& .MuiDataGrid-editInputCell': {
+            color: '#fff',
+            backgroundColor: '#222',
+            padding: '4px',
+            borderRadius: '4px',
+          },
         }}
         initialState={{
           pagination: {
             paginationModel: {
-              pageSize: 5, // Nombre d'éléments par page
+              pageSize: 5,
             },
           },
         }}
-        pageSizeOptions={[5]} // Options de taille de page disponibles
-        // checkboxSelection // Option pour activer la sélection par case à cocher
-        disableRowSelectionOnClick // Désactive la sélection au clic
+        pageSizeOptions={[5, 10, 25]}
+        disableRowSelectionOnClick
       />
     </div>
   );
