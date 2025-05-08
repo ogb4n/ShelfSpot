@@ -1,6 +1,4 @@
 "use server";
-import { Manager } from "@/app/components/Manager";
-import { Box } from "@mui/joy";
 
 /**
  * Manage Page Component
@@ -10,9 +8,8 @@ import { Box } from "@mui/joy";
 const ManagePage = () => {
   return (
     <main className="p-8">
-      <Box className="container mx-auto">
-        <Manager />
-      </Box>
+      <div className="container mx-auto">
+      </div>
     </main>
   );
 };

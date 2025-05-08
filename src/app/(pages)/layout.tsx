@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Navbar from "@/app/components/shared/Navbar/Navbar";
 import React from "react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
@@ -22,7 +21,6 @@ export default async function RootLayout({
 
   return (
     <>
-      <Navbar />
       <main className="flex-1 ml-[220px]">
         {children}
       </main>
