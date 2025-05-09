@@ -8,78 +8,104 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String?
-  admin     Boolean  @default(false)
-  createdAt DateTime @default(now())
-  Wallet Wallet[]
+  id         Int         @id @default(autoincrement())
+  email      String      @unique
+  password   String
+  name       String?
+  admin      Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  favourites Favourite[]
+
+  @@index([email]) // Ajout d'index pour accélération des recherches par email
 }
 
 model Item {
-  id        Int     @id @default(autoincrement())
-  name      String  
-  quantity     Int     @default(1)
-  image     String?
-  price     Float?
-  sellprice Float?
-  status    String?
-  tags      String?
-  consumable Boolean @default(false)
-  placeId   Int?    
-  place     Place?  @relation(fields: [placeId], references: [id]) // Relation many-to-one avec Place
-  roomId    Int?
-  room      Room?   @relation("RoomToItems", fields: [roomId], references: [id]) // Relation avec Room
+  id         Int         @id @default(autoincrement())
+  name       String
+  quantity   Int         @default(1)
+  image      String?
+  price      Float?
+  sellprice  Float?
+  status     String?
+  consumable Boolean     @default(false)
+  placeId    Int?
+  place      Place?      @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  roomId     Int?
+  room       Room?       @relation("RoomToItems", fields: [roomId], references: [id], onDelete: SetNull)
+  favourites Favourite[]
+  itemTags   ItemTag[] // Relation pour les tags normalisés
+  containers Container[] @relation("ContainerToItems") // Relation pour les conteneurs qui contiennent cet item
+  container  Container?  @relation("ContainerToItem") // Relation inverse pour l'item qui contient ce conteneur
+
+  @@index([placeId]) // Index pour accélérer les recherches par lieu
+  @@index([roomId]) // Index pour accélérer les recherches par pièce
 }
 
 model Place {
-  id     Int     @id @default(autoincrement())
-  name   String
-  icon   String?
-  roomId Int?    // ID de la pièce parent
-  room   Room?   @relation("RoomToPlaces", fields: [roomId], references: [id])
-  items  Item[]  // Relation one-to-many avec Item
+  id        Int         @id @default(autoincrement())
+  name      String
+  icon      String?
+  roomId    Int?
+  room      Room?       @relation("RoomToPlaces", fields: [roomId], references: [id], onDelete: SetNull)
+  items     Item[]
+  Container Container[]
+
+  @@unique([name, roomId]) // Éviter les doublons de noms dans la même pièce
+  @@index([roomId]) // Optimisation pour les recherches par room
 }
+
 model Room {
-  id     Int     @id @default(autoincrement())
-  name   String
-  icon   String?
-  places Place[] @relation("RoomToPlaces") // Lieux associés à cette pièce
-  items  Item[]  @relation("RoomToItems")  // Objets directement dans la pièce
+  id        Int         @id @default(autoincrement())
+  name      String      @unique // Éviter les pièces en double
+  icon      String?
+  places    Place[]     @relation("RoomToPlaces")
+  items     Item[]      @relation("RoomToItems")
+  Container Container[]
 }
 
-model Tags {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique
-  icon  String?
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  icon     String?
+  itemTags ItemTag[] // Relation many-to-many normalisée
 }
 
-model Wallet {
-  id        Int     @id @default(autoincrement())
-  name      String  @unique
-  userId    Int
-  user      User    @relation(fields: [userId], references: [id])
-  balance   Float   @default(0)
-  createdAt DateTime @default(now())
-  Outcome Outcome[]
-  Income Income[]
+model ItemTag {
+  id     Int  @id @default(autoincrement())
+  itemId Int
+  tagId  Int
+  item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, tagId]) // Éviter les duplications de relations
+  @@index([tagId])
+  @@index([itemId])
 }
 
-model Outcome {
-  id        Int     @id @default(autoincrement())
-  walletId  Int
-  wallet    Wallet  @relation(fields: [walletId], references: [id], onDelete: Cascade)
-  amount    Float
-  description String
-  createdAt DateTime @default(now())
-} 
+model Favourite {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId Int
+  item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
-model Income {
-  id        Int     @id @default(autoincrement())
-  walletId  Int
-  wallet    Wallet  @relation(fields: [walletId], references: [id], onDelete: Cascade)
-  amount    Float
-  description String
-  createdAt DateTime @default(now())
+  @@unique([userId, itemId]) // Un utilisateur ne peut ajouter qu'une fois un item aux favoris
+  @@index([userId])
+  @@index([itemId])
+}
+
+model Container {
+  id      Int     @id @default(autoincrement())
+  name    String
+  icon    String?
+  roomId  Int?
+  room    Room?   @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  items   Item[]  @relation("ContainerToItems") // Relation pour les items contenus dans le conteneur
+  place   Place?  @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  placeId Int?
+  itemId  Int?    @unique // Un conteneur ne peut être associé qu'à un seul item parent
+  item    Item?   @relation("ContainerToItem", fields: [itemId], references: [id], onDelete: SetNull)
+
+  @@index([roomId])
+  @@index([placeId])
 }

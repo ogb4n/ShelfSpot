@@ -1,5 +1,5 @@
-# Étape 1: Construction de l'image
-FROM node:alpine AS builder
+# Étape 1 : Construction de l'application
+FROM node:20-alpine AS builder
 
 # Définir le répertoire de travail
 WORKDIR /app
@@ -7,17 +7,20 @@ WORKDIR /app
 # Copier package.json et yarn.lock
 COPY package.json yarn.lock ./
 
+# Copier le reste de l'application ( SI CA MARCHE PAS INVERSER AVEC PRISMA INSTALL)
+COPY . .
+
 # Installer les dépendances
 RUN yarn install
 
-# Copier le reste de l'application
-COPY . .
+# Générer le client Prisma
+RUN yarn prisma generate
 
 # Construire l'application
 RUN yarn build
 
-# Étape 2: Lancement de l'application
-FROM node:alpine
+# Étape 2 : Lancement de l'application
+FROM node:20-alpine
 
 # Définir le répertoire de travail
 WORKDIR /app

@@ -1,26 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Roboto } from "next/font/google";
+import { geistSans, geistMono, roboto } from "../../public/fonts/googlefonts";
 import "./globals.css";
 import React from "react";
-import { Providers } from "./contexts/ContextsProviders";
-import Sheet from "@mui/joy/Sheet";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const roboto = Roboto({
-  weight: ["300", "400", "500", "700"],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-roboto",
-});
+import { Providers } from "./utils/providers";
 
 export const metadata: Metadata = {
   title: "ShelfSpot",
@@ -33,16 +15,42 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Script pour appliquer le thème dès le chargement */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function(){
+  try {
+    var theme = localStorage.theme;
+    if (!theme) {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  } catch(e) {}
+})();
+            `,
+          }}
+        />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased bg-white dark:bg-black`}
         style={{ margin: 0, padding: 0, overflow: "hidden" }}
       >
-        <Sheet style={{ display: "flex", height: "100vh" }}>
-          <Sheet style={{ flexGrow: 1, overflow: "auto" }}>
-            <Providers>{children}</Providers>
-          </Sheet>
-        </Sheet>
+        <Providers>
+          <div className="flex h-screen flex-col">
+            <div className="p-2 flex justify-end items-center gap-2">
+            </div>
+            <div className="flex-1 flex">
+              {children}
+            </div>
+          </div>
+        </Providers>
       </body>
     </html>
   );
