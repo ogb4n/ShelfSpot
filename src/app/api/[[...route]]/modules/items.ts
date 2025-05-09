@@ -8,7 +8,33 @@ export const itemsModule: ApiModule = {
     {
       path: "items",
       handlers: {
-        GET: async () => {
+        GET: async (req) => {
+          const { searchParams } = new URL(req.url);
+          const id = searchParams.get("id");
+          const search = searchParams.get("search")?.trim() || "";
+          if (id) {
+            try {
+              const item = await prisma.item.findUnique({
+                where: { id: Number(id) },
+                include: {
+                  room: true,
+                  place: true,
+                  container: true,
+                  itemTags: { include: { tag: true } },
+                },
+              });
+              if (!item) {
+                return NextResponse.json({ error: "Item not found" }, { status: 404 });
+              }
+              return NextResponse.json({
+                ...item,
+                tags: item.itemTags ? item.itemTags.map((itemTag) => itemTag.tag.name) : [],
+                itemTags: undefined,
+              });
+            } catch (error) {
+              return NextResponse.json({ error: "Failed to fetch item." }, { status: 500 });
+            }
+          }
           try {
             const items = await prisma.item.findMany({
               include: {
@@ -23,7 +49,27 @@ export const itemsModule: ApiModule = {
               },
             });
 
-            const transformedItems = items.map((item) => ({
+            // Filtrage avancé côté serveur si search est présent
+            let filteredItems = items;
+            if (search) {
+              const normalize = (str : any) => str.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+              const searchWords = normalize(search).split(/\s+/).filter(Boolean);
+              filteredItems = items.filter((item) => {
+                const fields = [
+                  item.name,
+                  item.status,
+                  item.room?.name,
+                  item.place?.name,
+                  item.container?.name,
+                  ...(item.itemTags?.map((t) => t.tag.name) || [])
+                ].filter(Boolean).map(normalize);
+                return searchWords.every(word =>
+                  fields.some(field => field.includes(word))
+                );
+              });
+            }
+
+            const transformedItems = filteredItems.map((item) => ({
               ...item,
               tags: item.itemTags.map((itemTag) => itemTag.tag.name),
               itemTags: undefined,
@@ -137,12 +183,37 @@ export const itemsModule: ApiModule = {
           }
 
           try {
-            const place = await prisma.place.findFirstOrThrow({
-              where: { name: body.place },
-            });
-            const room = await prisma.room.findFirstOrThrow({
-              where: { name: body.room },
-            });
+            // Correction : utiliser l'id si disponible, sinon le nom (string)
+            let place;
+            if (typeof body.placeId === "number") {
+              place = await prisma.place.findUniqueOrThrow({
+                where: { id: body.placeId },
+              });
+            } else if (typeof body.place === "string") {
+              place = await prisma.place.findFirstOrThrow({
+                where: { name: body.place },
+              });
+            } else {
+              return NextResponse.json(
+                { error: "A valid placeId or place name must be provided." },
+                { status: 400 }
+              );
+            }
+            let room;
+            if (typeof body.roomId === "number") {
+              room = await prisma.room.findUniqueOrThrow({
+                where: { id: body.roomId },
+              });
+            } else if (typeof body.room === "string") {
+              room = await prisma.room.findFirstOrThrow({
+                where: { name: body.room },
+              });
+            } else {
+              return NextResponse.json(
+                { error: "A valid roomId or room name must be provided." },
+                { status: 400 }
+              );
+            }
             
             // Prepare update data
             const updateData: any = {

@@ -168,7 +168,7 @@ export const userModule: ApiModule = {
             }
             const updatedUser = await prisma.user.update({
               where: {
-                id: userId,
+                id: parseInt(userId),
               },
               data: {
                 name: name,

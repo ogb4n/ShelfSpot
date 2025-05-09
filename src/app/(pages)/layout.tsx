@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import React from "react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import Sidebar from "@/components/Sidebar";
 
 export const metadata: Metadata = {
   title: "ShelfSpot",
   description: "Keep an eye on your stocks",
 };
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -21,9 +23,10 @@ export default async function RootLayout({
 
   return (
     <>
-      <main className="flex-1 ml-[220px]">
+      <Sidebar />
+      <div className="flex-1 ml-[220px]">
         {children}
-      </main>
+      </div>
     </>
   );
 }

@@ -13,7 +13,6 @@ export const adminModule: ApiModule = {
       handlers: {
         GET: async () => {
           const session = await getServerSession(authOptions);
-          console.log("request have been triggered");
           if (!session?.user?.admin) {
             return NextResponse.json(
               { message: "Access denied" },

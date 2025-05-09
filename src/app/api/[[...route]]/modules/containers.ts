@@ -81,6 +81,7 @@ export const containersModule: ApiModule = {
                 name: body.name,
                 icon: body.icon || "box",
                 placeId: body.placeId,
+                roomId: body.roomId, // Ajout de l'enregistrement de la pièce
               },
             });
 

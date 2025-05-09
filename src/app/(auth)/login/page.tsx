@@ -1,6 +1,6 @@
 "use server";
 import React from "react";
-import { LoginForm } from "@/app/components/forms/LoginForm";
+import LoginForm from "@/components/forms/LoginForm";
 
 export default async function RegisterPage() {
   return (
