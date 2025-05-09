@@ -8,6 +8,13 @@ import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import UserChip from "@/components/UserChip";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import Image from "next/image";
+
+// Ajout du type Item pour la recherche
+interface Item {
+    id: number;
+    name: string;
+}
 
 const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -21,7 +28,7 @@ export default function Sidebar() {
     const pathname = usePathname();
     const router = useRouter();
     const [search, setSearch] = useState("");
-    const [results, setResults] = useState<any[]>([]);
+    const [results, setResults] = useState<Item[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -47,7 +54,7 @@ export default function Sidebar() {
     return (
         <aside className="fixed left-0 top-0 h-full w-[220px] bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border z-40">
             <div className="h-20 flex items-center justify-center font-bold text-xl border-b border-sidebar-border gap-2">
-                <img src="/app-ico.svg" alt="ShelfSpot logo" className="w-12 h-12 dark:invert" />
+                <Image src="/app-ico.svg" alt="ShelfSpot logo" width={48} height={48} className="w-12 h-12 dark:invert" />
                 ShelfSpot
             </div>
             {/* Barre de recherche */}
@@ -66,7 +73,7 @@ export default function Sidebar() {
                         ) : results.length === 0 ? (
                             <div className="p-2 text-sm text-gray-500">Aucun résultat</div>
                         ) : (
-                            results.map((item: any) => (
+                            results.map((item: Item) => (
                                 <div
                                     key={item.id}
                                     className="p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#333] text-sm"

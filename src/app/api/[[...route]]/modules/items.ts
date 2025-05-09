@@ -31,7 +31,8 @@ export const itemsModule: ApiModule = {
                 tags: item.itemTags ? item.itemTags.map((itemTag) => itemTag.tag.name) : [],
                 itemTags: undefined,
               });
-            } catch (error) {
+            } catch {
+              // error is intentionally ignored, handled by the return statement below
               return NextResponse.json({ error: "Failed to fetch item." }, { status: 500 });
             }
           }
@@ -52,8 +53,8 @@ export const itemsModule: ApiModule = {
             // Filtrage avancé côté serveur si search est présent
             let filteredItems = items;
             if (search) {
-              const normalize = (str : any) => str.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
-              const searchWords = normalize(search).split(/\s+/).filter(Boolean);
+              const normalize = (str: unknown) => (str as string).normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+              const searchWords = (normalize(search) as string).split(/\s+/).filter(Boolean);
               filteredItems = items.filter((item) => {
                 const fields = [
                   item.name,
@@ -64,7 +65,7 @@ export const itemsModule: ApiModule = {
                   ...(item.itemTags?.map((t) => t.tag.name) || [])
                 ].filter(Boolean).map(normalize);
                 return searchWords.every(word =>
-                  fields.some(field => field.includes(word))
+                  fields.some(field => (field as string).includes(word))
                 );
               });
             }
@@ -216,7 +217,7 @@ export const itemsModule: ApiModule = {
             }
             
             // Prepare update data
-            const updateData: any = {
+            const updateData: Record<string, unknown> = {
               name: body.name ?? "",
               quantity: Number(body.quantity) || 0,
               place: {

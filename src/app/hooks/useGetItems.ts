@@ -16,8 +16,8 @@ function useGetItems() {
         if (!res.ok) throw new Error("Erreur lors du chargement des objets");
         const data = await res.json();
         setItems(data);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError((err as Error).message);
       } finally {
         setLoading(false);
       }

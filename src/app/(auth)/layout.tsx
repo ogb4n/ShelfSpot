@@ -1,5 +1,4 @@
 import React from "react";
-import { geistSans, geistMono, roboto } from "../../../public/fonts/googlefonts";
 import { Providers } from "../utils/providers";
 
 export default function AuthLayout({

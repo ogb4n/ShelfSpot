@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import ItemsTable from "@/components/ItemsTable";
 import useGetRooms from "@/app/hooks/useGetRooms";
 import useGetPlaces from "@/app/hooks/useGetPlaces";
@@ -9,12 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import useGetItems from "@/app/hooks/useGetItems";
 
+// Types pour les entités
+interface Room { id: number; name: string; }
+interface Place { id: number; name: string; }
+interface Container { id: number; name: string; }
+interface Tag { id: number; name: string; icon?: string; }
+interface Item { id: number; name: string; }
+
 const Dashboard = () => {
-  const { rooms, loading: loadingRooms } = useGetRooms();
-  const { places, loading: loadingPlaces } = useGetPlaces();
-  const { tags, loading: loadingTags } = useGetTags();
-  const { containers, loading: loadingContainers } = useGetContainers();
-  const { items, loading: loadingItems } = useGetItems();
+  const { rooms, loading: loadingRooms } = useGetRooms() as { rooms: Room[]; loading: boolean };
+  const { places, loading: loadingPlaces } = useGetPlaces() as { places: Place[]; loading: boolean };
+  const { tags, loading: loadingTags } = useGetTags() as { tags: Tag[]; loading: boolean };
+  const { containers, loading: loadingContainers } = useGetContainers() as { containers: Container[]; loading: boolean };
+  const { items, loading: loadingItems } = useGetItems() as { items: Item[]; loading: boolean };
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -30,7 +37,7 @@ const Dashboard = () => {
   const [success, setSuccess] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setForm((prev) => ({
       ...prev,
@@ -47,7 +54,7 @@ const Dashboard = () => {
     }));
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -71,8 +78,8 @@ const Dashboard = () => {
       setForm({ name: "", quantity: 1, roomId: "", placeId: "", containerId: "", tags: [], status: "" });
       setShowForm(false);
       setRefreshKey((k) => k + 1);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -119,7 +126,7 @@ const Dashboard = () => {
               className="border rounded px-2 py-1"
             >
               <option value="">Sélectionner une pièce</option>
-              {loadingRooms ? <option>Chargement...</option> : rooms.map((room: any) => (
+              {loadingRooms ? <option>Chargement...</option> : rooms.map((room: Room) => (
                 <option key={room.id} value={room.id}>{room.name}</option>
               ))}
             </select>
@@ -130,7 +137,7 @@ const Dashboard = () => {
               className="border rounded px-2 py-1"
             >
               <option value="">Sélectionner un emplacement (optionnel)</option>
-              {loadingPlaces ? <option>Chargement...</option> : places.map((place: any) => (
+              {loadingPlaces ? <option>Chargement...</option> : places.map((place: Place) => (
                 <option key={place.id} value={place.id}>{place.name}</option>
               ))}
             </select>
@@ -141,7 +148,7 @@ const Dashboard = () => {
               className="border rounded px-2 py-1"
             >
               <option value="">Sélectionner un contenant (optionnel)</option>
-              {loadingContainers ? <option>Chargement...</option> : containers.map((container: any) => (
+              {loadingContainers ? <option>Chargement...</option> : containers.map((container: Container) => (
                 <option key={container.id} value={container.id}>{container.name}</option>
               ))}
             </select>
@@ -156,7 +163,7 @@ const Dashboard = () => {
               {loadingTags ? (
                 <span>Chargement des tags…</span>
               ) : (
-                tags.map((tag: any) => (
+                tags.map((tag: Tag) => (
                   <button
                     type="button"
                     key={tag.id}

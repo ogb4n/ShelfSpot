@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getServerSession } from "next-auth";
 import { ChangeEvent, FormEvent } from "react";
 
 // Types pour la session et les utilisateurs

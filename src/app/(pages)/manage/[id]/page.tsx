@@ -32,7 +32,7 @@ export default async function ManageObjectPage(props: { params: { id: string | s
         return (
             <main className="max-w-2xl mx-auto p-8">
                 <h1 className="text-2xl font-bold mb-4">Objet introuvable</h1>
-                <p className="text-gray-500">L'objet demandé n'existe pas ou une erreur est survenue.</p>
+                <p className="text-gray-500">L&apos;objet demandé n&apos;existe pas ou une erreur est survenue.</p>
             </main>
         );
     }
@@ -70,6 +70,9 @@ export default async function ManageObjectPage(props: { params: { id: string | s
                 <h2 className="text-xl font-semibold mb-2">Alerte de quantité</h2>
                 <div className="text-gray-500">Aucune alerte de quantité configurée pour cet objet.</div>
             </div>
+            <p className="text-sm text-gray-500 mt-2">
+                Pour modifier ou supprimer cet objet, utilisez les boutons ci-dessous. Si vous ne trouvez pas l&apos;objet, vérifiez qu&apos;il n&apos;est pas dans une autre pièce.
+            </p>
         </main>
     );
 }

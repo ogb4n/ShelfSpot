@@ -1,17 +1,16 @@
 # Étape 1 : Construction de l'application
 FROM node:20-alpine AS builder
 
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier package.json et yarn.lock
+# Copier uniquement les fichiers nécessaires pour installer les dépendances
 COPY package.json yarn.lock ./
 
-# Copier le reste de l'application ( SI CA MARCHE PAS INVERSER AVEC PRISMA INSTALL)
-COPY . .
+# Installer uniquement les dépendances de production pour builder
+RUN yarn install --frozen-lockfile --production=false
 
-# Installer les dépendances
-RUN yarn install
+# Copier le reste de l'application
+COPY . .
 
 # Générer le client Prisma
 RUN yarn prisma generate
@@ -19,17 +18,22 @@ RUN yarn prisma generate
 # Construire l'application
 RUN yarn build
 
-# Étape 2 : Lancement de l'application
+# Étape 2 : Lancement de l'application (image finale minimale)
 FROM node:20-alpine
 
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers nécessaires depuis l'étape de construction
-COPY --from=builder /app ./
+# Définir la variable d'environnement pour la prod
+ENV NODE_ENV=production
 
-# Installer les dépendances de production
-RUN yarn install --production
+# Copier uniquement les fichiers nécessaires depuis le builder
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/yarn.lock ./yarn.lock
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.env ./.env
 
 # Exposer le port sur lequel l'application tourne
 EXPOSE 3000

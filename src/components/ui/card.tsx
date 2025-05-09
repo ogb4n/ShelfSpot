@@ -1,5 +1,3 @@
-import useGetItems from "@/app/hooks/useGetItems";
-
 // Card minimal compatible shadcn/ui
 type CardProps = React.HTMLAttributes<HTMLDivElement>;
 export function Card({ className, ...props }: CardProps) {
