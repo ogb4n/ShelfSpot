@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { geistSans, geistMono, roboto } from "../lib/fonts/googlefonts";
 import "./globals.css";
 import React from "react";
 import { Providers } from "./utils/providers";
@@ -17,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/app-ico.svg" />
         {/* Script pour appliquer le thème dès le chargement */}
         <script
           dangerouslySetInnerHTML={{
@@ -39,7 +39,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased bg-white dark:bg-black`}
+        className={`antialiased bg-white dark:bg-black`}
         style={{ margin: 0, padding: 0, overflow: "hidden" }}
       >
         <Providers>
