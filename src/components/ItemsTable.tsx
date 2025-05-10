@@ -6,27 +6,9 @@ import useGetTags from "@/app/hooks/useGetTags";
 import { MoreVertical, CheckSquare, Square } from "lucide-react";
 import { Menu } from "@headlessui/react";
 import { useFloating, FloatingPortal, offset, flip, shift } from '@floating-ui/react';
+import { Item, Tag } from "@/app/types";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
-
-export type Item = {
-    id: number;
-    name: string;
-    quantity?: number;
-    status?: string;
-    room?: { name: string } | null;
-    place?: { name: string } | null;
-    container?: { name: string } | null;
-    tags?: string[];
-    [key: string]: unknown;
-};
-
-// Ajoute le type Tag pour corriger les erreurs de type dans ItemsTable
-export type Tag = {
-    id: number;
-    name: string;
-    icon?: string;
-};
 
 export type ItemsTableColumn =
     | "name"

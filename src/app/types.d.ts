@@ -20,7 +20,7 @@ export type Container = {
 };
 
 export interface Item {
-  id?: number;
+  id: number;
   name: string;
   quantity: number;
   status: string;

@@ -1,42 +1,48 @@
-# Étape 1 : Construction de l'application
-FROM node:20-alpine AS builder
-
+# Étape 1: Construction de l'application avec une image minimale
+FROM node:20-alpine AS deps
 WORKDIR /app
 
-# Copier uniquement les fichiers nécessaires pour installer les dépendances
+# Installer les dépendances avec des optimisations
 COPY package.json yarn.lock ./
+RUN apk add --no-cache libc6-compat && \
+    yarn install --frozen-lockfile --production=false
 
-# Installer uniquement les dépendances de production pour builder
-RUN yarn install --frozen-lockfile --production=false
-
-# Copier le reste de l'application
+# Étape 2: Génération du build
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Générer le client Prisma
-RUN yarn prisma generate
+# Génération du client Prisma et build
+RUN yarn prisma generate && \
+    yarn build
 
-# Construire l'application
-RUN yarn build
-
-# Étape 2 : Lancement de l'application (image finale minimale)
-FROM node:20-alpine
-
+# Purger les dépendances de dev non nécessaires pour la production
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Définir la variable d'environnement pour la prod
 ENV NODE_ENV=production
 
-# Copier uniquement les fichiers nécessaires depuis le builder
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/yarn.lock ./yarn.lock
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.env ./.env
+# Créer un utilisateur non-root pour plus de sécurité
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Exposer le port sur lequel l'application tourne
+# Copier uniquement les fichiers nécessaires
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/package.json /app/yarn.lock ./
+
+# Optimiser la taille finale en supprimant les fichiers inutiles
+RUN rm -rf /app/.next/cache && \
+    yarn autoclean --force
+
+# Changer l'utilisateur pour des raisons de sécurité
+USER nextjs
+
+# Exposer le port et démarrer l'application
 EXPOSE 3000
+ENV PORT=3000
 
-# Commande pour démarrer l'application
-CMD ["yarn", "start"]
+CMD ["node", "server.js"]

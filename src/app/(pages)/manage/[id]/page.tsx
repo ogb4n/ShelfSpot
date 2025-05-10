@@ -1,23 +1,15 @@
-import { Item } from "@/app/types";
+"use client"
 import Image from "next/image";
 import ManageObjectClient from "@/components/ManageObjectClient";
+import { useGetItem } from "@/hooks/useGetItem";
+import { useParams } from "next/navigation";
 
-async function getItem(id: string): Promise<Item | null> {
-    // Utilise l'URL absolue pour le fetch côté serveur
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    try {
-        const res = await fetch(`${baseUrl}/api/items?id=${id}`, { cache: "no-store" });
-        if (!res.ok) return null;
-        return res.json();
-    } catch {
-        return null;
-    }
-}
+export default function ManageObjectPage() {
+    const params = useParams();
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
+    const { item, loading, error } = useGetItem(id);
 
-export default async function ManageObjectPage(props: { params: { id: string | string[] } }) {
-    const { id } = await props.params;
-    const idValue = Array.isArray(id) ? id[0] : id;
-    if (!idValue) {
+    if (!id) {
         return (
             <main className="max-w-2xl mx-auto p-8">
                 <h1 className="text-2xl font-bold mb-4">Paramètre manquant</h1>
@@ -26,9 +18,15 @@ export default async function ManageObjectPage(props: { params: { id: string | s
         );
     }
 
-    const item = await getItem(idValue);
+    if (loading) {
+        return (
+            <main className="max-w-2xl mx-auto p-8">
+                <h1 className="text-2xl font-bold mb-4">Chargement...</h1>
+            </main>
+        );
+    }
 
-    if (!item) {
+    if (error || !item) {
         return (
             <main className="max-w-2xl mx-auto p-8">
                 <h1 className="text-2xl font-bold mb-4">Objet introuvable</h1>
