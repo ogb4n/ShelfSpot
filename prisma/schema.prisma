@@ -34,8 +34,8 @@ model Item {
   room       Room?       @relation("RoomToItems", fields: [roomId], references: [id], onDelete: SetNull)
   favourites Favourite[]
   itemTags   ItemTag[] // Relation pour les tags normalisés
-  containers Container[] @relation("ContainerToItems") // Relation pour les conteneurs qui contiennent cet item
-  container  Container?  @relation("ContainerToItem") // Relation inverse pour l'item qui contient ce conteneur
+  containerId Int? // Ajout du champ pour la relation many-to-one
+  container   Container? @relation(fields: [containerId], references: [id], onDelete: SetNull)
 
   @@index([placeId]) // Index pour accélérer les recherches par lieu
   @@index([roomId]) // Index pour accélérer les recherches par pièce
@@ -100,11 +100,9 @@ model Container {
   icon    String?
   roomId  Int?
   room    Room?   @relation(fields: [roomId], references: [id], onDelete: SetNull)
-  items   Item[]  @relation("ContainerToItems") // Relation pour les items contenus dans le conteneur
+  items   Item[]  // Relation pour les items contenus dans le conteneur
   place   Place?  @relation(fields: [placeId], references: [id], onDelete: SetNull)
   placeId Int?
-  itemId  Int?    @unique // Un conteneur ne peut être associé qu'à un seul item parent
-  item    Item?   @relation("ContainerToItem", fields: [itemId], references: [id], onDelete: SetNull)
 
   @@index([roomId])
   @@index([placeId])
