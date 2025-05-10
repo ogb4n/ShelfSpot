@@ -134,9 +134,9 @@ export const itemsModule: ApiModule = {
                     },
                   })),
                 },
-                roomId: roomId,
-                placeId: placeId,
-                container: containerId ? { connect: { id: containerId } } : undefined, // Correction ici
+                room: roomId ? { connect: { id: roomId } } : undefined,
+                place: placeId ? { connect: { id: placeId } } : undefined,
+                container: containerId ? { connect: { id: containerId } } : undefined,
               },
               include: {
                 room: true,
