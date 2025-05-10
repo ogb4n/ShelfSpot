@@ -96,7 +96,7 @@ export const itemsModule: ApiModule = {
       handlers: {
         POST: async (req) => {
           try {
-            const { name, quantity, status, roomId, placeId, tags }: Item =
+            const { name, quantity, status, roomId, placeId, containerId, tags, consumable }: Item =
               await req.json();
 
             if (!name || !roomId) {
@@ -123,6 +123,7 @@ export const itemsModule: ApiModule = {
                 name: name,
                 quantity: quantity,
                 status: status,
+                consumable: consumable, // Ajout du champ consumable
                 itemTags: {
                   create: tags?.map((tag) => ({
                     tag: {
@@ -135,6 +136,7 @@ export const itemsModule: ApiModule = {
                 },
                 roomId: roomId,
                 placeId: placeId,
+                container: containerId ? { connect: { id: containerId } } : undefined, // Correction ici
               },
               include: {
                 room: true,
@@ -306,12 +308,24 @@ export const itemsModule: ApiModule = {
                   include: {
                     room: true,
                     place: true,
+                    container: true,
+                    itemTags: { include: { tag: true } },
                   },
                 },
               },
             });
 
-            return NextResponse.json(favourites);
+            // Transforme chaque item pour avoir tags (array de string) et itemTags: undefined
+            const transformedFavourites = favourites.map(fav => ({
+              ...fav,
+              item: fav.item ? {
+                ...fav.item,
+                tags: fav.item.itemTags ? fav.item.itemTags.map((itemTag) => itemTag.tag.name) : [],
+                itemTags: undefined,
+              } : null,
+            }));
+
+            return NextResponse.json(transformedFavourites);
           } catch (error) {
             console.error("Error fetching favourites:", error);
             return NextResponse.json(

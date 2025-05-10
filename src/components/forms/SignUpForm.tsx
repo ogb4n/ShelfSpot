@@ -5,12 +5,41 @@ import React, { useState } from "react";
 export default function SignUpForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [name, setName] = useState("");
     const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMessage("Inscription non implémentée (exemple de formulaire)");
+        setMessage("");
+        setLoading(true);
+        try {
+            const res = await fetch("/api/user/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    username: name,
+                    email,
+                    password,
+                    confirmPassword,
+                }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setMessage("Inscription réussie ! Vous pouvez vous connecter.");
+                setEmail("");
+                setPassword("");
+                setConfirmPassword("");
+                setName("");
+            } else {
+                setMessage(data.message || data.error || "Erreur lors de l'inscription");
+            }
+        } catch (err) {
+            setMessage("Erreur réseau ou serveur");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -49,7 +78,20 @@ export default function SignUpForm() {
                     required
                 />
             </label>
-            <button type="submit" className="bg-blue-600 dark:bg-blue-700 text-white rounded px-4 py-2 hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors">S&apos;inscrire</button>
+            <label className="flex flex-col text-zinc-800 dark:text-zinc-200">
+                Confirmer le mot de passe
+                <input
+                    type="password"
+                    placeholder="Confirmer le mot de passe"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    className="border border-zinc-300 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded px-2 py-1 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                />
+            </label>
+            <button type="submit" className="bg-blue-600 dark:bg-blue-700 text-white rounded px-4 py-2 hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors" disabled={loading}>
+                {loading ? "Inscription..." : "S'inscrire"}
+            </button>
             {message && <div className="text-sm text-zinc-600 dark:text-zinc-300 mt-2">{message}</div>}
         </form>
     );

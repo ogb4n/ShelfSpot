@@ -26,33 +26,33 @@ export default function LoginForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-80 p-6 rounded shadow bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
-            <h2 className="text-xl font-bold mb-2 text-zinc-900 dark:text-zinc-100">Connexion</h2>
-            <label className="flex flex-col text-zinc-800 dark:text-zinc-200">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-80 p-6 rounded shadow theme-card theme-border">
+            <h2 className="text-xl font-bold mb-2">Connexion</h2>
+            <label className="flex flex-col">
                 Email
                 <input
                     type="email"
                     name="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="border border-zinc-300 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded px-2 py-1 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="theme-input rounded px-2 py-1 mt-1 focus:outline-none focus:ring-2 focus:ring-primary"
                     required
                 />
             </label>
-            <label className="flex flex-col text-zinc-800 dark:text-zinc-200">
+            <label className="flex flex-col">
                 Mot de passe
                 <input
                     type="password"
                     name="password"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    className="border border-zinc-300 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded px-2 py-1 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="theme-input rounded px-2 py-1 mt-1 focus:outline-none focus:ring-2 focus:ring-primary"
                     required
                 />
             </label>
             <button
                 type="submit"
-                className="bg-blue-600 dark:bg-blue-700 text-white rounded px-4 py-2 hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors disabled:opacity-60"
+                className="theme-primary rounded px-4 py-2 hover:bg-primary/90 transition-colors disabled:opacity-60"
                 disabled={loading}
             >
                 {loading ? "Connexion..." : "Se connecter"}

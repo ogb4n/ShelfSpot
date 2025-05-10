@@ -26,7 +26,7 @@ export default function ThemeSwitcher() {
                 localStorage.theme = next;
                 document.documentElement.classList.toggle("dark", next === "dark");
             }}
-            className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 rounded theme-muted hover:theme-primary transition-colors"
             aria-label="Toggle theme"
         >
             {theme === "dark"

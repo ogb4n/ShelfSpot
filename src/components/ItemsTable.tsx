@@ -254,44 +254,44 @@ function ItemsTable({ search, items: itemsProp, columns = [
                     Supprimer la sélection
                 </Button>
             </div>
-            <div className="bg-white dark:bg-black rounded-xl border border-[#bdbdbd] dark:border-[#444] p-2 overflow-x-auto max-h-[70vh] overflow-y-auto">
+            <div className="theme-card border theme-border p-2 overflow-x-auto max-h-[70vh] overflow-y-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead className="w-8 px-2">
                                 <button onClick={toggleSelectAll} aria-label="Tout sélectionner">
-                                    {allSelected ? <CheckSquare className="w-5 h-5 text-violet-500" /> : <Square className="w-5 h-5 text-gray-400" />}
+                                    {allSelected ? <CheckSquare className="w-5 h-5 text-primary" /> : <Square className="w-5 h-5 text-muted-foreground" />}
                                 </button>
                             </TableHead>
                             {columns.includes("name") && (
-                                <TableHead className="font-semibold text-black dark:text-white bg-white dark:bg-black border-b border-[#bdbdbd] dark:border-[#444] px-4 py-2">Nom</TableHead>
+                                <TableHead>Nom</TableHead>
                             )}
                             {columns.includes("quantity") && (
-                                <TableHead className="font-semibold text-black dark:text-white bg-white dark:bg-black border-b border-[#bdbdbd] dark:border-[#444] px-4 py-2">Quantité</TableHead>
+                                <TableHead>Quantité</TableHead>
                             )}
                             {columns.includes("status") && (
-                                <TableHead className="font-semibold text-black dark:text-white bg-white dark:bg-black border-b border-[#bdbdbd] dark:border-[#444] px-4 py-2">Statut</TableHead>
+                                <TableHead>Statut</TableHead>
                             )}
                             {columns.includes("room") && (
-                                <TableHead className="font-semibold text-black dark:text-white bg-white dark:bg-black border-b border-[#bdbdbd] dark:border-[#444] px-4 py-2">Pièce</TableHead>
+                                <TableHead>Pièce</TableHead>
                             )}
                             {columns.includes("place") && (
-                                <TableHead className="font-semibold text-black dark:text-white bg-white dark:bg-black border-b border-[#bdbdbd] dark:border-[#444] px-4 py-2">Emplacement</TableHead>
+                                <TableHead>Emplacement</TableHead>
                             )}
                             {columns.includes("container") && (
-                                <TableHead className="font-semibold text-black dark:text-white bg-white dark:bg-black border-b border-[#bdbdbd] dark:border-[#444] px-4 py-2">Contenant</TableHead>
+                                <TableHead>Contenant</TableHead>
                             )}
                             {columns.includes("tags") && (
-                                <TableHead className="font-semibold text-black dark:text-white bg-white dark:bg-black border-b border-[#bdbdbd] dark:border-[#444] px-4 py-2">Tags</TableHead>
+                                <TableHead>Tags</TableHead>
                             )}
                             {columns.includes("actions") && (
-                                <TableHead className="font-semibold text-black dark:text-white bg-white dark:bg-black border-b border-[#bdbdbd] dark:border-[#444] px-4 py-2">Actions</TableHead>
+                                <TableHead>Actions</TableHead>
                             )}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {paginatedItems.map((item: Item, idx: number) => (
-                            <TableRow key={item.id} className={idx % 2 === 0 ? "bg-[#e0e0e0] dark:bg-[#292929]" : "bg-[#ededed] dark:bg-[#222]"}>
+                            <TableRow key={item.id} className={idx % 2 === 0 ? "theme-bg" : "bg-muted/50"}>
                                 <TableCell className="w-8 px-2">
                                     <input
                                         type="checkbox"
@@ -309,7 +309,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                     name="name"
                                                     value={editValues.name}
                                                     onChange={handleChange}
-                                                    className="border rounded px-2 py-1 w-full"
+                                                    className="theme-input rounded px-2 py-1 w-full"
                                                 />
                                             </TableCell>
                                         )}
@@ -320,7 +320,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                     type="number"
                                                     value={editValues.quantity}
                                                     onChange={handleChange}
-                                                    className="border rounded px-2 py-1 w-full"
+                                                    className="theme-input rounded px-2 py-1 w-full"
                                                 />
                                             </TableCell>
                                         )}
@@ -330,7 +330,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                     name="status"
                                                     value={editValues.status || ""}
                                                     onChange={handleChange}
-                                                    className="border rounded px-2 py-1 w-full"
+                                                    className="theme-input rounded px-2 py-1 w-full"
                                                 />
                                             </TableCell>
                                         )}
@@ -340,7 +340,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                     name="room"
                                                     value={editValues.room?.name || ""}
                                                     onChange={handleChange}
-                                                    className="border rounded px-2 py-1 w-full"
+                                                    className="theme-input rounded px-2 py-1 w-full"
                                                 />
                                             </TableCell>
                                         )}
@@ -350,7 +350,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                     name="place"
                                                     value={editValues.place?.name || ""}
                                                     onChange={handleChange}
-                                                    className="border rounded px-2 py-1 w-full"
+                                                    className="theme-input rounded px-2 py-1 w-full"
                                                 />
                                             </TableCell>
                                         )}
@@ -360,7 +360,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                     name="container"
                                                     value={editValues.container?.name || ""}
                                                     onChange={handleChange}
-                                                    className="border rounded px-2 py-1 w-full"
+                                                    className="theme-input rounded px-2 py-1 w-full"
                                                 />
                                             </TableCell>
                                         )}
@@ -376,7 +376,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                                 <button
                                                                     key={tag.id}
                                                                     type="button"
-                                                                    className={`px-2 py-1 rounded text-xs border ${selected ? "bg-blue-600 text-white border-blue-600" : "bg-gray-100 border-gray-300 text-gray-800"}`}
+                                                                    className={`px-2 py-1 rounded text-xs border ${selected ? "theme-accent border-accent" : "theme-muted border-muted"}`}
                                                                     onClick={() => {
                                                                         setEditValues((prev: Partial<Item>) => {
                                                                             const prevTags = prev.tags || [];
@@ -424,14 +424,14 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                         return (
                                                             <span
                                                                 key={tagName}
-                                                                className="px-2 py-1 rounded text-xs border bg-blue-100 text-blue-800 border-blue-200 flex items-center gap-1"
+                                                                className="px-2 py-1 rounded text-xs border theme-accent border-accent flex items-center gap-1"
                                                             >
                                                                 {tagObj?.icon ? <span>{tagObj.icon}</span> : null}{tagName}
                                                             </span>
                                                         );
                                                     })
                                                 ) : (
-                                                    <span className="text-gray-400 text-xs">Aucun tag</span>
+                                                    <span className="theme-muted text-xs">Aucun tag</span>
                                                 )}
                                             </div>
                                         </TableCell>}
@@ -457,7 +457,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                 <div className="flex items-center gap-2">
                     <span>Afficher</span>
                     <select
-                        className="border rounded px-2 py-1"
+                        className="theme-input rounded px-2 py-1"
                         value={pageSize}
                         onChange={e => {
                             setPageSize(Number(e.target.value));

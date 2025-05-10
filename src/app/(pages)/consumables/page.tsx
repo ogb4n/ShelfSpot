@@ -6,7 +6,7 @@ export default function Consumables() {
   const { items, loading, error } = useGetConsumables();
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-24">
+    <main className="flex min-h-screen items-center justify-center p-24 theme-bg">
       <div className="w-full max-w-4xl">
         <h1 className="text-3xl font-bold mb-6">Consommables</h1>
         {loading && <div>Chargement…</div>}

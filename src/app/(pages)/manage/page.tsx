@@ -213,11 +213,11 @@ const ManagePage = () => {
   };
 
   return (
-    <main className="max-w-4xl mx-auto p-4 md:p-8 h-screen max-h-screen overflow-y-auto flex flex-col gap-8">
+    <main className="max-w-4xl mx-auto p-4 md:p-8 h-screen max-h-screen overflow-y-auto flex flex-col gap-8 theme-bg">
       {error && <div className="text-red-600">{error}</div>}
       {loading && <div className="text-gray-500">Chargement…</div>}
       <div className="flex flex-col md:grid md:grid-cols-2 gap-8">
-        <section className="border rounded p-4 min-w-0">
+        <section className="theme-card theme-border min-w-0 p-4">
           <h2 className="text-lg font-bold mb-2">Créer une nouvelle pièce</h2>
           <form onSubmit={handleAddRoom} className="flex gap-2 mb-2">
             <input
@@ -225,27 +225,27 @@ const ManagePage = () => {
               value={roomName}
               onChange={e => setRoomName(e.target.value)}
               placeholder="Nom de la pièce"
-              className="border rounded px-2 py-1 flex-1"
+              className="theme-input rounded px-2 py-1 flex-1"
               required
             />
-            <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded">Créer</button>
+            <button type="submit" className="theme-primary px-4 py-1 rounded">Créer</button>
           </form>
           <ul className="flex flex-wrap gap-2">
             {rooms.map((room) => (
-              <li key={room.id} className="bg-white dark:bg-gray-800 px-2 py-1 rounded flex items-center gap-2">
+              <li key={room.id} className="theme-card px-2 py-1 rounded flex items-center gap-2">
                 {room.name}
                 <button onClick={() => handleDeleteRoom(room.id)} className="text-red-500 ml-2">✕</button>
               </li>
             ))}
           </ul>
         </section>
-        <section className="border rounded p-4 min-w-0">
+        <section className="theme-card theme-border min-w-0 p-4">
           <h2 className="text-lg font-bold mb-2">Créer un nouvel emplacement</h2>
           <form onSubmit={handleAddPlace} className="flex flex-col gap-2 mb-2">
             <select
               value={selectedRoomForPlace ?? ""}
               onChange={e => setSelectedRoomForPlace(Number(e.target.value) || null)}
-              className="border rounded px-2 py-1 bg-white dark:bg.black text-black dark:text-white"
+              className="theme-input rounded px-2 py-1"
               required
             >
               <option value="">Sélectionner une pièce</option>
@@ -259,22 +259,22 @@ const ManagePage = () => {
                 value={placeName}
                 onChange={e => setPlaceName(e.target.value)}
                 placeholder="Nom de l'emplacement"
-                className="border rounded px-2 py-1 flex-1"
+                className="theme-input rounded px-2 py-1 flex-1"
                 required
               />
-              <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded" disabled={!selectedRoomForPlace}>Créer</button>
+              <button type="submit" className="theme-primary px-4 py-1 rounded" disabled={!selectedRoomForPlace}>Créer</button>
             </div>
           </form>
           <ul className="flex flex-wrap gap-2">
             {places.map((place) => (
-              <li key={place.id} className="bg-white dark:bg.black px-2 py-1 rounded flex items-center gap-2">
+              <li key={place.id} className="theme-card px-2 py-1 rounded flex items-center gap-2">
                 {place.name} <span className="text-xs text-gray-500">({rooms.find(r => r.id === place.roomId)?.name || "?"})</span>
                 <button onClick={() => handleDeletePlace(place.id)} className="text-red-500 ml-2">✕</button>
               </li>
             ))}
           </ul>
         </section>
-        <section className="border rounded p-4 min-w-0">
+        <section className="theme-card theme-border min-w-0 p-4">
           <h2 className="text-lg font-bold mb-2">Créer un nouveau contenant</h2>
           <form onSubmit={handleAddContainer} className="flex flex-col gap-2 mb-2">
             <select
@@ -284,7 +284,7 @@ const ManagePage = () => {
                 setSelectedRoomForContainer(val);
                 setSelectedPlaceForContainer(null); // reset place selection if room changes
               }}
-              className="border rounded px-2 py-1 bg-white dark:bg.black text-black dark:text-white"
+              className="theme-input rounded px-2 py-1"
               required
             >
               <option value="">Sélectionner une pièce</option>
@@ -295,7 +295,7 @@ const ManagePage = () => {
             <select
               value={selectedPlaceForContainer ?? ""}
               onChange={e => setSelectedPlaceForContainer(Number(e.target.value) || null)}
-              className="border rounded px-2 py-1 bg-white dark:bg.black text-black dark:text-white"
+              className="theme-input rounded px-2 py-1"
               required
               disabled={!selectedRoomForContainer}
             >
@@ -310,15 +310,15 @@ const ManagePage = () => {
                 value={containerName}
                 onChange={e => setContainerName(e.target.value)}
                 placeholder="Nom du contenant"
-                className="border rounded px-2 py-1 flex-1"
+                className="theme-input rounded px-2 py-1 flex-1"
                 required
               />
-              <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded" disabled={!selectedRoomForContainer || !selectedPlaceForContainer}>Créer</button>
+              <button type="submit" className="theme-primary px-4 py-1 rounded" disabled={!selectedRoomForContainer || !selectedPlaceForContainer}>Créer</button>
             </div>
           </form>
           <ul className="flex flex-wrap gap-2">
             {containers.map((container) => (
-              <li key={container.id} className="bg-white dark:bg.black px-2 py-1 rounded flex items-center gap-2">
+              <li key={container.id} className="theme-card px-2 py-1 rounded flex items-center gap-2">
                 {container.name}
                 <span className="text-xs text-gray-500">
                   ({rooms.find(r => r.id === container.roomId)?.name || "?"} / {places.find(p => p.id === container.placeId)?.name || "?"})
@@ -328,7 +328,7 @@ const ManagePage = () => {
             ))}
           </ul>
         </section>
-        <section className="border rounded p-4 min-w-0">
+        <section className="theme-card theme-border min-w-0 p-4">
           <h2 className="text-lg font-bold mb-2">Gérer les tags</h2>
           <form onSubmit={handleAddTag} className="flex gap-2 mb-2">
             <input
@@ -336,14 +336,14 @@ const ManagePage = () => {
               value={tagName}
               onChange={e => setTagName(e.target.value)}
               placeholder="Nouveau tag"
-              className="border rounded px-2 py-1 flex-1"
+              className="theme-input rounded px-2 py-1 flex-1"
               required
             />
-            <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded">Ajouter</button>
+            <button type="submit" className="theme-primary px-4 py-1 rounded">Ajouter</button>
           </form>
           <ul className="flex flex-wrap gap-2">
             {tags.map((tag) => (
-              <li key={tag.id} className="bg-white dark:bg.black px-2 py-1 rounded flex items-center gap-2">
+              <li key={tag.id} className="theme-card px-2 py-1 rounded flex items-center gap-2">
                 {tag.name}
                 <button onClick={() => handleDeleteTag(tag.id)} className="text-red-500 ml-2">✕</button>
               </li>

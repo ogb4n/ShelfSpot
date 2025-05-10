@@ -52,8 +52,8 @@ export default function Sidebar() {
     }, [search]);
 
     return (
-        <aside className="fixed left-0 top-0 h-full w-[220px] bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border z-40">
-            <div className="h-20 flex items-center justify-center font-bold text-xl border-b border-sidebar-border gap-2">
+        <aside className="theme-sidebar border-r theme-border fixed left-0 top-0 h-full w-[220px] flex flex-col z-40">
+            <div className="h-20 flex items-center justify-center font-bold text-xl border-b theme-border gap-2">
                 <Image src="/app-ico.svg" alt="ShelfSpot logo" width={48} height={48} className="w-12 h-12 dark:invert" />
                 ShelfSpot
             </div>
@@ -62,21 +62,21 @@ export default function Sidebar() {
                 <input
                     type="text"
                     placeholder="Rechercher..."
-                    className="border rounded px-2 py-1 w-full"
+                    className="theme-input rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-primary"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                 />
                 {search && (
-                    <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded shadow z-50 max-h-60 overflow-y-auto">
+                    <div className="absolute left-0 right-0 mt-1 theme-popover rounded shadow z-50 max-h-60 overflow-y-auto">
                         {loading ? (
-                            <div className="p-2 text-sm text-gray-500">Recherche...</div>
+                            <div className="p-2 text-sm theme-muted">Recherche...</div>
                         ) : results.length === 0 ? (
-                            <div className="p-2 text-sm text-gray-500">Aucun résultat</div>
+                            <div className="p-2 text-sm theme-muted">Aucun résultat</div>
                         ) : (
                             results.map((item: Item) => (
                                 <div
                                     key={item.id}
-                                    className="p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#333] text-sm"
+                                    className="p-2 cursor-pointer theme-accent hover:theme-primary text-sm"
                                     onClick={() => router.push(`/manage/${item.id}`)}
                                 >
                                     {item.name}
@@ -92,8 +92,8 @@ export default function Sidebar() {
                         key={href}
                         href={href}
                         className={cn(
-                            "flex items-center gap-3 px-4 py-2 rounded-md transition-colors font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                            pathname === href && "bg-sidebar-primary text-sidebar-primary-foreground"
+                            "flex items-center gap-3 px-4 py-2 rounded-md transition-all font-medium hover:theme-sidebar-accent hover:shadow-md hover:translate-x-1 hover:scale-[1.03] duration-150",
+                            pathname === href && "theme-sidebar-primary"
                         )}
                     >
                         <Icon className="w-5 h-5" />
@@ -101,7 +101,7 @@ export default function Sidebar() {
                     </Link>
                 ))}
             </nav>
-            <div className="p-4 border-t border-sidebar-border flex justify-between items-center gap-2">
+            <div className="p-4 border-t theme-border flex justify-between items-center gap-2">
                 <div className="flex items-center gap-2">
                     <UserChip />
                     <ThemeSwitcher />

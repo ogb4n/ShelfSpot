@@ -33,6 +33,7 @@ export interface Item {
   place: { id: number; name: string; icon: string; roomId: number } | null;
   status: string | null;
   tags: string[];
+  consumable?: boolean;
 }
 
 export type Tag = {

@@ -31,6 +31,7 @@ const Dashboard = () => {
     containerId: "",
     tags: [] as string[],
     status: "",
+    consumable: false, // Ajout du champ consumable
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,10 +40,17 @@ const Dashboard = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "number" ? Number(value) : value,
-    }));
+    if (type === "checkbox") {
+      setForm((prev) => ({
+        ...prev,
+        [name]: (e.target as HTMLInputElement).checked,
+      }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: type === "number" ? Number(value) : value,
+      }));
+    }
   };
 
   const handleTagToggle = (tag: string) => {
@@ -71,11 +79,12 @@ const Dashboard = () => {
           containerId: form.containerId ? Number(form.containerId) : undefined,
           tags: form.tags,
           status: form.status,
+          consumable: form.consumable, // Ajout de consumable à la requête
         }),
       });
       if (!res.ok) throw new Error("Erreur lors de la création de l'objet");
       setSuccess(true);
-      setForm({ name: "", quantity: 1, roomId: "", placeId: "", containerId: "", tags: [], status: "" });
+      setForm({ name: "", quantity: 1, roomId: "", placeId: "", containerId: "", tags: [], status: "", consumable: false });
       setShowForm(false);
       setRefreshKey((k) => k + 1);
     } catch (err: unknown) {
@@ -86,28 +95,32 @@ const Dashboard = () => {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-24">
+    <main className="flex min-h-screen flex-col items-center justify-start p-24 theme-bg">
       <div className="w-full max-w-2xl mb-8">
         <Card className="flex flex-col gap-4 items-center">
           <div className="flex items-center gap-4 w-full justify-between">
             <div className="text-lg font-semibold">Objets dans la maison</div>
-            <div className="text-3xl font-bold text-blue-600">
+            <div className="text-3xl font-bold text-primary">
               {loadingItems ? <span className="text-base">...</span> : items.length}
             </div>
           </div>
-          <Button onClick={() => setShowForm((v) => !v)} className="w-full">
+          <Button
+            onClick={() => setShowForm((v) => !v)}
+            className="w-full"
+            variant={showForm ? "destructive" : undefined}
+          >
             {showForm ? "Annuler" : "Créer un objet"}
           </Button>
         </Card>
         {showForm && (
-          <form className="mt-4 p-4 border rounded bg-white dark:bg-black flex flex-col gap-2" onSubmit={handleSubmit}>
+          <form className="mt-4 p-4 theme-card theme-border flex flex-col gap-2" onSubmit={handleSubmit}>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
               placeholder="Nom de l'objet"
               required
-              className="border rounded px-2 py-1"
+              className="theme-input rounded px-2 py-1"
             />
             <input
               name="quantity"
@@ -116,14 +129,14 @@ const Dashboard = () => {
               value={form.quantity}
               onChange={handleChange}
               placeholder="Quantité"
-              className="border rounded px-2 py-1"
+              className="theme-input rounded px-2 py-1"
             />
             <select
               name="roomId"
               value={form.roomId}
               onChange={handleChange}
               required
-              className="border rounded px-2 py-1"
+              className="theme-input rounded px-2 py-1"
             >
               <option value="">Sélectionner une pièce</option>
               {loadingRooms ? <option>Chargement...</option> : rooms.map((room: Room) => (
@@ -134,7 +147,7 @@ const Dashboard = () => {
               name="placeId"
               value={form.placeId}
               onChange={handleChange}
-              className="border rounded px-2 py-1"
+              className="theme-input rounded px-2 py-1"
             >
               <option value="">Sélectionner un emplacement (optionnel)</option>
               {loadingPlaces ? <option>Chargement...</option> : places.map((place: Place) => (
@@ -145,7 +158,7 @@ const Dashboard = () => {
               name="containerId"
               value={form.containerId}
               onChange={handleChange}
-              className="border rounded px-2 py-1"
+              className="theme-input rounded px-2 py-1"
             >
               <option value="">Sélectionner un contenant (optionnel)</option>
               {loadingContainers ? <option>Chargement...</option> : containers.map((container: Container) => (
@@ -157,8 +170,18 @@ const Dashboard = () => {
               value={form.status}
               onChange={handleChange}
               placeholder="Statut (optionnel)"
-              className="border rounded px-2 py-1"
+              className="theme-input rounded px-2 py-1"
             />
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="consumable"
+                checked={form.consumable}
+                onChange={handleChange}
+                className="theme-input"
+              />
+              <label htmlFor="consumable">Consommable</label>
+            </div>
             <div className="flex flex-wrap gap-2 mt-2">
               {loadingTags ? (
                 <span>Chargement des tags…</span>
@@ -167,7 +190,7 @@ const Dashboard = () => {
                   <button
                     type="button"
                     key={tag.id}
-                    className={`px-2 py-1 rounded text-xs border ${form.tags.includes(tag.name) ? "bg-blue-600 text-white border-blue-600" : "bg-gray-100 border-gray-300 text-gray-800"}`}
+                    className={`px-2 py-1 rounded text-xs border ${form.tags.includes(tag.name) ? "theme-primary border-primary" : "theme-muted border-muted"}`}
                     onClick={() => handleTagToggle(tag.name)}
                   >
                     {tag.icon ? <span className="mr-1">{tag.icon}</span> : null}{tag.name}

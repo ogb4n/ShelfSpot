@@ -89,10 +89,10 @@ export default function Settings() {
     setMessage(data.success ? "Mot de passe mis à jour." : data.error || "Erreur lors de la mise à jour du mot de passe.");
   };
 
-  if (!session) return <div className="p-8">Chargement…</div>;
+  if (!session) return <div className="p-8 theme-bg">Chargement…</div>;
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-8">
+    <main className="flex min-h-screen items-center justify-center p-8 theme-bg">
       <div className="w-full max-w-2xl space-y-8">
         <h1 className="text-4xl font-bold mb-4">Paramètres</h1>
         {session.user.admin && (
@@ -101,7 +101,7 @@ export default function Settings() {
             {loadingUsers ? (
               <div>Chargement des utilisateurs…</div>
             ) : (
-              <ul className="border rounded p-2 bg-white dark:bg-gray-800">
+              <ul className="border rounded p-2 theme-card theme-border">
                 {users.map((u) => (
                   <li key={u.id} className="py-1 flex justify-between">
                     <span>{u.name || u.email} {u.admin && <span className="text-xs text-blue-600">[admin]</span>}</span>
@@ -118,27 +118,27 @@ export default function Settings() {
           <form onSubmit={handleNameChange} className="mb-4 flex gap-2 items-end">
             <div>
               <label className="block text-sm">Pseudo</label>
-              <input name="name" value={userForm.name} onChange={handleChange} className="border rounded px-2 py-1" />
+              <input name="name" value={userForm.name} onChange={handleChange} className="theme-input rounded px-2 py-1" />
             </div>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded">Modifier</button>
+            <button type="submit" className="theme-primary px-4 py-1 rounded">Modifier</button>
           </form>
           <form onSubmit={handleEmailChange} className="mb-4 flex gap-2 items-end">
             <div>
               <label className="block text-sm">Email</label>
-              <input name="email" value={userForm.email} onChange={handleChange} className="border rounded px-2 py-1" />
+              <input name="email" value={userForm.email} onChange={handleChange} className="theme-input rounded px-2 py-1" />
             </div>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded">Modifier</button>
+            <button type="submit" className="theme-primary px-4 py-1 rounded">Modifier</button>
           </form>
           <form onSubmit={handlePasswordChange} className="flex gap-2 items-end">
             <div>
               <label className="block text-sm">Nouveau mot de passe</label>
-              <input name="password" type="password" value={userForm.password} onChange={handleChange} className="border rounded px-2 py-1" />
+              <input name="password" type="password" value={userForm.password} onChange={handleChange} className="theme-input rounded px-2 py-1" />
             </div>
             <div>
               <label className="block text-sm">Confirmer</label>
-              <input name="confirmPassword" type="password" value={userForm.confirmPassword} onChange={handleChange} className="border rounded px-2 py-1" />
+              <input name="confirmPassword" type="password" value={userForm.confirmPassword} onChange={handleChange} className="theme-input rounded px-2 py-1" />
             </div>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded">Modifier</button>
+            <button type="submit" className="theme-primary px-4 py-1 rounded">Modifier</button>
           </form>
         </section>
       </div>
