@@ -1,16 +1,36 @@
 'use client';
 import { useState } from "react";
-import { Item } from "@/app/types";
+import { Item, Room, Place, Container } from "@/app/types";
+import useGetRooms from "@/app/hooks/useGetRooms";
+import useGetPlaces from "@/app/hooks/useGetPlaces";
+import useGetContainers from "@/app/hooks/useGetContainers";
 
 export default function ManageObjectClient({ item }: { item: Item }) {
     const [showModal, setShowModal] = useState(false);
     const [form, setForm] = useState<Partial<Item>>(item);
+    const { rooms, loading: loadingRooms } = useGetRooms();
+    const { places, loading: loadingPlaces } = useGetPlaces();
+    const { containers, loading: loadingContainers } = useGetContainers();
+
+    // Filtrage dynamique des places selon la pièce sélectionnée
+    const filteredPlaces = form.roomId ? places.filter((p: Place) => p.roomId === form.roomId) : places;
+    // Filtrage dynamique des containers selon la pièce et/ou l'emplacement sélectionné
+    const filteredContainers = form.placeId
+        ? containers.filter((c: Container) => c.placeId === form.placeId)
+        : (form.roomId ? containers.filter((c: Container) => c.roomId === form.roomId) : containers);
+
+    const handleDelete = async () => {
+        if (!window.confirm("Voulez-vous vraiment supprimer cet objet ? Cette action est irréversible.")) return;
+        await fetch(`/api/items/delete?id=${item.id}`, { method: "DELETE" });
+        window.location.href = "/manage";
+    };
+
     return (
         <div className="mt-8">
             <h2 className="text-xl font-semibold mb-2">Actions</h2>
             <div className="flex gap-4">
                 <button className="theme-primary px-4 py-2 rounded hover:bg-primary/90 transition" onClick={() => setShowModal(true)}>Modifier</button>
-                <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">Supprimer</button>
+                <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition" onClick={handleDelete}>Supprimer</button>
             </div>
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -38,7 +58,39 @@ export default function ManageObjectClient({ item }: { item: Item }) {
                                 <label className="block text-sm font-medium">Statut</label>
                                 <input className="theme-input rounded px-2 py-1 w-full" value={form.status || ""} onChange={e => setForm({ ...form, status: e.target.value })} />
                             </div>
-                            {/* Ajoute ici les autres champs (pièce, emplacement, contenant, tags) selon ton modèle */}
+                            <div>
+                                <label className="block text-sm font-medium">Pièce</label>
+                                <select className="theme-input rounded px-2 py-1 w-full" value={form.roomId ?? ""} onChange={e => {
+                                    const roomId = Number(e.target.value) || undefined;
+                                    setForm(f => ({ ...f, roomId, placeId: undefined, containerId: undefined }));
+                                }}>
+                                    <option value="">Sélectionner une pièce</option>
+                                    {loadingRooms ? <option>Chargement...</option> : rooms.map((room: Room) => (
+                                        <option key={room.id} value={room.id}>{room.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Emplacement</label>
+                                <select className="theme-input rounded px-2 py-1 w-full" value={form.placeId ?? ""} onChange={e => {
+                                    const placeId = Number(e.target.value) || undefined;
+                                    setForm(f => ({ ...f, placeId, containerId: undefined }));
+                                }} disabled={!form.roomId}>
+                                    <option value="">Sélectionner un emplacement</option>
+                                    {loadingPlaces ? <option>Chargement...</option> : filteredPlaces.map((place: Place) => (
+                                        <option key={place.id} value={place.id}>{place.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Contenant</label>
+                                <select className="theme-input rounded px-2 py-1 w-full" value={form.containerId ?? ""} onChange={e => setForm(f => ({ ...f, containerId: Number(e.target.value) || undefined }))} disabled={!form.roomId && !form.placeId}>
+                                    <option value="">Sélectionner un contenant</option>
+                                    {loadingContainers ? <option>Chargement...</option> : filteredContainers.map((container: Container) => (
+                                        <option key={container.id} value={container.id}>{container.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                             <div className="flex justify-end gap-2 mt-4">
                                 <button type="button" className="px-4 py-2 rounded theme-muted hover:theme-bg" onClick={() => setShowModal(false)}>Annuler</button>
                                 <button type="submit" className="px-4 py-2 rounded theme-primary">Enregistrer</button>

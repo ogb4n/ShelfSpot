@@ -1,5 +1,4 @@
 "use client"
-import Image from "next/image";
 import ManageObjectClient from "@/components/ManageObjectClient";
 import { useGetItem } from "@/hooks/useGetItem";
 import { useParams } from "next/navigation";

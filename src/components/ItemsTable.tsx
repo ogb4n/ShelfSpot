@@ -90,7 +90,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                 if (Array.isArray(data)) {
                     setFavourites(data.map((fav: { itemId?: number; item?: { id: number } }) => fav.itemId || fav.item?.id).filter((id): id is number => typeof id === 'number'));
                 }
-            } catch {}
+            } catch { }
         }
         fetchFavourites();
     }, []);
@@ -399,12 +399,14 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                         )}
                                         {columns.includes("actions") && (
                                             <TableCell>
-                                                <Button size="sm" variant="outline" onClick={handleSave}>
-                                                    Enregistrer
-                                                </Button>
-                                                <Button size="sm" variant="ghost" onClick={handleCancel}>
-                                                    Annuler
-                                                </Button>
+                                                <div className="flex gap-1">
+                                                    <Button size="sm" variant="secondary" onClick={handleSave}>
+                                                        Enregistrer
+                                                    </Button>
+                                                    <Button size="sm" variant="ghost" onClick={handleCancel}>
+                                                        Annuler
+                                                    </Button>
+                                                </div>
                                             </TableCell>
                                         )}
                                     </>

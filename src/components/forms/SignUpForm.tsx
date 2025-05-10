@@ -9,10 +9,16 @@ export default function SignUpForm() {
     const [name, setName] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const [nameError, setNameError] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setMessage("");
+        setNameError("");
+        if (name.length < 5) {
+            setNameError("Le nom d'utilisateur doit contenir au moins 5 caractères.");
+            return;
+        }
         setLoading(true);
         try {
             const res = await fetch("/api/user/register", {
@@ -35,7 +41,7 @@ export default function SignUpForm() {
             } else {
                 setMessage(data.message || data.error || "Erreur lors de l'inscription");
             }
-        } catch (err) {
+        } catch {
             setMessage("Erreur réseau ou serveur");
         } finally {
             setLoading(false);
@@ -55,6 +61,7 @@ export default function SignUpForm() {
                     className="border border-zinc-300 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded px-2 py-1 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                 />
+                {nameError && <span className="text-red-600 text-xs mt-1">{nameError}</span>}
             </label>
             <label className="flex flex-col text-zinc-800 dark:text-zinc-200">
                 Email
