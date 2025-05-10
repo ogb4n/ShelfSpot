@@ -1,9 +1,10 @@
 'use client';
 import { useState } from "react";
+import { Item } from "@/app/types";
 
-export default function ManageObjectClient({ item }: { item: any }) {
+export default function ManageObjectClient({ item }: { item: Item }) {
     const [showModal, setShowModal] = useState(false);
-    const [form, setForm] = useState<any>(item);
+    const [form, setForm] = useState<Partial<Item>>(item);
     return (
         <div className="mt-8">
             <h2 className="text-xl font-semibold mb-2">Actions</h2>
@@ -15,7 +16,7 @@ export default function ManageObjectClient({ item }: { item: any }) {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
                     <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-lg p-8 w-full max-w-lg relative">
                         <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700" onClick={() => setShowModal(false)}>&times;</button>
-                        <h2 className="text-2xl font-bold mb-4">Modifier l'objet</h2>
+                        <h2 className="text-2xl font-bold mb-4">Modifier l&apos;objet</h2>
                         <form onSubmit={async e => {
                             e.preventDefault();
                             await fetch(`/api/items/edit`, {
@@ -31,7 +32,7 @@ export default function ManageObjectClient({ item }: { item: any }) {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium">Quantité</label>
-                                <input type="number" className="border rounded px-2 py-1 w-full" value={form.quantity} onChange={e => setForm({ ...form, quantity: e.target.value })} />
+                                <input type="number" className="border rounded px-2 py-1 w-full" value={form.quantity} onChange={e => setForm({ ...form, quantity: Number(e.target.value) })} />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium">Statut</label>

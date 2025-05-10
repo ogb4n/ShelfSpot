@@ -2,26 +2,13 @@
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState, useRef } from "react";
-import { Select } from "@/components/ui/select";
-import { ReactNode } from "react";
 import useGetTags from "@/app/hooks/useGetTags";
 import { MoreVertical, CheckSquare, Square } from "lucide-react";
-import { Menu, Portal } from "@headlessui/react";
+import { Menu } from "@headlessui/react";
 import { useFloating, FloatingPortal, offset, flip, shift } from '@floating-ui/react';
+import { Item, Tag } from "@/app/types";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
-
-export type Item = {
-    id: number;
-    name: string;
-    quantity?: number;
-    status?: string;
-    room?: { name: string } | null;
-    place?: { name: string } | null;
-    container?: { name: string } | null;
-    tags?: string[];
-    [key: string]: any;
-};
 
 export type ItemsTableColumn =
     | "name"
@@ -37,7 +24,6 @@ interface ItemsTableProps {
     search?: string;
     items?: Item[];
     columns?: ItemsTableColumn[];
-    renderActions?: (item: Item) => ReactNode;
 }
 
 function ItemsTable({ search, items: itemsProp, columns = [
@@ -49,13 +35,13 @@ function ItemsTable({ search, items: itemsProp, columns = [
     "container",
     "tags",
     "actions",
-], renderActions }: ItemsTableProps) {
+] }: ItemsTableProps) {
     const [items, setItems] = useState<Item[]>(itemsProp || []);
     const [loading, setLoading] = useState(!itemsProp);
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const [editId, setEditId] = useState<number | null>(null);
-    const [editValues, setEditValues] = useState<any>({});
+    const [editValues, setEditValues] = useState<Partial<Item>>({});
     const inputRef = useRef<HTMLInputElement>(null);
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[1]);
     const { tags: allTags, loading: tagsLoading } = useGetTags();
@@ -86,7 +72,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                 const res = await fetch("/api/items");
                 const data = await res.json();
                 setItems(data);
-            } catch (e) {
+            } catch {
                 setError("Erreur lors du chargement des objets");
             } finally {
                 setLoading(false);
@@ -102,9 +88,9 @@ function ItemsTable({ search, items: itemsProp, columns = [
                 const res = await fetch("/api/favourites", { cache: "no-store" });
                 const data = await res.json();
                 if (Array.isArray(data)) {
-                    setFavourites(data.map((fav: any) => fav.itemId || fav.item?.id));
+                    setFavourites(data.map((fav: { itemId?: number; item?: { id: number } }) => fav.itemId || fav.item?.id).filter((id): id is number => typeof id === 'number'));
                 }
-            } catch { }
+            } catch {}
         }
         fetchFavourites();
     }, []);
@@ -117,7 +103,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
             await Promise.all(selectedIds.map(id => fetch(`/api/items/delete?id=${id}`, { method: "DELETE" })));
             setItems((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
             setSelectedIds([]);
-        } catch (e) {
+        } catch {
             alert("Erreur lors de la suppression multiple");
         }
     };
@@ -125,7 +111,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
     if (loading) return <div>Chargement...</div>;
     if (error) return <div>{error}</div>;
 
-    const handleEdit = (item: any) => {
+    const handleEdit = (item: Item) => {
         setEditId(item.id);
         setEditValues({ ...item });
         setTimeout(() => inputRef.current?.focus(), 0);
@@ -141,7 +127,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(editValues),
         });
-        setItems((prev: any[]) => prev.map((it) => (it.id === editId ? { ...it, ...editValues } : it)));
+        setItems((prev: Item[]) => prev.map((it: Item) => (it.id === editId ? { ...it, ...editValues } : it)));
         setEditId(null);
         setEditValues({});
     };
@@ -156,20 +142,26 @@ function ItemsTable({ search, items: itemsProp, columns = [
         if (!window.confirm("Supprimer cet objet ?")) return;
         try {
             await fetch(`/api/items/delete?id=${id}`, { method: "DELETE" });
-            setItems((prev) => prev.filter((item) => item.id !== id));
-        } catch (e) {
+            setItems((prev) => prev.filter((item: Item) => item.id !== id));
+        } catch {
             alert("Erreur lors de la suppression");
         }
     };
 
-    function ActionMenu({ item, handleEdit, handleDelete, favourites, setFavourites }: any) {
-        const { x, y, strategy, refs, floatingStyles } = useFloating({
+    function ActionMenu({ item, handleEdit, handleDelete, favourites, setFavourites }: {
+        item: Item;
+        handleEdit: (item: Item) => void;
+        handleDelete: (id: number) => void;
+        favourites: number[];
+        setFavourites: React.Dispatch<React.SetStateAction<number[]>>;
+    }) {
+        const { refs, floatingStyles } = useFloating({
             placement: 'bottom-end',
             middleware: [offset(4), flip(), shift()]
         });
         return (
             <Menu as="div" className="inline-block text-left">
-                {({ open }) => (
+                {({ open }: { open: boolean }) => (
                     <>
                         <Menu.Button ref={refs.setReference} as="button" className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
                             <MoreVertical className="w-5 h-5" />
@@ -182,7 +174,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                     className="rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none border border-gray-200 dark:border-gray-700 flex flex-col p-1"
                                 >
                                     <Menu.Item>
-                                        {({ active }) => (
+                                        {({ active }: { active: boolean }) => (
                                             <button
                                                 className={`w-full text-left px-4 py-2 text-sm rounded ${active ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
                                                 onClick={() => handleEdit(item)}
@@ -192,7 +184,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                         )}
                                     </Menu.Item>
                                     <Menu.Item>
-                                        {({ active }) => (
+                                        {({ active }: { active: boolean }) => (
                                             <button
                                                 className={`w-full text-left px-4 py-2 text-sm rounded ${active ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
                                                 onClick={() => {
@@ -201,12 +193,12 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                     }
                                                 }}
                                             >
-                                                Page de l'objet
+                                                Page de l&apos;objet
                                             </button>
                                         )}
                                     </Menu.Item>
                                     <Menu.Item>
-                                        {({ active }) => {
+                                        {({ active }: { active: boolean }) => {
                                             const isFav = favourites.includes(item.id);
                                             return (
                                                 <button
@@ -215,7 +207,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                         const userName = (typeof window !== 'undefined' && localStorage.getItem('userName')) || undefined;
                                                         if (isFav) {
                                                             await fetch(`/api/favourites?id=${item.id}`, { method: 'DELETE' });
-                                                            setFavourites(favourites.filter((id: number) => id !== item.id));
+                                                            setFavourites((prev: number[]) => prev.filter((favId: number) => favId !== item.id));
                                                         } else {
                                                             await fetch('/api/favourites', {
                                                                 method: 'POST',
@@ -232,12 +224,12 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                         }}
                                     </Menu.Item>
                                     <Menu.Item>
-                                        {({ active }) => (
+                                        {({ active }: { active: boolean }) => (
                                             <button
                                                 className={`w-full text-left px-4 py-2 text-sm rounded text-red-600 ${active ? 'bg-red-100 dark:bg-red-900' : ''}`}
                                                 onClick={() => handleDelete(item.id)}
                                             >
-                                                Supprimer l'objet
+                                                Supprimer l&apos;objet
                                             </button>
                                         )}
                                     </Menu.Item>
@@ -378,7 +370,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                     <span>Chargement des tags…</span>
                                                 ) : (
                                                     <div className="flex flex-wrap gap-1">
-                                                        {allTags.map((tag: any) => {
+                                                        {allTags.map((tag: Tag) => {
                                                             const selected = editValues.tags?.includes(tag.name);
                                                             return (
                                                                 <button
@@ -386,13 +378,13 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                                     type="button"
                                                                     className={`px-2 py-1 rounded text-xs border ${selected ? "bg-blue-600 text-white border-blue-600" : "bg-gray-100 border-gray-300 text-gray-800"}`}
                                                                     onClick={() => {
-                                                                        setEditValues((prev: any) => {
-                                                                            const tags = prev.tags || [];
+                                                                        setEditValues((prev: Partial<Item>) => {
+                                                                            const prevTags = prev.tags || [];
                                                                             return {
                                                                                 ...prev,
                                                                                 tags: selected
-                                                                                    ? tags.filter((t: string) => t !== tag.name)
-                                                                                    : [...tags, tag.name],
+                                                                                    ? prevTags.filter((t: string) => t !== tag.name)
+                                                                                    : [...prevTags, tag.name],
                                                                             };
                                                                         });
                                                                     }}
@@ -427,8 +419,8 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                         {columns.includes("tags") && <TableCell>
                                             <div className="flex flex-wrap gap-1">
                                                 {item.tags && item.tags.length > 0 ? (
-                                                    item.tags.map((tagName: string) => {
-                                                        const tagObj = allTags.find((t: any) => t.name === tagName) as any;
+                                                    (item.tags as string[]).map((tagName: string) => {
+                                                        const tagObj = allTags.find((t: Tag) => t.name === tagName) as Tag | undefined;
                                                         return (
                                                             <span
                                                                 key={tagName}

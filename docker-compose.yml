@@ -2,10 +2,12 @@ version: "3.8"
 
 services:
   shelfspot:
-    image: shelfspot
+    image: shelfspot-optimized
     container_name: shelfspot
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=fsgjshdflmé23423
     command: ["yarn", "start"]

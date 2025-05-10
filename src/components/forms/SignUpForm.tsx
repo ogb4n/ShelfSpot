@@ -49,7 +49,7 @@ export default function SignUpForm() {
                     required
                 />
             </label>
-            <button type="submit" className="bg-blue-600 dark:bg-blue-700 text-white rounded px-4 py-2 hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors">S'inscrire</button>
+            <button type="submit" className="bg-blue-600 dark:bg-blue-700 text-white rounded px-4 py-2 hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors">S&apos;inscrire</button>
             {message && <div className="text-sm text-zinc-600 dark:text-zinc-300 mt-2">{message}</div>}
         </form>
     );

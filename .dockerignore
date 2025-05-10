@@ -1,0 +1,35 @@
+# Exclure les dossiers et fichiers inutiles à la build
+node_modules
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+README.md
+*.md
+*.log
+.env
+.env.*
+test/
+tests/
+__tests__/
+coverage/
+docs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.tmp
+*.DS_Store
+npm-debug.log
+yarn-error.log
+
+# Exclure les fichiers de config locaux
+*.local
+*.example
+
+# Exclure les fichiers de build précédents
+.next/cache
+
+# Exclure les fichiers inutiles dans public/fonts si besoin
+public/fonts/*.ts

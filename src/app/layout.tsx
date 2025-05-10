@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { geistSans, geistMono, roboto } from "../../public/fonts/googlefonts";
+import { geistSans, geistMono, roboto } from "../lib/fonts/googlefonts";
 import "./globals.css";
 import React from "react";
 import { Providers } from "./utils/providers";

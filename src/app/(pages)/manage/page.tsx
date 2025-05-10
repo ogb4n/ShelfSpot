@@ -10,23 +10,29 @@ const fetcher = async (url: string, options?: RequestInit) => {
   return res.json();
 };
 
+// Types explicites pour les entités
+interface Room { id: number; name: string; }
+interface Place { id: number; name: string; roomId: number; }
+interface Container { id: number; name: string; roomId: number; placeId: number; }
+interface Tag { id: number; name: string; }
+
 /**
  * Manage Page Component
  *
  * @returns {JSX.Element} Rendered page component
  */
 const ManagePage = () => {
-  // States for forms
+  // States pour les formulaires
   const [roomName, setRoomName] = useState("");
   const [placeName, setPlaceName] = useState("");
   const [containerName, setContainerName] = useState("");
   const [tagName, setTagName] = useState("");
 
   // Data states
-  const [rooms, setRooms] = useState<any[]>([]);
-  const [places, setPlaces] = useState<any[]>([]);
-  const [containers, setContainers] = useState<any[]>([]);
-  const [tags, setTags] = useState<any[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [containers, setContainers] = useState<Container[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,8 +57,8 @@ const ManagePage = () => {
       setPlaces(placesData);
       setContainers(containersData);
       setTags(tagsData);
-    } catch (e: any) {
-      setError(e.message || "Erreur lors du chargement");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -75,8 +81,8 @@ const ManagePage = () => {
       });
       setRoomName("");
       fetchAll();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -91,8 +97,8 @@ const ManagePage = () => {
         body: JSON.stringify({ id }),
       });
       fetchAll();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -111,8 +117,8 @@ const ManagePage = () => {
       setPlaceName("");
       setSelectedRoomForPlace(null);
       fetchAll();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -127,8 +133,8 @@ const ManagePage = () => {
         body: JSON.stringify({ id }),
       });
       fetchAll();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -148,8 +154,8 @@ const ManagePage = () => {
       setSelectedRoomForContainer(null);
       setSelectedPlaceForContainer(null);
       fetchAll();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -164,8 +170,8 @@ const ManagePage = () => {
         body: JSON.stringify({ id }),
       });
       fetchAll();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -183,8 +189,8 @@ const ManagePage = () => {
       });
       setTagName("");
       fetchAll();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -199,8 +205,8 @@ const ManagePage = () => {
         body: JSON.stringify({ id }),
       });
       fetchAll();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -239,7 +245,7 @@ const ManagePage = () => {
             <select
               value={selectedRoomForPlace ?? ""}
               onChange={e => setSelectedRoomForPlace(Number(e.target.value) || null)}
-              className="border rounded px-2 py-1 bg-white dark:bg-black text-black dark:text-white"
+              className="border rounded px-2 py-1 bg-white dark:bg.black text-black dark:text-white"
               required
             >
               <option value="">Sélectionner une pièce</option>
@@ -261,7 +267,7 @@ const ManagePage = () => {
           </form>
           <ul className="flex flex-wrap gap-2">
             {places.map((place) => (
-              <li key={place.id} className="bg-white dark:bg-black px-2 py-1 rounded flex items-center gap-2">
+              <li key={place.id} className="bg-white dark:bg.black px-2 py-1 rounded flex items-center gap-2">
                 {place.name} <span className="text-xs text-gray-500">({rooms.find(r => r.id === place.roomId)?.name || "?"})</span>
                 <button onClick={() => handleDeletePlace(place.id)} className="text-red-500 ml-2">✕</button>
               </li>
@@ -278,7 +284,7 @@ const ManagePage = () => {
                 setSelectedRoomForContainer(val);
                 setSelectedPlaceForContainer(null); // reset place selection if room changes
               }}
-              className="border rounded px-2 py-1 bg-white dark:bg-black text-black dark:text-white"
+              className="border rounded px-2 py-1 bg-white dark:bg.black text-black dark:text-white"
               required
             >
               <option value="">Sélectionner une pièce</option>
@@ -289,7 +295,7 @@ const ManagePage = () => {
             <select
               value={selectedPlaceForContainer ?? ""}
               onChange={e => setSelectedPlaceForContainer(Number(e.target.value) || null)}
-              className="border rounded px-2 py-1 bg-white dark:bg-black text-black dark:text-white"
+              className="border rounded px-2 py-1 bg-white dark:bg.black text-black dark:text-white"
               required
               disabled={!selectedRoomForContainer}
             >
@@ -312,7 +318,7 @@ const ManagePage = () => {
           </form>
           <ul className="flex flex-wrap gap-2">
             {containers.map((container) => (
-              <li key={container.id} className="bg-white dark:bg-black px-2 py-1 rounded flex items-center gap-2">
+              <li key={container.id} className="bg-white dark:bg.black px-2 py-1 rounded flex items-center gap-2">
                 {container.name}
                 <span className="text-xs text-gray-500">
                   ({rooms.find(r => r.id === container.roomId)?.name || "?"} / {places.find(p => p.id === container.placeId)?.name || "?"})
@@ -337,7 +343,7 @@ const ManagePage = () => {
           </form>
           <ul className="flex flex-wrap gap-2">
             {tags.map((tag) => (
-              <li key={tag.id} className="bg-white dark:bg-black px-2 py-1 rounded flex items-center gap-2">
+              <li key={tag.id} className="bg-white dark:bg.black px-2 py-1 rounded flex items-center gap-2">
                 {tag.name}
                 <button onClick={() => handleDeleteTag(tag.id)} className="text-red-500 ml-2">✕</button>
               </li>
