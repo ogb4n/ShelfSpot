@@ -24,6 +24,9 @@ interface ItemsTableProps {
     search?: string;
     items?: Item[];
     columns?: ItemsTableColumn[];
+    onCreate?: () => void;
+    showCreateForm?: boolean;
+    children?: React.ReactNode;
 }
 
 function ItemsTable({ search, items: itemsProp, columns = [
@@ -35,7 +38,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
     "container",
     "tags",
     "actions",
-] }: ItemsTableProps) {
+], onCreate, showCreateForm, children }: ItemsTableProps) {
     const [items, setItems] = useState<Item[]>(itemsProp || []);
     const [loading, setLoading] = useState(!itemsProp);
     const [error, setError] = useState<string | null>(null);
@@ -47,11 +50,23 @@ function ItemsTable({ search, items: itemsProp, columns = [
     const { tags: allTags, loading: tagsLoading } = useGetTags();
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [favourites, setFavourites] = useState<number[]>([]);
+    const [searchInput, setSearchInput] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    const filteredItems = search
-        ? items.filter((item) =>
-            item.name?.toLowerCase().includes(search.toLowerCase())
-        )
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchInput);
+        }, 300); // 300ms de délai
+        return () => clearTimeout(handler);
+    }, [searchInput]);
+
+    const filteredItems = (debouncedSearch || search)
+        ? items.filter((item) => {
+            const searchValue = (debouncedSearch || search || "").toLowerCase();
+            const nameMatch = item.name?.toLowerCase().includes(searchValue);
+            const tagsMatch = Array.isArray(item.tags) && item.tags.some(tag => tag.toLowerCase().includes(searchValue));
+            return nameMatch || tagsMatch;
+        })
         : items;
     const totalPages = Math.ceil(filteredItems.length / pageSize);
     const paginatedItems = filteredItems.slice((page - 1) * pageSize, page * pageSize);
@@ -99,6 +114,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
     const handleDeleteSelected = async () => {
         if (selectedIds.length === 0) return;
         if (!window.confirm(`Supprimer ${selectedIds.length} objet(s) sélectionné(s) ?`)) return;
+        if (!window.confirm(`Êtes-vous vraiment sûr de vouloir supprimer définitivement ${selectedIds.length} objet(s) ? Cette action est irréversible.`)) return;
         try {
             await Promise.all(selectedIds.map(id => fetch(`/api/items/delete?id=${id}`, { method: "DELETE" })));
             setItems((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
@@ -253,11 +269,30 @@ function ItemsTable({ search, items: itemsProp, columns = [
                 >
                     Supprimer la sélection
                 </Button>
+                <input
+                    type="text"
+                    placeholder="Rechercher..."
+                    className="theme-input rounded px-2 py-1 ml-2 w-56"
+                    value={searchInput}
+                    onChange={e => {
+                        setSearchInput(e.target.value);
+                        setPage(1);
+                    }}
+                />
+                {onCreate && (
+                    <Button size="sm" variant="default" className="ml-2" onClick={onCreate}>
+                        {showCreateForm ? "Annuler" : "Créer un objet"}
+                    </Button>
+                )}
             </div>
-            <div className="theme-card border theme-border p-2 overflow-x-auto max-h-[70vh] overflow-y-auto">
+            {/* Section déroulante pour le formulaire de création */}
+            <div className={`transition-all duration-300 overflow-hidden ${showCreateForm ? 'max-h-[1000px] opacity-100 mb-4' : 'max-h-0 opacity-0 mb-0'}`}>
+                {showCreateForm && children}
+            </div>
+            <div className="theme-card border theme-border p-1 max-h-[60vh] h-[55vh] overflow-y-auto overflow-x-auto text-sm">
                 <Table>
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className="h-8">
                             <TableHead className="w-8 px-2">
                                 <button onClick={toggleSelectAll} aria-label="Tout sélectionner">
                                     {allSelected ? <CheckSquare className="w-5 h-5 text-primary" /> : <Square className="w-5 h-5 text-muted-foreground" />}
@@ -291,8 +326,8 @@ function ItemsTable({ search, items: itemsProp, columns = [
                     </TableHeader>
                     <TableBody>
                         {paginatedItems.map((item: Item, idx: number) => (
-                            <TableRow key={item.id} className={idx % 2 === 0 ? "theme-bg" : "bg-muted/50"}>
-                                <TableCell className="w-8 px-2">
+                            <TableRow key={item.id} className={idx % 2 === 0 ? "theme-bg h-8" : "bg-muted/50 h-8"}>
+                                <TableCell className="w-8 px-2 py-1">
                                     <input
                                         type="checkbox"
                                         checked={selectedIds.includes(item.id)}
@@ -412,13 +447,13 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                     </>
                                 ) : (
                                     <>
-                                        {columns.includes("name") && <TableCell>{item.name}</TableCell>}
-                                        {columns.includes("quantity") && <TableCell>{item.quantity}</TableCell>}
-                                        {columns.includes("status") && <TableCell>{item.status}</TableCell>}
-                                        {columns.includes("room") && <TableCell>{item.room?.name}</TableCell>}
-                                        {columns.includes("place") && <TableCell>{item.place?.name}</TableCell>}
-                                        {columns.includes("container") && <TableCell>{item.container?.name}</TableCell>}
-                                        {columns.includes("tags") && <TableCell>
+                                        {columns.includes("name") && <TableCell className="py-1">{item.name}</TableCell>}
+                                        {columns.includes("quantity") && <TableCell className="py-1">{item.quantity}</TableCell>}
+                                        {columns.includes("status") && <TableCell className="py-1">{item.status}</TableCell>}
+                                        {columns.includes("room") && <TableCell className="py-1">{item.room?.name}</TableCell>}
+                                        {columns.includes("place") && <TableCell className="py-1">{item.place?.name}</TableCell>}
+                                        {columns.includes("container") && <TableCell className="py-1">{item.container?.name}</TableCell>}
+                                        {columns.includes("tags") && <TableCell className="py-1">
                                             <div className="flex flex-wrap gap-1">
                                                 {item.tags && item.tags.length > 0 ? (
                                                     (item.tags as string[]).map((tagName: string) => {
@@ -438,7 +473,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                             </div>
                                         </TableCell>}
                                         {columns.includes("actions") && (
-                                            <TableCell className="relative">
+                                            <TableCell className="relative py-1">
                                                 <ActionMenu
                                                     item={item}
                                                     handleEdit={handleEdit}

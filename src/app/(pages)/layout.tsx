@@ -22,11 +22,11 @@ export default async function RootLayout({
   }
 
   return (
-    <>
+    <div className="flex flex-row min-h-screen w-full">
       <Sidebar />
-      <div className="flex-1 ml-[220px]">
+      <div className="flex-1 ml-[220px] overflow-y-auto">
         {children}
       </div>
-    </>
+    </div>
   );
 }

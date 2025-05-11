@@ -40,7 +40,7 @@ export default function RootLayout({
       </head>
       <body
         className={`antialiased bg-white dark:bg-black`}
-        style={{ margin: 0, padding: 0, overflow: "hidden" }}
+        style={{ margin: 0, padding: 0 }}
       >
         <Providers>
           <div className="flex h-screen flex-col">
