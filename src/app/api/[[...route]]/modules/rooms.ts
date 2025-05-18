@@ -12,6 +12,9 @@ export const roomsModule: ApiModule = {
             const rooms = await prisma.room.findMany({
               include: {
                 places: true,
+                _count: {
+                  select: { items: true },
+                },
               },
             });
             return NextResponse.json(rooms);

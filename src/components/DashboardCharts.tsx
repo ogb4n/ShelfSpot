@@ -11,6 +11,7 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
+import useGetRooms from "@/app/hooks/useGetRooms";
 
 Chart.register(
     ArcElement,
@@ -23,14 +24,22 @@ Chart.register(
     Legend
 );
 
+const backgroundColors = [
+    "#b46cff",
+    "#9056cc",
+    "#82618b",
+    "#5a357f"
+]
+
 export default function DashboardCharts() {
-    // Données fictives à remplacer par tes vraies données
+    const { rooms, loading, error } = useGetRooms();
+    // Génère dynamiquement les labels et valeurs à partir des rooms
     const repartitionPieces = {
-        labels: ["Salon", "Cuisine", "Chambre", "Garage"],
+        labels: rooms.map((room: any) => room.name),
         datasets: [
             {
-                data: [12, 19, 7, 5],
-                backgroundColor: ["#6366f1", "#f59e42", "#10b981", "#ef4444"],
+                data: rooms.map((room: any) => room._count?.items ?? 0),
+                backgroundColor: backgroundColors,
             },
         ],
     };
@@ -38,8 +47,8 @@ export default function DashboardCharts() {
         labels: ["En stock", "Prêté", "Perdu"],
         datasets: [
             {
-                data: [30, 5, 2],
-                backgroundColor: ["#6366f1", "#f59e42", "#ef4444"],
+                data: [11, 2, 0],
+                backgroundColor: backgroundColors
             },
         ],
     };
@@ -48,8 +57,8 @@ export default function DashboardCharts() {
         datasets: [
             {
                 label: "Alertes",
-                data: [2, 1, 3, 0, 2],
-                backgroundColor: "#ef4444",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: backgroundColors,
             },
         ],
     };
@@ -60,8 +69,8 @@ export default function DashboardCharts() {
                 label: "Valeur (€)",
                 data: [1200, 1300, 1250, 1400, 1500],
                 fill: true,
-                backgroundColor: "rgba(99,102,241,0.2)",
-                borderColor: "#6366f1",
+                backgroundColor: "#b46cff",
+                borderColor: "#5a357f",
             },
         ],
     };
@@ -70,7 +79,15 @@ export default function DashboardCharts() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div className="bg-neutral-900 rounded-lg p-4 flex flex-col items-center">
                 <h2 className="text-white text-lg mb-2">Répartition par pièce</h2>
-                <div className="w-full max-w-xs h-64"><Pie data={repartitionPieces} options={{ maintainAspectRatio: false }} /></div>
+                {loading ? (
+                    <div className="text-white">Chargement...</div>
+                ) : error ? (
+                    <div className="text-red-500">Erreur lors du chargement des pièces</div>
+                ) : (
+                    <div className="w-full max-w-xs h-64">
+                        <Pie data={repartitionPieces} options={{ maintainAspectRatio: false }} />
+                    </div>
+                )}
             </div>
             <div className="bg-neutral-900 rounded-lg p-4 flex flex-col items-center">
                 <h2 className="text-white text-lg mb-2">Alertes par mois</h2>
@@ -82,7 +99,7 @@ export default function DashboardCharts() {
             </div>
             <div className="bg-neutral-900 rounded-lg p-4 flex flex-col items-center">
                 <h2 className="text-white text-lg mb-2">Répartition des statuts</h2>
-                <div className="w-full max-w-xs h-64"><Pie data={repartitionStatuts} options={{ maintainAspectRatio: false }} /></div>
+                <div className="w-full max-w-xs h-64"><Bar data={repartitionStatuts} options={{ maintainAspectRatio: false }} /></div>
             </div>
         </div>
     );
