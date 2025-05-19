@@ -3,7 +3,7 @@ import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState, useRef } from "react";
 import useGetTags from "@/app/hooks/useGetTags";
-import { MoreVertical, CheckSquare, Square } from "lucide-react";
+import { MoreVertical, CheckSquare, Square, Trash2 } from "lucide-react";
 import { Menu } from "@headlessui/react";
 import { useFloating, FloatingPortal, offset, flip, shift } from '@floating-ui/react';
 import { Item, Tag } from "@/app/types";
@@ -261,14 +261,17 @@ function ItemsTable({ search, items: itemsProp, columns = [
     return (
         <div>
             <div className="flex items-center mb-2 gap-2">
-                <Button
-                    size="sm"
-                    variant="destructive"
-                    disabled={selectedIds.length === 0}
-                    onClick={handleDeleteSelected}
-                >
-                    Supprimer la sélection
-                </Button>
+                {selectedIds.length > 0 && (
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900"
+                        onClick={handleDeleteSelected}
+                        aria-label="Supprimer la sélection"
+                    >
+                        <Trash2 className="w-5 h-5" />
+                    </Button>
+                )}
                 <input
                     type="text"
                     placeholder="Rechercher..."

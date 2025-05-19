@@ -1,12 +1,12 @@
 "use client"
 import ManageObjectClient from "@/components/ManageObjectClient";
-import { useGetItem } from "@/hooks/useGetItem";
+import useGetItems from "@/app/hooks/useGetItems";
 import { useParams } from "next/navigation";
 
 export default function ManageObjectPage() {
     const params = useParams();
     const id = Array.isArray(params.id) ? params.id[0] : params.id;
-    const { item, loading, error } = useGetItem(id);
+    const { data, loading, error } = useGetItems(id);
 
     if (!id) {
         return (
@@ -17,22 +17,11 @@ export default function ManageObjectPage() {
         );
     }
 
-    if (loading) {
-        return (
-            <main className="max-w-2xl mx-auto p-8 theme-bg">
-                <h1 className="text-2xl font-bold mb-4">Chargement...</h1>
-            </main>
-        );
-    }
+    if (loading) return <div>Chargement...</div>;
+    if (error) return <div>Erreur : {error}</div>;
+    if (!data || Array.isArray(data)) return <div>Aucun objet trouvé.</div>;
 
-    if (error || !item) {
-        return (
-            <main className="max-w-2xl mx-auto p-8 theme-bg">
-                <h1 className="text-2xl font-bold mb-4">Objet introuvable</h1>
-                <p className="theme-muted">L&apos;objet demandé n&apos;existe pas ou une erreur est survenue.</p>
-            </main>
-        );
-    }
+    const item = data;
 
     return (
         <main className="max-w-2xl mx-auto p-8 theme-bg">

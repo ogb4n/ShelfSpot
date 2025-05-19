@@ -23,7 +23,7 @@ const Dashboard = () => {
   const { places, loading: loadingPlaces } = useGetPlaces() as { places: Place[]; loading: boolean };
   const { tags, loading: loadingTags } = useGetTags() as { tags: Tag[]; loading: boolean };
   const { containers, loading: loadingContainers } = useGetContainers() as { containers: Container[]; loading: boolean };
-  const { items, loading: loadingItems } = useGetItems() as { items: Item[]; loading: boolean };
+  const { data: items, loading: loadingItems } = useGetItems();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -104,7 +104,7 @@ const Dashboard = () => {
         <div className="flex flex-row gap-6 mb-2 w-full">
           <Card className="flex flex-col justify-center items-center flex-1 min-w-[180px] max-w-xs py-4">
             <div className="text-sm font-medium text-muted-foreground mb-1">Objets dans la maison</div>
-            <div className="text-3xl font-bold text-primary">{loadingItems ? <span className="text-base">...</span> : items.length}</div>
+            <div className="text-3xl font-bold text-primary">{loadingItems ? <span className="text-base">...</span> : Array.isArray(items) ? items.length : 0}</div>
           </Card>
           <Card className="flex flex-col justify-center items-center flex-1 min-w-[180px] max-w-xs py-4">
             <div className="text-sm font-medium text-muted-foreground mb-1">Alertes récentes</div>

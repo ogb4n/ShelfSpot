@@ -2,30 +2,36 @@ import { useState, useEffect } from "react";
 import { Item } from "@/app/types";
 
 /**
- * Hook pour récupérer tous les objets de la maison
+ * Hook pour récupérer tous les objets ou un objet spécifique de la maison
  */
-function useGetItems() {
-  const [items, setItems] = useState<Item[]>([]);
+function useGetItems(id?: string) {
+  const [data, setData] = useState<Item[] | Item | null>(id ? null : []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchItems() {
+    async function fetchData() {
+      setLoading(true);
+      setError(null);
       try {
-        const res = await fetch("/api/items");
-        if (!res.ok) throw new Error("Erreur lors du chargement des objets");
-        const data = await res.json();
-        setItems(data);
+        const url = id ? `/api/items?id=${id}` : "/api/items";
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(id ? "Objet introuvable" : "Erreur lors du chargement des objets");
+        const result = await res.json();
+        setData(result);
       } catch (err: unknown) {
+        setData(id ? null : []);
         setError((err as Error).message);
       } finally {
         setLoading(false);
       }
     }
-    fetchItems();
-  }, []);
+    if (id === undefined || id) {
+      fetchData();
+    }
+  }, [id]);
 
-  return { items, loading, error };
+  return { data, loading, error };
 }
 
 export default useGetItems;
