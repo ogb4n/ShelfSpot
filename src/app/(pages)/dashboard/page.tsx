@@ -8,7 +8,6 @@ import useGetContainers from "@/app/hooks/useGetContainers";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import useGetItems from "@/app/hooks/useGetItems";
-import DashboardCharts from "@/components/DashboardCharts";
 import { Eye, EyeOff } from "lucide-react";
 
 // Types pour les entités
@@ -122,23 +121,8 @@ const Dashboard = () => {
             <div className="text-xs text-muted-foreground mt-1">(à venir)</div>
           </Card>
         </div>
-        {/* Bouton icône discret afficher/masquer les graphs avec tooltip */}
-        <div className="flex justify-end mb-2">
-          <div className="relative group">
-            <button
-              onClick={() => setShowCharts(v => !v)}
-              className="p-2 rounded hover:bg-muted transition-colors text-muted-foreground"
-              aria-label={showCharts ? "Masquer les graphiques" : "Afficher les graphiques"}
-            >
-              {showCharts ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-            </button>
-            <div className="absolute right-0 top-full mt-1 z-10 hidden group-hover:block bg-neutral-800 text-white text-xs rounded px-2 py-1 shadow-lg whitespace-nowrap">
-              {showCharts ? "Masquer les graphiques" : "Afficher les graphiques"}
-            </div>
-          </div>
-        </div>
         {/* Graphiques dashboard */}
-        {showCharts && <DashboardCharts />}
+        {/* {showCharts && <DashboardCharts />} */}
         {/* Main table section */}
         <div className="w-full">
           <h1 className="text-2xl font-bold mb-4">Inventaire</h1>
