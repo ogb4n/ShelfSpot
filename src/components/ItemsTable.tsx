@@ -7,6 +7,7 @@ import { MoreVertical, CheckSquare, Square, Trash2 } from "lucide-react";
 import { Menu } from "@headlessui/react";
 import { useFloating, FloatingPortal, offset, flip, shift } from '@floating-ui/react';
 import { Item, Tag } from "@/app/types";
+import TablePagination from "@/components/TablePagination";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
 
@@ -173,10 +174,11 @@ function ItemsTable({ search, items: itemsProp, columns = [
     }) {
         const { refs, floatingStyles } = useFloating({
             placement: 'bottom-end',
-            middleware: [offset(4), flip(), shift()]
+            middleware: [offset(4), flip(), shift()],
+            strategy: 'fixed', // Use fixed positioning to avoid overflow issues
         });
         return (
-            <Menu as="div" className="inline-block text-left">
+            <Menu as="div" className="inline-block text-left relative z-[60]">
                 {({ open }: { open: boolean }) => (
                     <>
                         <Menu.Button ref={refs.setReference} as="button" className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
@@ -186,8 +188,8 @@ function ItemsTable({ search, items: itemsProp, columns = [
                             <FloatingPortal>
                                 <Menu.Items
                                     ref={refs.setFloating}
-                                    style={floatingStyles}
-                                    className="rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none border border-gray-200 dark:border-gray-700 flex flex-col p-1"
+                                    style={{ ...floatingStyles, zIndex: 60 }}
+                                    className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none border flex flex-col p-1"
                                 >
                                     <Menu.Item>
                                         {({ active }: { active: boolean }) => (
@@ -274,7 +276,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                 )}
                 <input
                     type="text"
-                    placeholder="Rechercher..."
+                    placeholder="Search an item..."
                     className="theme-input rounded px-2 py-1 ml-2 w-56"
                     value={searchInput}
                     onChange={e => {
@@ -282,17 +284,10 @@ function ItemsTable({ search, items: itemsProp, columns = [
                         setPage(1);
                     }}
                 />
-                {onCreate && (
-                    <Button size="sm" variant="default" className="ml-2" onClick={onCreate}>
-                        {showCreateForm ? "Annuler" : "Créer un objet"}
-                    </Button>
-                )}
             </div>
-            {/* Section déroulante pour le formulaire de création */}
-            <div className={`transition-all duration-300 overflow-hidden ${showCreateForm ? 'max-h-[1000px] opacity-100 mb-4' : 'max-h-0 opacity-0 mb-0'}`}>
-                {showCreateForm && children}
-            </div>
-            <div className="theme-card border theme-border p-1 max-h-[60vh] h-[55vh] overflow-y-auto overflow-x-auto text-sm">
+            <div className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl theme-card theme-border p-1 max-h-[60vh] h-[55vh] overflow-y-auto overflow-x-auto text-sm rounded-lg"
+                style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
+            >
                 <Table>
                     <TableHeader>
                         <TableRow className="h-8">
@@ -329,7 +324,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                     </TableHeader>
                     <TableBody>
                         {paginatedItems.map((item: Item, idx: number) => (
-                            <TableRow key={item.id} className={idx % 2 === 0 ? "theme-bg h-8" : "bg-muted/50 h-8"}>
+                            <TableRow key={item.id} className={(idx % 2 === 0 ? "theme-bg h-8" : "bg-muted/50 h-8") + " rounded-md overflow-hidden"}>
                                 <TableCell className="w-8 px-2 py-1">
                                     <input
                                         type="checkbox"
@@ -493,33 +488,14 @@ function ItemsTable({ search, items: itemsProp, columns = [
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex justify-between items-center mt-4 gap-4">
-                <div className="flex items-center gap-2">
-                    <span>Afficher</span>
-                    <select
-                        className="theme-input rounded px-2 py-1"
-                        value={pageSize}
-                        onChange={e => {
-                            setPageSize(Number(e.target.value));
-                            setPage(1);
-                        }}
-                    >
-                        {PAGE_SIZE_OPTIONS.map(opt => (
-                            <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                    </select>
-                    <span>lignes</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button size="sm" variant="ghost" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
-                        Précédent
-                    </Button>
-                    <span>Page {page} / {totalPages}</span>
-                    <Button size="sm" variant="ghost" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
-                        Suivant
-                    </Button>
-                </div>
-            </div>
+            <TablePagination
+                page={page}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                setPage={setPage}
+                setPageSize={setPageSize}
+                pageSizeOptions={PAGE_SIZE_OPTIONS}
+            />
         </div>
     );
 }

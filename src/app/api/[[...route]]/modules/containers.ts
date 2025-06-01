@@ -6,7 +6,7 @@ import * as z from "zod";
 export const containersModule: ApiModule = {
   routes: [
     {
-      path: "containers",
+      path: "container",
       handlers: {
         GET: async () => {
           try {
@@ -88,7 +88,7 @@ export const containersModule: ApiModule = {
             return NextResponse.json(container);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } catch (error: any) {
-            console.error("Error in POST /api/containers/add:", error);
+            console.error("Error in POST /api/container/add:", error);
             return NextResponse.json(
               {
                 error: "Failed to process the request",
@@ -103,7 +103,7 @@ export const containersModule: ApiModule = {
       },
     },
     {
-      path: "containers/edit",
+      path: "container/edit",
       handlers: {
         POST: async (req) => {
           const body = await req.json();

@@ -6,7 +6,7 @@ import * as z from "zod";
 export const placesModule: ApiModule = {
   routes: [
     {
-      path: "places",
+      path: "place",
       handlers: {
         GET: async () => {
           try {
@@ -32,7 +32,7 @@ export const placesModule: ApiModule = {
       },
     },
     {
-      path: "places/add",
+      path: "place/add",
       handlers: {
         POST: async (req) => {
           try {
@@ -78,7 +78,7 @@ export const placesModule: ApiModule = {
       },
     },
     {
-      path: "places/delete",
+      path: "place/delete",
       handlers: {
         DELETE: async (req) => {
           const placeDeleteSchema = z.object({
@@ -111,7 +111,7 @@ export const placesModule: ApiModule = {
       },
     },
     {
-      path: "places/edit",
+      path: "place/edit",
       handlers: {
         POST: async (req) => {
           const body = await req.json();

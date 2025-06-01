@@ -10,7 +10,7 @@ function useGetConsumables() {
     async function fetchConsumables() {
       try {
         const res = await fetch("/api/items/consumables");
-        if (!res.ok) throw new Error("Erreur lors du chargement des consommables");
+        if (!res.ok) throw new Error("Error loading consumables");
         const data = await res.json();
         setItems(data);
       } catch (err: unknown) {

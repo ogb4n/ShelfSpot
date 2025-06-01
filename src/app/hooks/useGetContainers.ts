@@ -24,7 +24,7 @@ function useGetContainers() {
     async function fetchContainers() {
       try {
         // Request all containers from the API
-        const response = await fetch("/api/containers");
+        const response = await fetch("/api/container");
         if (!response.ok) {
           throw new Error(
             `Error ${response.status}: Failed to fetch containers`

@@ -16,7 +16,7 @@ function useGetFavourites() {
     async function fetchFavourites() {
       try {
         const res = await fetch("/api/favourites");
-        if (!res.ok) throw new Error("Erreur lors du chargement des favoris");
+        if (!res.ok) throw new Error("Error loading favourites");
         const data = await res.json();
         setFavourites(data);
       } catch (err: unknown) {

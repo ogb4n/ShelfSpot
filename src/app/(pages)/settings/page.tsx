@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { ChangeEvent, FormEvent } from "react";
+import { LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 // Types pour la session et les utilisateurs
 interface User {
-  id: number;
+  id: string;
   name?: string;
   email: string;
   admin?: boolean;
@@ -56,7 +58,7 @@ export default function Settings() {
       body: JSON.stringify({ userId: session.user.id, name: userForm.name }),
     });
     const data = await res.json();
-    setMessage(data.message || data.error || "Nom mis à jour.");
+    setMessage(data.message || data.error || "Name updated.");
   };
 
   const handleEmailChange = async (e: FormEvent) => {
@@ -69,7 +71,7 @@ export default function Settings() {
       body: JSON.stringify({ id: Number(session.user.id), email: userForm.email }),
     });
     const data = await res.json();
-    setMessage(data.message || data.error || "Email mis à jour.");
+    setMessage(data.message || data.error || "Email updated.");
   };
 
   const handlePasswordChange = async (e: FormEvent) => {
@@ -77,7 +79,7 @@ export default function Settings() {
     setMessage("");
     if (!session) return;
     if (userForm.password !== userForm.confirmPassword) {
-      setMessage("Les mots de passe ne correspondent pas.");
+      setMessage("Passwords do not match.");
       return;
     }
     const res = await fetch("/api/user/password/reset", {
@@ -86,20 +88,20 @@ export default function Settings() {
       body: JSON.stringify({ userId: session.user.id, password: userForm.password, confirmPassword: userForm.confirmPassword }),
     });
     const data = await res.json();
-    setMessage(data.success ? "Mot de passe mis à jour." : data.error || "Erreur lors de la mise à jour du mot de passe.");
+    setMessage(data.success ? "Password updated." : data.error || "Error updating password.");
   };
 
-  if (!session) return <div className="p-8 theme-bg">Chargement…</div>;
+  if (!session) return <div className="p-8 theme-bg">Loading…</div>;
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-8 theme-bg">
+    <div className="w-full max-w-2xl mx-auto mt-8">
       <div className="w-full max-w-2xl space-y-8">
-        <h1 className="text-4xl font-bold mb-4">Paramètres</h1>
+        <h1 className="text-4xl font-bold mb-4">Settings</h1>
         {session.user.admin && (
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-2">Utilisateurs du site</h2>
+            <h2 className="text-2xl font-semibold mb-2">Site users</h2>
             {loadingUsers ? (
-              <div>Chargement des utilisateurs…</div>
+              <div>Loading users…</div>
             ) : (
               <ul className="border rounded p-2 theme-card theme-border">
                 {users.map((u) => (
@@ -113,35 +115,44 @@ export default function Settings() {
           </section>
         )}
         <section>
-          <h2 className="text-2xl font-semibold mb-2">Modifier mes informations</h2>
+          <h2 className="text-2xl font-semibold mb-2">Edit my informations</h2>
           {message && <div className="mb-2 text-blue-600">{message}</div>}
           <form onSubmit={handleNameChange} className="mb-4 flex gap-2 items-end">
             <div>
-              <label className="block text-sm">Pseudo</label>
+              <label className="block text-sm">Username</label>
               <input name="name" value={userForm.name} onChange={handleChange} className="theme-input rounded px-2 py-1" />
             </div>
-            <button type="submit" className="theme-primary px-4 py-1 rounded">Modifier</button>
+            <button type="submit" className="theme-primary px-4 py-1 rounded">Update</button>
           </form>
           <form onSubmit={handleEmailChange} className="mb-4 flex gap-2 items-end">
             <div>
               <label className="block text-sm">Email</label>
               <input name="email" value={userForm.email} onChange={handleChange} className="theme-input rounded px-2 py-1" />
             </div>
-            <button type="submit" className="theme-primary px-4 py-1 rounded">Modifier</button>
+            <button type="submit" className="theme-primary px-4 py-1 rounded">Update</button>
           </form>
-          <form onSubmit={handlePasswordChange} className="flex gap-2 items-end">
+          <form onSubmit={handlePasswordChange} className="mb-4 flex gap-2 items-end">
             <div>
-              <label className="block text-sm">Nouveau mot de passe</label>
+              <label className="block text-sm">New password</label>
               <input name="password" type="password" value={userForm.password} onChange={handleChange} className="theme-input rounded px-2 py-1" />
             </div>
-            <div>
-              <label className="block text-sm">Confirmer</label>
-              <input name="confirmPassword" type="password" value={userForm.confirmPassword} onChange={handleChange} className="theme-input rounded px-2 py-1" />
-            </div>
-            <button type="submit" className="theme-primary px-4 py-1 rounded">Modifier</button>
+            {userForm.password && (
+              <div>
+                <label className="block text-sm">Confirm</label>
+                <input name="confirmPassword" type="password" value={userForm.confirmPassword} onChange={handleChange} className="theme-input rounded px-2 py-1" />
+              </div>
+            )}
+            <button type="submit" className="theme-primary px-4 py-1 rounded">Update</button>
           </form>
+          <a
+            href="#"
+            onClick={e => { e.preventDefault(); signOut(); }}
+            className="text-red-600 dark:text-red-400 hover:underline text-sm block mt-4"
+          >
+            Sign out
+          </a>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

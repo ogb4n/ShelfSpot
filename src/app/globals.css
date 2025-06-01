@@ -167,7 +167,7 @@
 
   --border: #27272a;
 
-  --input: #27272a;
+  --input: #27272aad;
 
   --ring: #b46cff;
 
@@ -206,9 +206,7 @@
     @apply bg-[var(--card)] text-[var(--card-foreground)];
   }
 
-  .theme-sidebar {
-    @apply bg-[var(--sidebar)] text-[var(--sidebar-foreground)];
-  }
+  .theme-sidebar {}
 
   .theme-sidebar-primary {
     @apply bg-[var(--sidebar-primary)] text-[var(--sidebar-primary-foreground)];
@@ -223,7 +221,7 @@
   }
 
   .theme-input {
-    @apply border-[var(--input)] bg-[var(--card)] text-[var(--foreground)];
+    @apply border-[var(--input)] bg-[var(--card)]/60 text-[var(--foreground)] backdrop-blur-md;
   }
 
   .theme-popover {
@@ -241,4 +239,44 @@
   .theme-primary {
     @apply bg-[var(--primary)] text-[var(--primary-foreground)];
   }
+}
+
+@keyframes blob1 {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  33% {
+    transform: translateY(-40px) scale(1.08, 0.95) skewY(-2deg);
+  }
+
+  66% {
+    transform: translateY(40px) scale(0.95, 1.08) skewY(2deg);
+  }
+}
+
+@keyframes blob2 {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  25% {
+    transform: translateY(60px) scale(1.1, 0.92) skewX(-2deg);
+  }
+
+  75% {
+    transform: translateY(-60px) scale(0.92, 1.1) skewX(2deg);
+  }
+}
+
+.animate-blob1 {
+  animation: blob1 18s ease-in-out infinite alternate;
+}
+
+.animate-blob2 {
+  animation: blob2 22s ease-in-out infinite alternate;
 }

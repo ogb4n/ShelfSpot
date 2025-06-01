@@ -5,7 +5,7 @@ import { prisma } from "@/app/utils/prisma";
 export const roomsModule: ApiModule = {
   routes: [
     {
-      path: "rooms",
+      path: "room",
       handlers: {
         GET: async () => {
           try {
@@ -34,7 +34,7 @@ export const roomsModule: ApiModule = {
       },
     },
     {
-      path: "rooms/add",
+      path: "room/add",
       handlers: {
         POST: async (req) => {
           try {
@@ -65,7 +65,7 @@ export const roomsModule: ApiModule = {
       },
     },
     {
-      path: "rooms/delete",
+      path: "room/delete",
       handlers: {
         DELETE: async (req) => {
           try {
@@ -95,7 +95,7 @@ export const roomsModule: ApiModule = {
       },
     },
     {
-      path: "rooms/edit",
+      path: "room/edit",
       handlers: {
         POST: async (req) => {
           try {

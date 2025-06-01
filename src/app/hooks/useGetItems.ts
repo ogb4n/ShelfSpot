@@ -16,7 +16,7 @@ function useGetItems(id?: string) {
       try {
         const url = id ? `/api/items?id=${id}` : "/api/items";
         const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) throw new Error(id ? "Objet introuvable" : "Erreur lors du chargement des objets");
+        if (!res.ok) throw new Error(id ? "Item not found" : "Error loading items");
         const result = await res.json();
         setData(result);
       } catch (err: unknown) {
