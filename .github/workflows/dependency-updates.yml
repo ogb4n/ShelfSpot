@@ -1,0 +1,180 @@
+name: Update Dependencies
+
+on:
+  schedule:
+    # Exécute chaque dimanche à 2h00 UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch: # Permet l'exécution manuelle
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'yarn'
+
+    - name: Update Yarn to latest version
+      run: yarn set version stable
+
+    - name: Update dependencies
+      run: |
+        # Sauvegarder les versions actuelles
+        cp package.json package.json.backup
+        cp yarn.lock yarn.lock.backup
+        
+        # Mettre à jour les dépendances de sécurité
+        yarn audit --json > audit-before.json || true
+        yarn up "*" --mode=highest
+        yarn audit --json > audit-after.json || true
+
+    - name: Generate Prisma client with updated dependencies
+      run: yarn prisma generate
+
+    - name: Test build with updated dependencies
+      run: yarn build
+
+    - name: Check for audit improvements
+      run: |
+        echo "🔍 Checking security improvements..."
+        
+        BEFORE_VULNS=0
+        AFTER_VULNS=0
+        
+        if [ -f audit-before.json ]; then
+          BEFORE_VULNS=$(cat audit-before.json | jq '.advisories | length' 2>/dev/null || echo "0")
+        fi
+        
+        if [ -f audit-after.json ]; then
+          AFTER_VULNS=$(cat audit-after.json | jq '.advisories | length' 2>/dev/null || echo "0")
+        fi
+        
+        echo "Vulnerabilities before: $BEFORE_VULNS"
+        echo "Vulnerabilities after: $AFTER_VULNS"
+        
+        if [ "$AFTER_VULNS" -lt "$BEFORE_VULNS" ]; then
+          echo "✅ Security improvements detected!"
+          echo "SECURITY_IMPROVED=true" >> $GITHUB_ENV
+        else
+          echo "ℹ️ No security improvements detected"
+          echo "SECURITY_IMPROVED=false" >> $GITHUB_ENV
+        fi
+
+    - name: Get updated packages list
+      id: changes
+      run: |
+        echo "CHANGES<<EOF" >> $GITHUB_OUTPUT
+        yarn info --name-only --changed 2>/dev/null | head -20 || echo "Various package updates"
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: |
+          🔄 Update dependencies
+          
+          - Updated all dependencies to latest versions
+          - Security improvements: ${{ env.SECURITY_IMPROVED }}
+          - Build test: ✅ Passed
+        title: '🔄 Automated dependency updates'
+        body: |
+          ## 📦 Dependency Updates
+          
+          This PR was automatically created to update project dependencies.
+          
+          ### 🔧 Changes
+          ```
+          ${{ steps.changes.outputs.CHANGES }}
+          ```
+          
+          ### 🔒 Security
+          - Security improvements: **${{ env.SECURITY_IMPROVED }}**
+          
+          ### ✅ Tests
+          - [x] Build test passed
+          - [x] Prisma generation successful
+          
+          ### 📋 Next Steps
+          1. Review the changes
+          2. Test the application manually
+          3. Merge if everything looks good
+          
+          ---
+          🤖 This PR was created automatically by GitHub Actions
+        branch: dependencies/auto-update
+        delete-branch: true
+        labels: |
+          dependencies
+          automated
+        reviewers: ${{ github.actor }}
+
+  update-docker-base:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for Node.js updates
+      id: node-check
+      run: |
+        CURRENT_VERSION=$(grep "FROM node:" Dockerfile | head -1 | sed 's/.*node:\([0-9]*\).*/\1/')
+        LATEST_VERSION=$(curl -s https://api.github.com/repos/nodejs/node/releases/latest | jq -r '.tag_name' | sed 's/v//' | cut -d. -f1)
+        
+        echo "Current Node.js version: $CURRENT_VERSION"
+        echo "Latest Node.js version: $LATEST_VERSION"
+        
+        if [ "$LATEST_VERSION" -gt "$CURRENT_VERSION" ]; then
+          echo "UPDATE_AVAILABLE=true" >> $GITHUB_OUTPUT
+          echo "NEW_VERSION=$LATEST_VERSION" >> $GITHUB_OUTPUT
+        else
+          echo "UPDATE_AVAILABLE=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Update Dockerfile Node.js version
+      if: steps.node-check.outputs.UPDATE_AVAILABLE == 'true'
+      run: |
+        sed -i "s/FROM node:[0-9]*-alpine/FROM node:${{ steps.node-check.outputs.NEW_VERSION }}-alpine/g" Dockerfile
+        
+    - name: Test Docker build
+      if: steps.node-check.outputs.UPDATE_AVAILABLE == 'true'
+      run: docker build -t shelfspot-node-update-test .
+
+    - name: Create Pull Request for Docker update
+      if: steps.node-check.outputs.UPDATE_AVAILABLE == 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: |
+          🐳 Update Node.js base image to v${{ steps.node-check.outputs.NEW_VERSION }}
+        title: '🐳 Update Node.js base image to v${{ steps.node-check.outputs.NEW_VERSION }}'
+        body: |
+          ## 🐳 Docker Base Image Update
+          
+          Updated Node.js base image from v${{ steps.node-check.outputs.CURRENT_VERSION }} to v${{ steps.node-check.outputs.NEW_VERSION }}.
+          
+          ### ✅ Tests
+          - [x] Docker build test passed
+          
+          ### 📋 Benefits
+          - Latest Node.js features and improvements
+          - Security patches and bug fixes
+          - Performance improvements
+          
+          ---
+          🤖 This PR was created automatically by GitHub Actions
+        branch: docker/node-update
+        delete-branch: true
+        labels: |
+          docker
+          automated
+          security

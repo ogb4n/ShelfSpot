@@ -1,0 +1,114 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'yarn'
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Generate Prisma client
+      run: yarn prisma generate
+
+    - name: Build application
+      run: yarn build
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+    - name: Build and push release Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |
+          ghcr.io/${{ github.repository }}:${{ steps.version.outputs.VERSION }}
+          ghcr.io/${{ github.repository }}:latest
+        labels: |
+          org.opencontainers.image.title=ShelfSpot
+          org.opencontainers.image.description=Self-hosted inventory management application
+          org.opencontainers.image.version=${{ steps.version.outputs.VERSION }}
+          org.opencontainers.image.source=${{ github.repositoryUrl }}
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # Génère un changelog basé sur les commits depuis le dernier tag
+        LAST_TAG=$(git tag --sort=-version:refname | grep -v "^$GITHUB_REF_NAME$" | head -n1)
+        if [ -z "$LAST_TAG" ]; then
+          CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+        else
+          CHANGELOG=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+        fi
+        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+        echo "$CHANGELOG" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: ShelfSpot ${{ steps.version.outputs.VERSION }}
+        body: |
+          ## 🚀 ShelfSpot Release ${{ steps.version.outputs.VERSION }}
+          
+          ### Changes
+          ${{ steps.changelog.outputs.CHANGELOG }}
+          
+          ### 🐳 Docker Image
+          ```bash
+          docker pull ghcr.io/${{ github.repository }}:${{ steps.version.outputs.VERSION }}
+          ```
+          
+          ### 📋 Installation
+          1. Download the `docker-compose.yml` from this release
+          2. Configure your environment variables
+          3. Run `docker-compose up -d`
+          
+          For detailed installation instructions, see the [README](https://github.com/${{ github.repository }}#installation-and-setup).
+        draft: false
+        prerelease: false
+
+    - name: Upload docker-compose.yml as release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./docker-compose.yml
+        asset_name: docker-compose.yml
+        asset_content_type: application/x-yaml
