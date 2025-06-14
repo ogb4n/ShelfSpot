@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { ChangeEvent, FormEvent } from "react";
-import { LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 // Types pour la session et les utilisateurs
@@ -91,67 +90,162 @@ export default function Settings() {
     setMessage(data.success ? "Password updated." : data.error || "Error updating password.");
   };
 
-  if (!session) return <div className="p-8 theme-bg">Loading…</div>;
+  if (!session) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+    </div>
+  );
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-8">
-      <div className="w-full max-w-2xl space-y-8">
-        <h1 className="text-4xl font-bold mb-4">Settings</h1>
-        {session.user.admin && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-2">Site users</h2>
-            {loadingUsers ? (
-              <div>Loading users…</div>
-            ) : (
-              <ul className="border rounded p-2 theme-card theme-border">
-                {users.map((u) => (
-                  <li key={u.id} className="py-1 flex justify-between">
-                    <span>{u.name || u.email} {u.admin && <span className="text-xs text-blue-600">[admin]</span>}</span>
-                    <span className="text-gray-500 text-xs">{u.email}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Manage your account settings and preferences
+          </p>
+        </div>
+      </div>
+
+      {/* Admin Section - Site Users */}
+      {session.user.admin && (
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Site users</h2>
+          {loadingUsers ? (
+            <div className="text-gray-500 dark:text-gray-400">Loading users...</div>
+          ) : (
+            <div className="space-y-3">
+              {users.map((u) => (
+                <div key={u.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 dark:text-blue-400 text-sm font-medium">
+                        {(u.name || u.email).charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">
+                        {u.name || u.email}
+                        {u.admin && (
+                          <span className="ml-2 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs rounded-full">
+                            admin
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{u.email}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* User Information Section */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Edit my informations</h2>
+
+        {message && (
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-lg">
+            {message}
+          </div>
         )}
-        <section>
-          <h2 className="text-2xl font-semibold mb-2">Edit my informations</h2>
-          {message && <div className="mb-2 text-blue-600">{message}</div>}
-          <form onSubmit={handleNameChange} className="mb-4 flex gap-2 items-end">
-            <div>
-              <label className="block text-sm">Username</label>
-              <input name="name" value={userForm.name} onChange={handleChange} className="theme-input rounded px-2 py-1" />
+
+        <div className="space-y-6">
+          {/* Username */}
+          <form onSubmit={handleNameChange} className="space-y-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Username
+            </label>
+            <div className="flex gap-3">
+              <input
+                name="name"
+                value={userForm.name}
+                onChange={handleChange}
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter your username"
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              >
+                Update
+              </button>
             </div>
-            <button type="submit" className="theme-primary px-4 py-1 rounded">Update</button>
           </form>
-          <form onSubmit={handleEmailChange} className="mb-4 flex gap-2 items-end">
-            <div>
-              <label className="block text-sm">Email</label>
-              <input name="email" value={userForm.email} onChange={handleChange} className="theme-input rounded px-2 py-1" />
+
+          {/* Email */}
+          <form onSubmit={handleEmailChange} className="space-y-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Email
+            </label>
+            <div className="flex gap-3">
+              <input
+                name="email"
+                type="email"
+                value={userForm.email}
+                onChange={handleChange}
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter your email"
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              >
+                Update
+              </button>
             </div>
-            <button type="submit" className="theme-primary px-4 py-1 rounded">Update</button>
           </form>
-          <form onSubmit={handlePasswordChange} className="mb-4 flex gap-2 items-end">
-            <div>
-              <label className="block text-sm">New password</label>
-              <input name="password" type="password" value={userForm.password} onChange={handleChange} className="theme-input rounded px-2 py-1" />
+
+          {/* Password */}
+          <form onSubmit={handlePasswordChange} className="space-y-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              New password
+            </label>
+            <div className="space-y-3">
+              <input
+                name="password"
+                type="password"
+                value={userForm.password}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter new password"
+              />
+              {userForm.password && (
+                <input
+                  name="confirmPassword"
+                  type="password"
+                  value={userForm.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Confirm new password"
+                />
+              )}
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              >
+                Update
+              </button>
             </div>
-            {userForm.password && (
-              <div>
-                <label className="block text-sm">Confirm</label>
-                <input name="confirmPassword" type="password" value={userForm.confirmPassword} onChange={handleChange} className="theme-input rounded px-2 py-1" />
-              </div>
-            )}
-            <button type="submit" className="theme-primary px-4 py-1 rounded">Update</button>
           </form>
-          <a
-            href="#"
-            onClick={e => { e.preventDefault(); signOut(); }}
-            className="text-red-600 dark:text-red-400 hover:underline text-sm block mt-4"
-          >
-            Sign out
-          </a>
-        </section>
+        </div>
+      </div>
+
+      {/* Sign Out Section */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Sign out</h3>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
+          Sign out of your account on this device
+        </p>
+        <button
+          onClick={(e) => { e.preventDefault(); signOut(); }}
+          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+        >
+          Sign out
+        </button>
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Archive, HousePlus, DoorOpen, Lamp, SquareLibrary } from "lucide-react";
+import { Archive, DoorOpen, Lamp, SquareLibrary } from "lucide-react";
+import { apiRequest } from "@/lib/api";
+import { API_ENDPOINTS } from "@/lib/constants";
 
 interface CreateObjectModalProps {
     open: boolean;
@@ -18,16 +20,10 @@ const objectTypes = [
     { key: "item", label: "Item", icon: <Lamp className="w-7 h-7 mb-2 text-blue-600 dark:text-blue-400" /> },
 ];
 
-const fetcher = async (url: string, options?: RequestInit) => {
-    const res = await fetch(url, options);
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-};
-
 export default function CreateObjectModal({ open, onClose }: CreateObjectModalProps) {
     const [step, setStep] = useState<"select" | "form">("select");
     const [selectedType, setSelectedType] = useState<string | null>(null);
-    const [form, setForm] = useState<any>({});
+    const [form, setForm] = useState<Record<string, unknown>>({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -49,9 +45,9 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
     const fetchAll = async () => {
         try {
             const [roomsData, placesData, containersData] = await Promise.all([
-                fetcher("/api/room"),
-                fetcher("/api/place"),
-                fetcher("/api/container"),
+                apiRequest<Room[]>(API_ENDPOINTS.ROOMS),
+                apiRequest<Place[]>(API_ENDPOINTS.PLACES),
+                apiRequest<Container[]>(API_ENDPOINTS.CONTAINERS),
             ]);
             setRooms(roomsData);
             setPlaces(placesData);
@@ -100,15 +96,20 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
         setSuccess(false);
 
         try {
-            let endpoint = "/api/" + selectedType + "/add";
-            let payload = { ...form };
+            let endpoint = "/api/" + selectedType;
+
+            // Correction spécifique pour les items
+            if (selectedType === "item") {
+                endpoint = "/api/items/add";
+            }
+
+            const payload: Record<string, any> = { ...form };
 
             // Ajouter les IDs des relations selon le type
             if (selectedType === "place" && selectedRoomForPlace) {
                 payload.roomId = selectedRoomForPlace;
             }
             if (selectedType === "container") {
-                endpoint = "/api/container";
                 if (selectedRoomForContainer) payload.roomId = selectedRoomForContainer;
                 if (selectedPlaceForContainer) payload.placeId = selectedPlaceForContainer;
             }
@@ -139,231 +140,10 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                 resetModal();
                 onClose();
             }, 1000);
-        } catch (err: any) {
-            setError(err.message || "An error occurred");
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "An error occurred");
         } finally {
             setLoading(false);
-        }
-    };
-
-    // Form fields per type avec menus déroulants
-    const renderFormFields = () => {
-        switch (selectedType) {
-            case "room":
-                return (<label className="block mb-2 text-white">Room Name
-                    <input
-                        name="name"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        onChange={handleChange}
-                        required
-                    />
-                </label>
-                );
-
-            case "place":
-                return (
-                    <>
-                        <label className="block mb-2 text-white">Room
-                            <select
-                                value={selectedRoomForPlace ?? ""}
-                                onChange={e => setSelectedRoomForPlace(Number(e.target.value) || null)}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            >
-                                <option value="">Select a room</option>
-                                {rooms.map(room => (
-                                    <option key={room.id} value={room.id}>{room.name}</option>
-                                ))}
-                            </select>
-                        </label>
-                        <label className="block mb-2 text-white">Place Name
-                            <input
-                                name="name"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                onChange={handleChange}
-                                required
-                            />
-                        </label>
-                        {/* <label className="block mb-2 text-white">Icon (optional)
-                            <input
-                                name="icon"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                onChange={handleChange}
-                            />
-                        </label> */}
-                    </>
-                );
-
-            case "container":
-                return (
-                    <>
-                        <label className="block mb-2 text-white">Room
-                            <select
-                                value={selectedRoomForContainer ?? ""}
-                                onChange={e => {
-                                    const val = Number(e.target.value) || null;
-                                    setSelectedRoomForContainer(val);
-                                    setSelectedPlaceForContainer(null); // reset place when room changes
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            >
-                                <option value="">Select a room</option>
-                                {rooms.map(room => (
-                                    <option key={room.id} value={room.id}>{room.name}</option>
-                                ))}
-                            </select>
-                        </label>
-                        <label className="block mb-2 text-white">Place
-                            <select
-                                value={selectedPlaceForContainer ?? ""}
-                                onChange={e => setSelectedPlaceForContainer(Number(e.target.value) || null)}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                                disabled={!selectedRoomForContainer}
-                            >
-                                <option value="">Select a place</option>
-                                {places
-                                    .filter(p => p.roomId === selectedRoomForContainer)
-                                    .map(place => (
-                                        <option key={place.id} value={place.id}>{place.name}</option>
-                                    ))}
-                            </select>
-                        </label>
-                        <label className="block mb-2 text-white">Container Name
-                            <input
-                                name="name"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                onChange={handleChange}
-                                required
-                            />
-                        </label>
-                        {/* <label className="block mb-2 text-white">Icon (optional)
-                            <input
-                                name="icon"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                onChange={handleChange}
-                            />
-                        </label> */}
-                    </>
-                );
-
-            case "item":
-                return (
-                    <>
-                        <label className="block mb-2 text-white">Item Name
-                            <input
-                                name="name"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                onChange={handleChange}
-                                required
-                            />
-                        </label>
-                        <label className="block mb-2 text-white">Status (optional)
-                            <input
-                                name="status"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                onChange={handleChange}
-                            />
-                        </label>
-                        <label className="block mb-2 text-white">Quantity
-                            <input
-                                name="quantity"
-                                type="number"
-                                min="1"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                onChange={handleChange}
-                                defaultValue={1}
-                            />
-                        </label>
-                        <label className="block mb-2 text-white">Price MSRP
-                            <input
-                                name="price"
-                                type="number"
-                                step="0.01"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                onChange={handleChange}
-                            />
-                        </label>
-                        <label className="block mb-2 text-white">Sell Price (optional)
-                            <input
-                                name="sellprice"
-                                type="number"
-                                step="0.01"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                onChange={handleChange}
-                            />
-                        </label>
-                        <label className="flex items-center mb-2 text-white">
-                            <input
-                                name="consumable"
-                                type="checkbox"
-                                className="mr-2"
-                                onChange={e => setForm({ ...form, consumable: e.target.checked })}
-                            />
-                            Consumable Item
-                        </label>
-
-                        <h3 className="text-white font-semibold mb-2">Location :</h3>
-
-                        <label className="block mb-2 text-white">Room
-                            <select
-                                value={selectedRoomForItem ?? ""}
-                                onChange={e => {
-                                    const val = Number(e.target.value) || null;
-                                    setSelectedRoomForItem(val);
-                                    setSelectedPlaceForItem(null);
-                                    setSelectedContainerForItem(null);
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            >
-                                <option value="">Select a room</option>
-                                {rooms.map(room => (
-                                    <option key={room.id} value={room.id}>{room.name}</option>
-                                ))}
-                            </select>
-                        </label>
-
-                        <label className="block mb-2 text-white">Place (optional)
-                            <select
-                                value={selectedPlaceForItem ?? ""}
-                                onChange={e => {
-                                    const val = Number(e.target.value) || null;
-                                    setSelectedPlaceForItem(val);
-                                    setSelectedContainerForItem(null);
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                disabled={!selectedRoomForItem}
-                            >
-                                <option value="">Select a place</option>
-                                {places
-                                    .filter(p => p.roomId === selectedRoomForItem)
-                                    .map(place => (
-                                        <option key={place.id} value={place.id}>{place.name}</option>
-                                    ))}
-                            </select>
-                        </label>
-
-                        <label className="block mb-2 text-white">Container (optional)
-                            <select
-                                value={selectedContainerForItem ?? ""}
-                                onChange={e => setSelectedContainerForItem(Number(e.target.value) || null)}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                disabled={!selectedPlaceForItem}
-                            >
-                                <option value="">Select a container</option>
-                                {containers
-                                    .filter(c => c.placeId === selectedPlaceForItem)
-                                    .map(container => (
-                                        <option key={container.id} value={container.id}>{container.name}</option>
-                                    ))}
-                            </select>
-                        </label>
-                    </>
-                );
-
-            default:
-                return null;
         }
     };
 

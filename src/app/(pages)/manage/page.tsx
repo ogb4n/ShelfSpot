@@ -31,7 +31,7 @@ const ManagePage = () => {
   const [editingPlace, setEditingPlace] = useState<number | null>(null);
   const [editingContainer, setEditingContainer] = useState<number | null>(null);
   const [editingTag, setEditingTag] = useState<number | null>(null);
-  const [editValues, setEditValues] = useState<Record<string, any>>({});
+  const [editValues, setEditValues] = useState<Record<string, string | number | null>>({});
 
   // Fetch all data
   const fetchAll = async () => {
@@ -227,7 +227,7 @@ const ManagePage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Manage</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your existing items and create tags. Use the "Create" button in the navigation to add new rooms, places, and containers.</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your existing items and create tags. Use the &quot;Create&quot; button in the navigation to add new rooms, places, and containers.</p>
         </div>
       </div>
 
@@ -290,7 +290,7 @@ const ManagePage = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-sm">No rooms found. Create one using the "Create" button in the navigation.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">No rooms found. Create one using the &quot;Create&quot; button in the navigation.</p>
               )}
             </div>
           </div>
@@ -363,7 +363,7 @@ const ManagePage = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-sm">No places found. Create one using the "Create" button in the navigation.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">No places found. Create one using the &quot;Create&quot; button in the navigation.</p>
               )}
             </div>
           </div>
@@ -457,7 +457,7 @@ const ManagePage = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-sm">No containers found. Create one using the "Create" button in the navigation.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">No containers found. Create one using the &quot;Create&quot; button in the navigation.</p>
               )}
             </div>
           </div>

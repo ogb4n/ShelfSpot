@@ -24,38 +24,61 @@ export default function ManageObjectPage() {
     const item = data;
 
     return (
-        <main className="max-w-2xl mx-auto p-8 theme-bg rounded-xl shadow-xl backdrop-blur-md bg-white/30 border border-white/30">
-            <div className="flex items-center gap-4 mb-6">
-                <h1 className="text-3xl font-bold">{item.name}</h1>
-            </div>
-            <div className="theme-card theme-border rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-6">
+            {/* Page Header */}
+            <div className="flex items-center justify-between">
                 <div>
-                    <span className="font-semibold">Quantity:</span> {item.quantity}
-                </div>
-                <div>
-                    <span className="font-semibold">Status:</span> {item.status || "-"}
-                </div>
-                <div>
-                    <span className="font-semibold">Room:</span> {item.room?.name || "-"}
-                </div>
-                <div>
-                    <span className="font-semibold">Place:</span> {item.place?.name || "-"}
-                </div>
-                <div>
-                    <span className="font-semibold">Container:</span> {item.container?.name || "-"}
-                </div>
-                <div>
-                    <span className="font-semibold">Tags:</span> {item.tags && item.tags.length > 0 ? item.tags.join(", ") : "-"}
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{item.name}</h1>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1">
+                        Item details and management
+                    </p>
                 </div>
             </div>
-            <ManageObjectClient item={item} />
-            <div className="mt-8">
-                <h2 className="text-xl font-semibold mb-2">Quantity alert</h2>
-                <div className="theme-muted">No quantity alert configured for this object.</div>
+
+            {/* Item Details Card */}
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Item Information</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex justify-between">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Quantity:</span>
+                        <span className="text-gray-900 dark:text-white">{item.quantity}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Status:</span>
+                        <span className="text-gray-900 dark:text-white">{item.status || "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Room:</span>
+                        <span className="text-gray-900 dark:text-white">{item.room?.name || "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Place:</span>
+                        <span className="text-gray-900 dark:text-white">{item.place?.name || "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Container:</span>
+                        <span className="text-gray-900 dark:text-white">{item.container?.name || "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Tags:</span>
+                        <span className="text-gray-900 dark:text-white">{item.tags && item.tags.length > 0 ? item.tags.join(", ") : "-"}</span>
+                    </div>
+                </div>
             </div>
-            <p className="text-sm theme-muted mt-2">
-                To edit or delete this object, use the buttons below. If you can't find the object, check if it's in another room.
-            </p>
-        </main>
+
+            {/* Actions Card */}
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                <ManageObjectClient item={item} />
+            </div>
+
+            {/* Quantity Alert Card */}
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Quantity alert</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">No quantity alert configured for this object.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                    To edit or delete this object, use the buttons above. If you can&apos;t find the object, check if it&apos;s in another room.
+                </p>
+            </div>
+        </div>
     );
 }

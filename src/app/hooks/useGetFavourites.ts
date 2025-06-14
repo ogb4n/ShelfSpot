@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useApiData } from "./useApiData";
+import { API_ENDPOINTS } from "@/lib/constants";
 import { Item } from "@/app/types";
 
 interface Favourite {
@@ -8,27 +9,8 @@ interface Favourite {
 }
 
 function useGetFavourites() {
-  const [favourites, setFavourites] = useState<Favourite[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchFavourites() {
-      try {
-        const res = await fetch("/api/favourites");
-        if (!res.ok) throw new Error("Error loading favourites");
-        const data = await res.json();
-        setFavourites(data);
-      } catch (err: unknown) {
-        setError((err as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchFavourites();
-  }, []);
-
-  return { favourites, loading, error };
+  const result = useApiData<Favourite[]>(API_ENDPOINTS.FAVOURITES, { initialData: [] });
+  return { favourites: result.data, loading: result.loading, error: result.error };
 }
 
 export default useGetFavourites;

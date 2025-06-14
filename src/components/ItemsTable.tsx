@@ -39,7 +39,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
     "container",
     "tags",
     "actions",
-], onCreate, showCreateForm, children }: ItemsTableProps) {
+], }: ItemsTableProps) {
     const [items, setItems] = useState<Item[]>(itemsProp || []);
     const [loading, setLoading] = useState(!itemsProp);
     const [error, setError] = useState<string | null>(null);
@@ -48,7 +48,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
     const [editValues, setEditValues] = useState<Partial<Item>>({});
     const inputRef = useRef<HTMLInputElement>(null);
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[1]);
-    const { tags: allTags, loading: tagsLoading } = useGetTags();
+    const { data: allTags, loading: tagsLoading } = useGetTags();
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [favourites, setFavourites] = useState<number[]>([]);
     const [searchInput, setSearchInput] = useState("");
@@ -191,7 +191,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                 <Menu.Items
                                     ref={refs.setFloating}
                                     style={{ ...floatingStyles, zIndex: 60 }}
-                                    className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none flex flex-col p-1"
+                                    className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg focus:outline-none flex flex-col p-1"
                                 >
                                     <Menu.Item>
                                         {({ active }: { active: boolean }) => (
@@ -410,7 +410,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                                 <button
                                                                     key={tag.id}
                                                                     type="button"
-                                                                    className={`px-2 py-1 rounded text-xs border ${selected ? "theme-accent border-accent" : "theme-muted border-muted"}`}
+                                                                    className={`px-2 py-1 rounded text-xs border ${selected ? "theme-tag border-blue-500" : "theme-muted border-muted"}`}
                                                                     onClick={() => {
                                                                         setEditValues((prev: Partial<Item>) => {
                                                                             const prevTags = prev.tags || [];
@@ -460,7 +460,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                         return (
                                                             <span
                                                                 key={tagName}
-                                                                className="px-2 py-1 rounded text-xs border theme-accent border-accent flex items-center gap-1"
+                                                                className="px-2 py-1 rounded text-xs border theme-tag border-blue-500 flex items-center gap-1"
                                                             >
                                                                 {tagObj?.icon ? <span>{tagObj.icon}</span> : null}{tagName}
                                                             </span>

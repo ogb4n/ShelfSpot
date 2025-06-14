@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApiModule } from "../types";
 import { prisma } from "@/app/utils/prisma";
-import * as z from "zod";
 
 export const placesModule: ApiModule = {
   routes: [
@@ -32,7 +31,6 @@ export const placesModule: ApiModule = {
         POST: async (req) => {
           try {
             const body = await req.json();
-            console.log("Parsed body:", body);
 
             if (body.roomId) {
               const roomExists = await prisma.room.findUnique({

@@ -1,28 +1,10 @@
-import { useState, useEffect } from "react";
+import { useApiData } from "./useApiData";
+import { API_ENDPOINTS } from "@/lib/constants";
 import { Item } from "@/app/types";
 
 function useGetConsumables() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchConsumables() {
-      try {
-        const res = await fetch("/api/items/consumables");
-        if (!res.ok) throw new Error("Error loading consumables");
-        const data = await res.json();
-        setItems(data);
-      } catch (err: unknown) {
-        setError((err as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchConsumables();
-  }, []);
-
-  return { items, loading, error };
+  const result = useApiData<Item[]>(`${API_ENDPOINTS.ITEMS}/consumables`, { initialData: [] });
+  return { items: result.data, loading: result.loading, error: result.error };
 }
 
 export default useGetConsumables;

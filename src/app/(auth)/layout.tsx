@@ -1,6 +1,5 @@
 import React from "react";
 import { Providers } from "../utils/providers";
-import { HyperText } from "@/components/magicui/hyper-text";
 
 export default function AuthLayout({
   children,

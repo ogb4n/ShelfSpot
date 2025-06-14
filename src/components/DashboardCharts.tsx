@@ -12,6 +12,14 @@ import {
     Legend,
 } from "chart.js";
 import useGetRooms from "@/app/hooks/useGetRooms";
+import { Room } from "@/app/types";
+
+// Type étendu pour inclure _count
+type RoomWithCount = Room & {
+    _count?: {
+        items?: number;
+    };
+};
 
 Chart.register(
     ArcElement,
@@ -32,12 +40,28 @@ const backgroundColors = [
 ]
 
 export default function DashboardCharts() {
-    const { rooms, loading, error } = useGetRooms();
+    const { data: rooms, loading, error } = useGetRooms();
+
+    // Cast en RoomWithCount pour avoir accès à _count
+    const roomsWithCount = rooms as RoomWithCount[];
 
     const roomDistribution = {
-        labels: rooms?.map((room: any) => room.name) || [],
+        labels: roomsWithCount?.map((room) => room.name) || [],
         datasets: [{
-            data: rooms?.map((room: any) => room._count?.items || 0) || [],
+            data: roomsWithCount?.map((room) => room._count?.items || 0) || [],
+            backgroundColor: backgroundColors,
+            borderWidth: 1,
+        }],
+    };
+
+    // Filtrer les rooms qui ont des items pour le chart
+    const roomsWithItems = roomsWithCount?.filter((room) =>
+        room._count?.items && room._count.items > 0) || [];
+
+    const filteredRoomDistribution = {
+        labels: roomsWithItems.map((room) => room.name),
+        datasets: [{
+            data: roomsWithItems.map((room) => room._count?.items || 0),
             backgroundColor: backgroundColors,
             borderWidth: 1,
         }],
@@ -88,10 +112,34 @@ export default function DashboardCharts() {
                 {loading ? (
                     <div className="text-gray-500">Loading...</div>
                 ) : error ? (
-                    <div className="text-red-500">Error loading rooms</div>
+                    <div className="text-red-500">Error loading rooms: {error}</div>
+                ) : !rooms || rooms.length === 0 ? (
+                    <div className="text-gray-500">No rooms found</div>
+                ) : roomsWithItems.length === 0 ? (
+                    <div className="text-gray-500">No items found in any room</div>
                 ) : (
                     <div className="w-full h-64 flex justify-center">
-                        <Pie data={roomDistribution} options={{ maintainAspectRatio: false }} />
+                        <Pie
+                            data={filteredRoomDistribution}
+                            options={{
+                                maintainAspectRatio: false,
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom' as const,
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function (context) {
+                                                const label = context.label || '';
+                                                const value = context.parsed || 0;
+                                                return `${label}: ${value} items`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }}
+                        />
                     </div>
                 )}
             </div>

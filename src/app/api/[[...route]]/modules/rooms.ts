@@ -34,7 +34,6 @@ export const roomsModule: ApiModule = {
         POST: async (req) => {
           try {
             const body = await req.json();
-            console.log("Parsed body:", body);
 
             const room = await prisma.room.create({
               data: {

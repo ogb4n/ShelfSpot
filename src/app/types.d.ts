@@ -47,8 +47,3 @@ export type User = {
   username: string;
   email: string;
 };
-export type Wallet = {
-  id: string;
-  name: string;
-  balance: number;
-};
