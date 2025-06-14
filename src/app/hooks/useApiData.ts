@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { apiRequest, ApiError } from "@/lib/api";
 
 interface UseApiDataOptions<T> {
@@ -24,7 +24,7 @@ export function useApiData<T>(
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!enabled) return;
     
     setLoading(true);
@@ -42,11 +42,11 @@ export function useApiData<T>(
     } finally {
       setLoading(false);
     }
-  };
+  }, [url, enabled, initialData]);
 
   useEffect(() => {
     fetchData();
-  }, [url, enabled, ...dependencies]);
+  }, [fetchData, ...dependencies]);
 
   return { data, loading, error, refetch: fetchData };
 }

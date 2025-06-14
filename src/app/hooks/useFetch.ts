@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 /**
  * Hook générique pour faire des appels API
@@ -10,29 +10,29 @@ function useFetch<T>(url: string, dependencies: unknown[] = []) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: Failed to fetch data from ${url}`);
-        }
-        
-        const result = await response.json();
-        setData(Array.isArray(result) ? result : []);
-      } catch (err: unknown) {
-        setError((err as Error).message);
-        setData([]);
-      } finally {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: Failed to fetch data from ${url}`);
       }
+      
+      const result = await response.json();
+      setData(Array.isArray(result) ? result : []);
+    } catch (err: unknown) {
+      setError((err as Error).message);
+      setData([]);
+    } finally {
+      setLoading(false);
     }
+  }, [url]);
 
+  useEffect(() => {
     fetchData();
-  }, [url, ...dependencies]);
+  }, [fetchData, ...dependencies]);
 
   return { data, loading, error };
 }

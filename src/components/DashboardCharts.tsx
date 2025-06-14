@@ -45,15 +45,6 @@ export default function DashboardCharts() {
     // Cast en RoomWithCount pour avoir accès à _count
     const roomsWithCount = rooms as RoomWithCount[];
 
-    const roomDistribution = {
-        labels: roomsWithCount?.map((room) => room.name) || [],
-        datasets: [{
-            data: roomsWithCount?.map((room) => room._count?.items || 0) || [],
-            backgroundColor: backgroundColors,
-            borderWidth: 1,
-        }],
-    };
-
     // Filtrer les rooms qui ont des items pour le chart
     const roomsWithItems = roomsWithCount?.filter((room) =>
         room._count?.items && room._count.items > 0) || [];

@@ -103,7 +103,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                 endpoint = "/api/items/add";
             }
 
-            const payload: Record<string, any> = { ...form };
+            const payload: Record<string, unknown> = { ...form };
 
             // Ajouter les IDs des relations selon le type
             if (selectedType === "place" && selectedRoomForPlace) {
