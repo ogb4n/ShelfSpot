@@ -5,7 +5,7 @@ import { prisma } from "@/app/utils/prisma";
 export const tagsModule: ApiModule = {
   routes: [
     {
-      path: "tags",
+      path: "tag",
       handlers: {
         GET: async () => {
           try {
@@ -24,11 +24,6 @@ export const tagsModule: ApiModule = {
             );
           }
         },
-      },
-    },
-    {
-      path: "tags/add",
-      handlers: {
         POST: async (req) => {
           try {
             const body = await req.json();
@@ -55,16 +50,21 @@ export const tagsModule: ApiModule = {
       },
     },
     {
-      path: "tags/delete",
+      path: "tag/:id",
       handlers: {
-        DELETE: async (req) => {
+        DELETE: async (req, params) => {
           try {
-            const body = await req.json();
-            console.log("Parsed body:", body);
+            const id = parseInt(params.id);
+            if (!id) {
+              return NextResponse.json(
+                { error: "Invalid tag ID" },
+                { status: 400 }
+              );
+            }
 
             const tag = await prisma.tag.delete({
               where: {
-                id: body.id,
+                id: id,
               },
             });
 
@@ -75,6 +75,57 @@ export const tagsModule: ApiModule = {
             return NextResponse.json(
               {
                 error: "Failed to delete tag.",
+                details:
+                  error instanceof Error ? error.message : "Unknown error",
+              },
+              { status: 500 }
+            );
+          }
+        },
+        PUT: async (req, params) => {
+          try {
+            const id = parseInt(params.id);
+            if (!id) {
+              return NextResponse.json(
+                { error: "Invalid tag ID" },
+                { status: 400 }
+              );
+            }
+
+            const body = await req.json();
+
+            if (!body || typeof body !== "object") {
+              return NextResponse.json(
+                { error: "Invalid request body" },
+                { status: 400 }
+              );
+            }
+
+            const tagExists = await prisma.tag.findUnique({
+              where: { id },
+            });
+
+            if (!tagExists) {
+              return NextResponse.json(
+                { error: `Tag with ID ${id} does not exist.` },
+                { status: 404 }
+              );
+            }
+
+            const updatedTag = await prisma.tag.update({
+              where: { id },
+              data: {
+                name: body.name,
+              },
+            });
+
+            return NextResponse.json(updatedTag);
+          } catch (error) {
+            console.error("Error updating tag:", error);
+
+            return NextResponse.json(
+              {
+                error: "Failed to update tag.",
                 details:
                   error instanceof Error ? error.message : "Unknown error",
               },

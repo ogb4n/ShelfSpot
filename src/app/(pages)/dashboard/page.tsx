@@ -1,149 +1,203 @@
 "use client";
-import { useState, ChangeEvent, FormEvent } from "react";
-import ItemsTable from "@/components/ItemsTable";
-import useGetRooms from "@/app/hooks/useGetRooms";
-import useGetPlaces from "@/app/hooks/useGetPlaces";
-import useGetTags from "@/app/hooks/useGetTags";
-import useGetContainers from "@/app/hooks/useGetContainers";
-import { Card } from "@/components/ui/card";
-import useGetItems from "@/app/hooks/useGetItems";
 
-// Types pour les entités
-interface Room { id: number; name: string; }
-interface Place { id: number; name: string; }
-interface Container { id: number; name: string; }
-interface Tag {
-  icon: any; id: number; name: string;
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { MapPin } from "lucide-react";
+import DashboardCharts from "@/components/DashboardCharts";
+
+// Types
+interface Stats {
+  totalItems: number;
+  totalRooms: number;
+  totalPlaces: number;
+  totalContainers: number;
+  totalTags: number;
+  consumables: number;
 }
-interface Item { id: number; name: string; }
 
-const Dashboard = () => {
-  const { rooms, loading: loadingRooms } = useGetRooms() as { rooms: Room[]; loading: boolean };
-  const { places, loading: loadingPlaces } = useGetPlaces() as { places: Place[]; loading: boolean };
-  const { tags, loading: loadingTags } = useGetTags() as { tags: Tag[]; loading: boolean };
-  const { containers, loading: loadingContainers } = useGetContainers() as { containers: Container[]; loading: boolean };
-  const { data: items, loading: loadingItems } = useGetItems();
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    quantity: 1,
-    roomId: "",
-    placeId: "",
-    containerId: "",
-    tags: [] as string[],
-    status: "",
-    consumable: false,
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [showCharts, setShowCharts] = useState(true);
+interface RecentItem {
+  id: number;
+  name: string;
+  createdAt: string;
+  room?: { id: number; name: string };
+  place?: { id: number; name: string };
+  container?: { id: number; name: string };
+  status?: string;
+  quantity?: number;
+}
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    if (type === "checkbox") {
-      setForm((prev) => ({
-        ...prev,
-        [name]: (e.target as HTMLInputElement).checked,
-      }));
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        [name]: type === "number" ? Number(value) : value,
-      }));
-    }
-  };
+export default function Dashboard() {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  const handleTagToggle = (tag: string) => {
-    setForm((prev) => ({
-      ...prev,
-      tags: prev.tags.includes(tag)
-        ? prev.tags.filter((t) => t !== tag)
-        : [...prev.tags, tag],
-    }));
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [statsRes, itemsRes] = await Promise.all([
+          fetch("/api/admin/stats"),
+          fetch("/api/items?limit=5&sort=recent&include=location")
+        ]);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-    try {
-      const res = await fetch("/api/items/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          quantity: form.quantity,
-          roomId: Number(form.roomId),
-          placeId: form.placeId ? Number(form.placeId) : undefined,
-          containerId: form.containerId ? Number(form.containerId) : undefined,
-          tags: form.tags,
-          status: form.status,
-          consumable: form.consumable, // Ajout de consumable à la requête
-        }),
-      });
-      if (!res.ok) throw new Error("Erreur lors de la création de l'objet");
-      setSuccess(true);
-      setForm({ name: "", quantity: 1, roomId: "", placeId: "", containerId: "", tags: [], status: "", consumable: false });
-      setShowForm(false);
-      setRefreshKey((k) => k + 1);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
-  };
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setStats(statsData);
+        }
+
+        if (itemsRes.ok) {
+          const itemsData = await itemsRes.json();
+          setRecentItems(itemsData);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+      </div>
+    );
+  }
 
   return (
-    <main className="w-full bg-theme-bg p-6">
-      <div className="w-full max-w-6xl mx-auto flex flex-col gap-6">
-        <div className="flex flex-row gap-6 mb-2 w-full justify-center">
-          <Card
-            className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl"
-            style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
-          >
-            <div className="text-sm font-medium text-muted-foreground mb-1">Items Total</div>
-            <div className="text-3xl font-bold text-primary">{loadingItems ? <span className="text-base">...</span> : Array.isArray(items) ? items.length : 0}</div>
-          </Card>
-          <Card
-            className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl"
-            style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
-          >
-            <div className="text-sm font-medium text-muted-foreground mb-1">Recent Alerts</div>
-            <div className="text-lg font-semibold text-primary">Not Implemented</div>
-            <div className="text-xs text-muted-foreground mt-1">(Coming Soon)</div>
-          </Card>
-          <Card
-            className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl"
-            style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
-          >
-            <div className="text-sm font-medium text-muted-foreground mb-1">Lost Items</div>
-            <div className="text-lg font-semibold text-primary">Not Implemented</div>
-            <div className="text-xs text-muted-foreground mt-1">(Coming Soon)</div>
-          </Card>
-          <Card
-            className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl"
-            style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
-          >
-            <div className="text-sm font-medium text-muted-foreground mb-1">Resale Value</div>
-            <div className="text-lg font-semibold text-primary">Not Implemented</div>
-            <div className="text-xs text-muted-foreground mt-1">(Coming Soon)</div>
-          </Card>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
+          Overview of your inventory management system
+        </p>
+      </div>
+
+      {/* Stats Grid */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <StatCard
+            title="Total Items"
+            value={stats.totalItems}
+            className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
+          />
+          <StatCard
+            title="Rooms"
+            value={stats.totalRooms}
+            className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700"
+          />
+          <StatCard
+            title="Places"
+            value={stats.totalPlaces}
+            className="bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-700"
+          />
+          <StatCard
+            title="Containers"
+            value={stats.totalContainers}
+            className="bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700"
+          />
+          <StatCard
+            title="Tags"
+            value={stats.totalTags}
+            className="bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-700"
+          />
+          <StatCard
+            title="Consumables"
+            value={stats.consumables}
+            className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700"
+          />
         </div>
-        <div className="w-full">
-          <h1 className="text-2xl font-bold mb-4">Items listed in the house</h1>
-          <ItemsTable
-            key={refreshKey}
-            onCreate={() => setShowForm(v => !v)}
-            showCreateForm={showForm}
+      )}
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Charts Section */}
+        <div className="lg:col-span-3">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Analytics
+          </h2>
+          <div className="h-[690px]">
+            <DashboardCharts />
+          </div>
+        </div>
+
+        {/* Recent Items */}
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mt-[52px] flex flex-col h-[725px] overflow-visible">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Recent Items
+          </h2>
+          <div className="flex-1 space-y-3 overflow-y-auto scrollbar-hide overflow-x-visible"
+            style={{ overflowX: 'visible' }}
           >
-          </ItemsTable>
+            {recentItems.length > 0 ? (
+              recentItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="group relative flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition-colors"
+                  onClick={() => router.push(`/manage/${item.id}`)}
+                  title={`Created: ${new Date(item.createdAt).toLocaleDateString()}${item.status ? ` • Status: ${item.status}` : ''}${item.quantity ? ` • Qty: ${item.quantity}` : ''}`}
+                >
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {item.name}
+                    </p>
+                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      <span>
+                        {item.room?.name || 'Unknown room'}
+                        {item.place && ` • ${item.place.name}`}
+                        {item.container && ` • ${item.container.name}`}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Tooltip hover overlay */}
+                  <div className="absolute right-0 bottom-full mb-4 hidden group-hover:block z-50 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl border border-gray-700">
+                    <div className="space-y-1">
+                      <div><strong>Created:</strong> {new Date(item.createdAt).toLocaleDateString()}</div>
+                      {item.status && <div><strong>Status:</strong> {item.status}</div>}
+                      {item.quantity && <div><strong>Quantity:</strong> {item.quantity}</div>}
+                      <div><strong>Location:</strong></div>
+                      <div className="ml-2">
+                        Room: {item.room?.name || 'Unknown'}
+                        {item.place && <><br />Place: {item.place.name}</>}
+                        {item.container && <><br />Container: {item.container.name}</>}
+                      </div>
+                      <div className="text-blue-300 mt-2">Click to view details</div>
+                    </div>
+                    {/* Arrow */}
+                    <div className="absolute top-full left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                No recent items
+              </p>
+            )}
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   );
-};
+}
 
-export default Dashboard;
+// Stat Card Component
+function StatCard({ title, value, className }: { title: string; value: number; className?: string }) {
+  return (
+    <div className={`p-4 rounded-lg border ${className || 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+      <div className="flex flex-col">
+        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+          {title}
+        </p>
+        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}

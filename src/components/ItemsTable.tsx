@@ -61,16 +61,18 @@ function ItemsTable({ search, items: itemsProp, columns = [
         return () => clearTimeout(handler);
     }, [searchInput]);
 
+    // Ensure items is always an array
+    const safeItems = Array.isArray(items) ? items : [];
     const filteredItems = (debouncedSearch || search)
-        ? items.filter((item) => {
+        ? safeItems.filter((item) => {
             const searchValue = (debouncedSearch || search || "").toLowerCase();
             const nameMatch = item.name?.toLowerCase().includes(searchValue);
             const tagsMatch = Array.isArray(item.tags) && item.tags.some(tag => tag.toLowerCase().includes(searchValue));
             return nameMatch || tagsMatch;
         })
-        : items;
+        : safeItems;
     const totalPages = Math.ceil(filteredItems.length / pageSize);
-    const paginatedItems = filteredItems.slice((page - 1) * pageSize, page * pageSize);
+    const paginatedItems = (Array.isArray(filteredItems) ? filteredItems : []).slice((page - 1) * pageSize, page * pageSize);
 
     const allSelected = paginatedItems.length > 0 && paginatedItems.every(item => selectedIds.includes(item.id));
     const toggleSelectAll = () => {
@@ -189,7 +191,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                 <Menu.Items
                                     ref={refs.setFloating}
                                     style={{ ...floatingStyles, zIndex: 60 }}
-                                    className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none border flex flex-col p-1"
+                                    className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none flex flex-col p-1"
                                 >
                                     <Menu.Item>
                                         {({ active }: { active: boolean }) => (
@@ -285,8 +287,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                     }}
                 />
             </div>
-            <div className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl theme-card theme-border p-1 max-h-[60vh] h-[55vh] overflow-y-auto overflow-x-auto text-sm rounded-lg"
-                style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-1 max-h-[60vh] h-[55vh] overflow-y-auto overflow-x-auto text-sm rounded-lg shadow-sm"
             >
                 <Table>
                     <TableHeader>
@@ -324,7 +325,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                     </TableHeader>
                     <TableBody>
                         {paginatedItems.map((item: Item, idx: number) => (
-                            <TableRow key={item.id} className={(idx % 2 === 0 ? "theme-bg h-8" : "bg-muted/50 h-8") + " rounded-md overflow-hidden"}>
+                            <TableRow key={item.id} className={(idx % 2 === 0 ? "bg-white dark:bg-gray-800 h-8" : "bg-gray-50 dark:bg-gray-700/50 h-8") + " hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"}>
                                 <TableCell className="w-8 px-2 py-1">
                                     <input
                                         type="checkbox"
@@ -403,7 +404,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                     <span>Chargement des tags…</span>
                                                 ) : (
                                                     <div className="flex flex-wrap gap-1">
-                                                        {allTags.map((tag: Tag) => {
+                                                        {Array.isArray(allTags) && allTags.map((tag: Tag) => {
                                                             const selected = editValues.tags?.includes(tag.name);
                                                             return (
                                                                 <button
@@ -455,7 +456,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                             <div className="flex flex-wrap gap-1">
                                                 {item.tags && item.tags.length > 0 ? (
                                                     (item.tags as string[]).map((tagName: string) => {
-                                                        const tagObj = allTags.find((t: Tag) => t.name === tagName) as Tag | undefined;
+                                                        const tagObj = Array.isArray(allTags) ? allTags.find((t: Tag) => t.name === tagName) : undefined;
                                                         return (
                                                             <span
                                                                 key={tagName}

@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { signIn } from "next-auth/react";
-import { BorderBeam } from "../magicui/border-beam";
 
 export default function LoginForm() {
     const [email, setEmail] = useState("");
@@ -27,14 +26,9 @@ export default function LoginForm() {
     };
 
     return (
-        <div className="relative w-80">
-            <div
-                className="glass-card relative overflow-hidden rounded-2xl shadow-lg border border-white/20 backdrop-blur-md bg-white/10 dark:bg-black/20"
-                style={{ boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)", borderRadius: "1.25rem" }}
-            >
-                <BorderBeam size={80} duration={7} colorFrom="#34d056" colorTo="#208336" className="z-10" />
-                {/* Glassmorphic login form */}
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full p-6 relative z-20">
+        <div className="w-80">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full p-6">
                     <h2 className="text-xl font-bold mb-2">Sign in</h2>
                     <label className="flex flex-col">
                         Email
@@ -43,7 +37,7 @@ export default function LoginForm() {
                             name="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            className="theme-input rounded px-2 py-1 mt-1 focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </label>
@@ -54,13 +48,13 @@ export default function LoginForm() {
                             name="password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            className="theme-input rounded px-2 py-1 mt-1 focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </label>
                     <button
                         type="submit"
-                        className="theme-primary rounded px-4 py-2 hover:bg-primary/90 transition-colors disabled:opacity-60"
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2 transition-colors disabled:opacity-60"
                         disabled={loading}
                     >
                         {loading ? "Signing in..." : "Sign in"}

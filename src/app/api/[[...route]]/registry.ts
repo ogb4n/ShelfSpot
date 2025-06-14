@@ -20,7 +20,6 @@ class RouteRegistry {
     this.registerModule(roomsModule);
     this.registerModule(adminModule);
     this.registerModule(containersModule);
-    this.registerModule(containersModule);
   }
 
   registerModule(module: ApiModule) {
@@ -38,10 +37,10 @@ class RouteRegistry {
     }
 
     // Sinon, cherchez les routes avec paramètres
-    const pathSegments = path.split("/");
+    const pathSegments = path.split("/").filter(s => s.length > 0);
 
     for (const route in this.routes) {
-      const routeSegments = route.split("/");
+      const routeSegments = route.split("/").filter(s => s.length > 0);
       if (routeSegments.length !== pathSegments.length) continue;
 
       const params: Record<string, string> = {};

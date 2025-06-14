@@ -7,11 +7,33 @@ export default function Favourites() {
   const items = Array.isArray(favourites) ? favourites.map((fav) => fav.item) : [];
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-8">
-      <h1 className="text-3xl font-bold mb-6">Favourites</h1>
-      {loading && <div>Loading…</div>}
-      {error && <div className="text-red-600">{error}</div>}
-      {!loading && !error && <ItemsTable items={items} />}
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Favourites</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
+          Your favorite items for quick access
+        </p>
+      </div>
+
+      {/* Content */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+        {loading && (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-gray-600 dark:text-gray-400">Loading favourites...</div>
+          </div>
+        )}
+        {error && (
+          <div className="p-6">
+            <div className="text-red-600 dark:text-red-400">{error}</div>
+          </div>
+        )}
+        {!loading && !error && (
+          <div className="p-6">
+            <ItemsTable items={items} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

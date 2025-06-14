@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import DashboardCharts from "@/components/DashboardCharts";
-import { Eye, EyeOff } from "lucide-react";
-import { Card } from "@/components/ui/card";
 
 const API = "/api/";
 
@@ -13,18 +10,14 @@ const fetcher = async (url: string, options?: RequestInit) => {
   return res.json();
 };
 
-// Types explicites pour les entités
+// Types
 interface Room { id: number; name: string; }
 interface Place { id: number; name: string; roomId: number; }
 interface Container { id: number; name: string; roomId: number; placeId: number; }
 interface Tag { id: number; name: string; }
 
-
 const ManagePage = () => {
-  // States pour les formulaires
-  const [roomName, setRoomName] = useState("");
-  const [placeName, setPlaceName] = useState("");
-  const [containerName, setContainerName] = useState("");
+  // Form states (only for tags)
   const [tagName, setTagName] = useState("");
 
   // Data states
@@ -32,34 +25,29 @@ const ManagePage = () => {
   const [places, setPlaces] = useState<Place[]>([]);
   const [containers, setContainers] = useState<Container[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const [selectedRoomForPlace, setSelectedRoomForPlace] = useState<number | null>(null);
-  const [selectedRoomForContainer, setSelectedRoomForContainer] = useState<number | null>(null);
-  const [selectedPlaceForContainer, setSelectedPlaceForContainer] = useState<number | null>(null);
-
-  const [showCharts, setShowCharts] = useState(true);
+  // Edit states
+  const [editingRoom, setEditingRoom] = useState<number | null>(null);
+  const [editingPlace, setEditingPlace] = useState<number | null>(null);
+  const [editingContainer, setEditingContainer] = useState<number | null>(null);
+  const [editingTag, setEditingTag] = useState<number | null>(null);
+  const [editValues, setEditValues] = useState<Record<string, any>>({});
 
   // Fetch all data
   const fetchAll = async () => {
-    setLoading(true);
-    setError(null);
     try {
       const [roomsData, placesData, containersData, tagsData] = await Promise.all([
-        fetcher(`${API}/room`),
-        fetcher(`${API}/place`),
-        fetcher(`${API}/container`),
-        fetcher(`${API}/tags`),
+        fetcher(`${API}room`),
+        fetcher(`${API}place`),
+        fetcher(`${API}container`),
+        fetcher(`${API}tag`),
       ]);
       setRooms(roomsData);
       setPlaces(placesData);
       setContainers(containersData);
       setTags(tagsData);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
   };
 
@@ -67,328 +55,486 @@ const ManagePage = () => {
     fetchAll();
   }, []);
 
-  // Handlers
-  const handleAddRoom = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!roomName.trim()) return;
-    setLoading(true);
-    try {
-      await fetcher(`${API}/rooms/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: roomName }),
-      });
-      setRoomName("");
-      fetchAll();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Delete handlers
   const handleDeleteRoom = async (id: number) => {
-    setLoading(true);
     try {
-      await fetcher(`${API}/room/delete`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
+      await fetcher(`${API}room/${id}`, { method: 'DELETE' });
       fetchAll();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddPlace = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!placeName.trim() || !selectedRoomForPlace) return;
-    setLoading(true);
-    try {
-      await fetcher(`${API}/places/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: placeName, roomId: selectedRoomForPlace }),
-      });
-      setPlaceName("");
-      setSelectedRoomForPlace(null);
-      fetchAll();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error deleting room:', error);
     }
   };
 
   const handleDeletePlace = async (id: number) => {
-    setLoading(true);
     try {
-      await fetcher(`${API}/place/delete`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
+      await fetcher(`${API}place/${id}`, { method: 'DELETE' });
       fetchAll();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddContainer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!containerName.trim() || !selectedRoomForContainer || !selectedPlaceForContainer) return;
-    setLoading(true);
-    try {
-      await fetcher(`${API}/container`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: containerName, roomId: selectedRoomForContainer, placeId: selectedPlaceForContainer }),
-      });
-      setContainerName("");
-      setSelectedRoomForContainer(null);
-      setSelectedPlaceForContainer(null);
-      fetchAll();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error deleting place:', error);
     }
   };
 
   const handleDeleteContainer = async (id: number) => {
-    setLoading(true);
     try {
-      await fetcher(`${API}/container`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
+      await fetcher(`${API}container/${id}`, { method: 'DELETE' });
       fetchAll();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error deleting container:', error);
     }
   };
 
+  // Tag handlers
   const handleAddTag = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tagName.trim()) return;
-    setLoading(true);
     try {
-      await fetcher(`${API}/tags/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      await fetcher(`${API}tag`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: tagName }),
       });
       setTagName("");
       fetchAll();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error adding tag:', error);
     }
   };
 
   const handleDeleteTag = async (id: number) => {
-    setLoading(true);
     try {
-      await fetcher(`${API}/tags/delete`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
+      await fetcher(`${API}tag/${id}`, { method: 'DELETE' });
       fetchAll();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error deleting tag:', error);
     }
   };
 
+  // Edit handlers
+  const handleEditRoom = (room: Room) => {
+    setEditingRoom(room.id);
+    setEditValues({ name: room.name });
+  };
+
+  const handleEditPlace = (place: Place) => {
+    setEditingPlace(place.id);
+    setEditValues({ name: place.name });
+  };
+
+  const handleEditContainer = (container: Container) => {
+    setEditingContainer(container.id);
+    setEditValues({
+      name: container.name,
+      roomId: container.roomId,
+      placeId: container.placeId
+    });
+  };
+
+  const handleEditTag = (tag: Tag) => {
+    setEditingTag(tag.id);
+    setEditValues({ name: tag.name });
+  };
+
+  const handleSaveRoom = async (id: number) => {
+    try {
+      await fetcher(`${API}room/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editValues.name }),
+      });
+      setEditingRoom(null);
+      setEditValues({});
+      fetchAll();
+    } catch (error) {
+      console.error('Error updating room:', error);
+    }
+  };
+
+  const handleSavePlace = async (id: number) => {
+    try {
+      await fetcher(`${API}place/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editValues.name }),
+      });
+      setEditingPlace(null);
+      setEditValues({});
+      fetchAll();
+    } catch (error) {
+      console.error('Error updating place:', error);
+    }
+  };
+
+  const handleSaveContainer = async (id: number) => {
+    try {
+      await fetcher(`${API}container/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editValues.name,
+          roomId: editValues.roomId,
+          placeId: editValues.placeId
+        }),
+      });
+      setEditingContainer(null);
+      setEditValues({});
+      fetchAll();
+    } catch (error) {
+      console.error('Error updating container:', error);
+    }
+  };
+
+  const handleSaveTag = async (id: number) => {
+    try {
+      await fetcher(`${API}tag/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editValues.name }),
+      });
+      setEditingTag(null);
+      setEditValues({});
+      fetchAll();
+    } catch (error) {
+      console.error('Error updating tag:', error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingRoom(null);
+    setEditingPlace(null);
+    setEditingContainer(null);
+    setEditingTag(null);
+    setEditValues({});
+  };
+
+  const handleEditValueChange = (value: string) => {
+    setEditValues({ ...editValues, name: value });
+  };
+
+  const handleContainerRoomChange = (roomId: number) => {
+    setEditValues({
+      ...editValues,
+      roomId: roomId,
+      placeId: null // Reset place when room changes
+    });
+  };
+
+  const handleContainerPlaceChange = (placeId: number) => {
+    setEditValues({ ...editValues, placeId: placeId });
+  };
+
   return (
-    <div className="w-full max-w-4xl mx-auto mt-8">
-      <h1 className="text-2xl font-bold mb-6">Manage rooms, places, containers and tags</h1>
-      <section className="mb-8">
-        <div className="flex justify-end mb-2">
-          <div className="relative group">
-            <button
-              onClick={() => setShowCharts(v => !v)}
-              className="p-2 rounded hover:bg-muted transition-colors text-muted-foreground"
-              aria-label={showCharts ? "Hide charts" : "Show charts"}
-            >
-              {showCharts ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-            </button>
-            <div className="absolute right-0 top-full mt-1 z-10 hidden group-hover:block bg-neutral-800 text-white text-xs rounded px-2 py-1 shadow-lg whitespace-nowrap">
-              {showCharts ? "Hide charts" : "Show charts"}
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Manage</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your existing items and create tags. Use the "Create" button in the navigation to add new rooms, places, and containers.</p>
+        </div>
+      </div>
+
+      {/* Management Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Rooms Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Rooms</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage existing rooms</p>
+          </div>
+          <div className="p-6">
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {rooms.length > 0 ? (
+                rooms.map((room) => (
+                  <div key={room.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700">
+                    {editingRoom === room.id ? (
+                      <>
+                        <input
+                          type="text"
+                          value={editValues.name || ''}
+                          onChange={(e) => handleEditValueChange(e.target.value)}
+                          className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white mr-2"
+                          autoFocus
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleSaveRoom(room.id)}
+                            className="text-green-600 hover:text-green-700 text-sm font-medium"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="text-gray-600 hover:text-gray-700 text-sm font-medium"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-medium text-gray-900 dark:text-white">{room.name}</span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditRoom(room)}
+                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteRoom(room.id)}
+                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400 text-sm">No rooms found. Create one using the "Create" button in the navigation.</p>
+              )}
             </div>
           </div>
         </div>
-        {showCharts && (
-          <div className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl rounded-lg p-2 mb-4"
-            style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
-          >
-            <DashboardCharts />
+
+        {/* Places Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Places</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage existing places within rooms</p>
           </div>
-        )}
-      </section>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {error && <div className="text-red-600">{error}</div>}
-        {loading && <div className="text-gray-500">Loading…</div>}
-        <Card className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl theme-card theme-border rounded-lg p-4 flex flex-col items-center min-w-0 w-full h-full min-h-[320px]"
-          style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
-        >
-          <h2 className="text-white text-lg font-bold mb-2">Create a new room</h2>
-          <form onSubmit={handleAddRoom} className="flex gap-2 mb-2">
-            <input
-              type="text"
-              value={roomName}
-              onChange={e => setRoomName(e.target.value)}
-              placeholder="Room name"
-              className="theme-input rounded px-2 py-1 flex-1"
-              required
-            />
-            <button type="submit" className="theme-primary px-4 py-1 rounded">Create</button>
-          </form>
-          <ul className="flex flex-wrap gap-2">
-            {rooms.map((room) => (
-              <li key={room.id} className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow rounded px-2 py-1 flex items-center gap-2"
-                style={{ boxShadow: "0 2px 8px 0 rgba(31, 38, 135, 0.10)" }}
-              >
-                {room.name}
-                <button onClick={() => handleDeleteRoom(room.id)} className="text-red-500 ml-2">✕</button>
-              </li>
-            ))}
-          </ul>
-        </Card>
-        <Card className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl theme-card theme-border rounded-lg p-4 flex flex-col items-center min-w-0 w-full h-full min-h-[320px]"
-          style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
-        >
-          <h2 className="text-white text-lg font-bold mb-2">Create a new place</h2>
-          <form onSubmit={handleAddPlace} className="flex flex-col gap-2 mb-2">
-            <select
-              value={selectedRoomForPlace ?? ""}
-              onChange={e => setSelectedRoomForPlace(Number(e.target.value) || null)}
-              className="theme-input rounded px-2 py-1"
-              required
-            >
-              <option value="">Select a room</option>
-              {rooms.map(room => (
-                <option key={room.id} value={room.id}>{room.name}</option>
-              ))}
-            </select>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={placeName}
-                onChange={e => setPlaceName(e.target.value)}
-                placeholder="Place name"
-                className="theme-input rounded px-2 py-1 flex-1"
-                required
-              />
-              <button type="submit" className="theme-primary px-4 py-1 rounded" disabled={!selectedRoomForPlace}>Create</button>
+          <div className="p-6">
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {places.length > 0 ? (
+                places.map((place) => (
+                  <div key={place.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700">
+                    {editingPlace === place.id ? (
+                      <>
+                        <div className="flex-1 mr-2">
+                          <input
+                            type="text"
+                            value={editValues.name || ''}
+                            onChange={(e) => handleEditValueChange(e.target.value)}
+                            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white mb-1"
+                            autoFocus
+                          />
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {rooms.find(r => r.id === place.roomId)?.name || "Unknown room"}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleSavePlace(place.id)}
+                            className="text-green-600 hover:text-green-700 text-sm font-medium"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="text-gray-600 hover:text-gray-700 text-sm font-medium"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <span className="font-medium text-gray-900 dark:text-white">{place.name}</span>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {rooms.find(r => r.id === place.roomId)?.name || "Unknown room"}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditPlace(place)}
+                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeletePlace(place.id)}
+                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400 text-sm">No places found. Create one using the "Create" button in the navigation.</p>
+              )}
             </div>
-          </form>
-          <ul className="flex flex-wrap gap-2">
-            {places.map((place) => (
-              <li key={place.id} className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow rounded px-2 py-1 flex items-center gap-2"
-                style={{ boxShadow: "0 2px 8px 0 rgba(31, 38, 135, 0.10)" }}
-              >
-                {place.name} <span className="text-xs text-gray-500">({rooms.find(r => r.id === place.roomId)?.name || "?"})</span>
-                <button onClick={() => handleDeletePlace(place.id)} className="text-red-500 ml-2">✕</button>
-              </li>
-            ))}
-          </ul>
-        </Card>
-        <Card className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl theme-card theme-border rounded-lg p-4 flex flex-col items-center min-w-0 w-full h-full min-h-[320px]"
-          style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
-        >
-          <h2 className="text-white text-lg font-bold mb-2">Create a new container</h2>
-          <form onSubmit={handleAddContainer} className="flex flex-col gap-2 mb-2">
-            <select
-              value={selectedRoomForContainer ?? ""}
-              onChange={e => {
-                const val = Number(e.target.value) || null;
-                setSelectedRoomForContainer(val);
-                setSelectedPlaceForContainer(null);
-              }}
-              className="theme-input rounded px-2 py-1"
-              required
-            >
-              <option value="">Select a room</option>
-              {rooms.map(room => (
-                <option key={room.id} value={room.id}>{room.name}</option>
-              ))}
-            </select>
-            <select
-              value={selectedPlaceForContainer ?? ""}
-              onChange={e => setSelectedPlaceForContainer(Number(e.target.value) || null)}
-              className="theme-input rounded px-2 py-1"
-              required
-              disabled={!selectedRoomForContainer}
-            >
-              <option value="">Select a place</option>
-              {places.filter(p => p.roomId === selectedRoomForContainer).map(place => (
-                <option key={place.id} value={place.id}>{place.name}</option>
-              ))}
-            </select>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={containerName}
-                onChange={e => setContainerName(e.target.value)}
-                placeholder="Container name"
-                className="theme-input rounded px-2 py-1 flex-1"
-                required
-              />
-              <button type="submit" className="theme-primary px-4 py-1 rounded" disabled={!selectedRoomForContainer || !selectedPlaceForContainer}>Create</button>
+          </div>
+        </div>
+
+        {/* Containers Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Containers</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage existing containers within places</p>
+          </div>
+          <div className="p-6">
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {containers.length > 0 ? (
+                containers.map((container) => (
+                  <div key={container.id} className="flex items-start justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700">
+                    {editingContainer === container.id ? (
+                      <>
+                        <div className="flex-1 mr-2 space-y-2">
+                          <input
+                            type="text"
+                            value={editValues.name || ''}
+                            onChange={(e) => handleEditValueChange(e.target.value)}
+                            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            placeholder="Container name"
+                            autoFocus
+                          />
+                          <select
+                            value={editValues.roomId || ''}
+                            onChange={(e) => handleContainerRoomChange(Number(e.target.value))}
+                            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                          >
+                            <option value="">Select a room</option>
+                            {rooms.map(room => (
+                              <option key={room.id} value={room.id}>{room.name}</option>
+                            ))}
+                          </select>
+                          <select
+                            value={editValues.placeId || ''}
+                            onChange={(e) => handleContainerPlaceChange(Number(e.target.value))}
+                            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            disabled={!editValues.roomId}
+                          >
+                            <option value="">Select a place</option>
+                            {places
+                              .filter(p => p.roomId === editValues.roomId)
+                              .map(place => (
+                                <option key={place.id} value={place.id}>{place.name}</option>
+                              ))}
+                          </select>
+                        </div>
+                        <div className="flex gap-2 mt-1">
+                          <button
+                            onClick={() => handleSaveContainer(container.id)}
+                            className="text-green-600 hover:text-green-700 text-sm font-medium"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="text-gray-600 hover:text-gray-700 text-sm font-medium"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <span className="font-medium text-gray-900 dark:text-white">{container.name}</span>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {places.find(p => p.id === container.placeId)?.name} • {rooms.find(r => r.id === container.roomId)?.name}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditContainer(container)}
+                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteContainer(container.id)}
+                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400 text-sm">No containers found. Create one using the "Create" button in the navigation.</p>
+              )}
             </div>
-          </form>
-          <ul className="flex flex-wrap gap-2">
-            {containers.map((container) => (
-              <li key={container.id} className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow rounded px-2 py-1 flex items-center gap-2"
-                style={{ boxShadow: "0 2px 8px 0 rgba(31, 38, 135, 0.10)" }}
-              >
-                {container.name}
-                <span className="text-xs text-gray-500">
-                  ({rooms.find(r => r.id === container.roomId)?.name || "?"} / {places.find(p => p.id === container.placeId)?.name || "?"})
-                </span>
-                <button onClick={() => handleDeleteContainer(container.id)} className="text-red-500 ml-2">✕</button>
-              </li>
-            ))}
-          </ul>
-        </Card>
-        <Card className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow-xl theme-card theme-border rounded-lg p-4 flex flex-col items-center min-w-0 w-full h-full min-h-[320px]"
-          style={{ boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)" }}
-        >
-          <h2 className="text-white text-lg font-bold mb-2">Manage tags</h2>
-          <form onSubmit={handleAddTag} className="flex gap-2 mb-2">
-            <input
-              type="text"
-              value={tagName}
-              onChange={e => setTagName(e.target.value)}
-              placeholder="New tag"
-              className="theme-input rounded px-2 py-1 flex-1"
-              required
-            />
-            <button type="submit" className="theme-primary px-4 py-1 rounded">Add</button>
-          </form>
-          <ul className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <li key={tag.id} className="glass-card bg-white/10 dark:bg-black/20 backdrop-blur-md border-white/20 drop-shadow rounded px-2 py-1 flex items-center gap-2"
-                style={{ boxShadow: "0 2px 8px 0 rgba(31, 38, 135, 0.10)" }}
-              >
-                {tag.name}
-                <button onClick={() => handleDeleteTag(tag.id)} className="text-red-500 ml-2">✕</button>
-              </li>
-            ))}
-          </ul>
-        </Card>
+          </div>
+        </div>
+
+        {/* Tags Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Tags</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Create and manage tags for items</p>
+          </div>
+          <div className="p-6">
+            <form onSubmit={handleAddTag} className="mb-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={tagName}
+                  onChange={e => setTagName(e.target.value)}
+                  placeholder="Tag name"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+            </form>
+            <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+              {tags.map((tag) => (
+                <div key={tag.id} className="inline-flex items-center gap-2 px-3 py-1 border border-gray-200 dark:border-gray-700 rounded-full bg-gray-50 dark:bg-gray-700">
+                  {editingTag === tag.id ? (
+                    <>
+                      <input
+                        type="text"
+                        value={editValues.name || ''}
+                        onChange={(e) => handleEditValueChange(e.target.value)}
+                        className="text-sm border-none bg-transparent text-gray-900 dark:text-white outline-none w-20"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => handleSaveTag(tag.id)}
+                        className="text-green-600 hover:text-green-700 text-xs"
+                      >
+                        ✓
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="text-gray-600 hover:text-gray-700 text-xs"
+                      >
+                        ×
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{tag.name}</span>
+                      <button
+                        onClick={() => handleEditTag(tag)}
+                        className="text-blue-600 hover:text-blue-700 text-xs"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTag(tag.id)}
+                        className="text-red-600 hover:text-red-700 text-xs"
+                      >
+                        ×
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -44,8 +44,6 @@ export default function RootLayout({
       >
         <Providers>
           <div className="flex h-screen flex-col">
-            <div className="p-2 flex justify-end items-center gap-2">
-            </div>
             <div className="flex-1 flex">
               {children}
             </div>

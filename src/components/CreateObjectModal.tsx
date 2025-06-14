@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Archive, HousePlus, DoorOpen, Lamp, SquareLibrary } from "lucide-react";
-import Image from "next/image";
 
 interface CreateObjectModalProps {
     open: boolean;
@@ -13,10 +12,10 @@ interface Place { id: number; name: string; roomId: number; }
 interface Container { id: number; name: string; roomId: number; placeId: number; }
 
 const objectTypes = [
-    { key: "room", label: "Room", icon: <DoorOpen className="w-7 h-7 mb-2 text-violet-400" /> },
-    { key: "place", label: "Place", icon: <SquareLibrary className="w-7 h-7 mb-2 text-violet-400" /> },
-    { key: "container", label: "Container", icon: <Archive className="w-7 h-7 mb-2 text-violet-400" /> },
-    { key: "item", label: "Item", icon: <Lamp className="w-7 h-7 mb-2 text-violet-400" /> },
+    { key: "room", label: "Room", icon: <DoorOpen className="w-7 h-7 mb-2 text-blue-600 dark:text-blue-400" /> },
+    { key: "place", label: "Place", icon: <SquareLibrary className="w-7 h-7 mb-2 text-blue-600 dark:text-blue-400" /> },
+    { key: "container", label: "Container", icon: <Archive className="w-7 h-7 mb-2 text-blue-600 dark:text-blue-400" /> },
+    { key: "item", label: "Item", icon: <Lamp className="w-7 h-7 mb-2 text-blue-600 dark:text-blue-400" /> },
 ];
 
 const fetcher = async (url: string, options?: RequestInit) => {
@@ -151,15 +150,14 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
     const renderFormFields = () => {
         switch (selectedType) {
             case "room":
-                return (
-                    <label className="block mb-2 text-white">Room Name
-                        <input
-                            name="name"
-                            className="theme-input w-full"
-                            onChange={handleChange}
-                            required
-                        />
-                    </label>
+                return (<label className="block mb-2 text-white">Room Name
+                    <input
+                        name="name"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onChange={handleChange}
+                        required
+                    />
+                </label>
                 );
 
             case "place":
@@ -169,7 +167,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                             <select
                                 value={selectedRoomForPlace ?? ""}
                                 onChange={e => setSelectedRoomForPlace(Number(e.target.value) || null)}
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                             >
                                 <option value="">Select a room</option>
@@ -181,7 +179,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                         <label className="block mb-2 text-white">Place Name
                             <input
                                 name="name"
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 onChange={handleChange}
                                 required
                             />
@@ -189,7 +187,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                         {/* <label className="block mb-2 text-white">Icon (optional)
                             <input
                                 name="icon"
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 onChange={handleChange}
                             />
                         </label> */}
@@ -207,7 +205,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                                     setSelectedRoomForContainer(val);
                                     setSelectedPlaceForContainer(null); // reset place when room changes
                                 }}
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                             >
                                 <option value="">Select a room</option>
@@ -220,7 +218,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                             <select
                                 value={selectedPlaceForContainer ?? ""}
                                 onChange={e => setSelectedPlaceForContainer(Number(e.target.value) || null)}
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                                 disabled={!selectedRoomForContainer}
                             >
@@ -235,7 +233,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                         <label className="block mb-2 text-white">Container Name
                             <input
                                 name="name"
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 onChange={handleChange}
                                 required
                             />
@@ -243,7 +241,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                         {/* <label className="block mb-2 text-white">Icon (optional)
                             <input
                                 name="icon"
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 onChange={handleChange}
                             />
                         </label> */}
@@ -256,7 +254,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                         <label className="block mb-2 text-white">Item Name
                             <input
                                 name="name"
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 onChange={handleChange}
                                 required
                             />
@@ -264,7 +262,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                         <label className="block mb-2 text-white">Status (optional)
                             <input
                                 name="status"
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 onChange={handleChange}
                             />
                         </label>
@@ -273,7 +271,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                                 name="quantity"
                                 type="number"
                                 min="1"
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 onChange={handleChange}
                                 defaultValue={1}
                             />
@@ -283,7 +281,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                                 name="price"
                                 type="number"
                                 step="0.01"
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 onChange={handleChange}
                             />
                         </label>
@@ -292,7 +290,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                                 name="sellprice"
                                 type="number"
                                 step="0.01"
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 onChange={handleChange}
                             />
                         </label>
@@ -317,7 +315,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                                     setSelectedPlaceForItem(null);
                                     setSelectedContainerForItem(null);
                                 }}
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                                 <option value="">Select a room</option>
                                 {rooms.map(room => (
@@ -334,7 +332,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                                     setSelectedPlaceForItem(val);
                                     setSelectedContainerForItem(null);
                                 }}
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 disabled={!selectedRoomForItem}
                             >
                                 <option value="">Select a place</option>
@@ -350,7 +348,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                             <select
                                 value={selectedContainerForItem ?? ""}
                                 onChange={e => setSelectedContainerForItem(Number(e.target.value) || null)}
-                                className="theme-input w-full"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 disabled={!selectedPlaceForItem}
                             >
                                 <option value="">Select a container</option>
@@ -370,15 +368,10 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-[6px] bg-black/30">
-            <div className="bg-gradient-to-br from-[#2a174a] to-[#3a1c5c] rounded-2xl p-8 min-w-[700px] max-w-6xl w-full max-h-[90vh] overflow-y-auto relative flex flex-col justify-center items-center">
-                {/* Fond image */}
-                <div className="absolute inset-0 w-full h-full z-0 rounded-2xl overflow-hidden pointer-events-none">
-                    <Image src="/modal_bg.png" alt="Modal background" fill style={{ objectFit: 'cover' }} priority />
-                </div>
-                {/* Contenu de la modale au-dessus du fond */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative modal-content">
                 <button
-                    className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-100 text-2xl z-10"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => {
                         resetModal();
                         onClose();
@@ -389,306 +382,333 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                 </button>
 
                 {step === "select" && (
-                    <>
-                        <h2 className="text-2xl font-semibold mb-8 text-center text-white relative z-20">
+                    <div className="p-8">
+                        <h2 className="text-2xl font-semibold mb-8 text-center text-gray-900 dark:text-white">
                             What would you like to add to your home ?
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {objectTypes.map((type) => (
                                 <div
                                     key={type.key}
-                                    className="border border-violet-500 rounded-2xl p-8 flex flex-col items-center hover:bg-violet-800/30 transition cursor-pointer text-lg shadow-lg backdrop-blur-md bg-white/60 dark:bg-black/40 z-10"
+                                    className="border-2 border-gray-200 dark:border-gray-600 rounded-xl p-6 flex flex-col items-center hover:border-blue-500 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer bg-gray-50/50 dark:bg-gray-700/50 backdrop-blur-sm"
                                     onClick={() => handleTypeSelect(type.key)}
                                 >
-                                    {type.icon}
-                                    <span className="mb-2 text-white font-semibold">{type.label}</span>
+                                    <div className="text-blue-600 dark:text-blue-400 mb-3">{type.icon}</div>
+                                    <span className="text-gray-900 dark:text-white font-medium text-center">{type.label}</span>
                                 </div>
                             ))}
                         </div>
-                    </>
+                    </div>
                 )}
 
                 {step === "form" && selectedType && (
-                    <div className="w-full flex flex-col items-center justify-center min-h-[400px]">
-                        <div className="w-full max-w-2xl mx-auto rounded-2xl border-2 border-blue-400 bg-black/30 dark:bg-white/10 backdrop-blur-md p-10 flex flex-col items-center relative z-20">
-                            <h2 className="text-3xl font-semibold mb-8 text-center text-white">
+                    <div className="p-8">
+                        <div className="flex items-center mb-6">
+                            <button
+                                type="button"
+                                onClick={() => setStep("select")}
+                                className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                aria-label="Back"
+                            >
+                                <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white flex-1 text-center">
                                 {selectedType === "room" && "How should this room may be called ?"}
                                 {selectedType === "place" && "How should this place may be called ?"}
                                 {selectedType === "container" && "How should this container may be called ?"}
                                 {selectedType === "item" && "How should this item may be called ?"}
                             </h2>
-                            <div className="mb-8 flex flex-col items-center">
-                                {objectTypes.find(t => t.key === selectedType)?.icon && (
-                                    <div className="rounded-xl bg-black/30 dark:bg-white/10 p-6 mb-4 flex items-center justify-center">
-                                        {objectTypes.find(t => t.key === selectedType)?.icon}
+                            <div className="w-9"></div> {/* Spacer for centering */}
+                        </div>
+                        <div className="mb-6 flex flex-col items-center">
+                            {objectTypes.find(t => t.key === selectedType)?.icon && (
+                                <div className="rounded-xl p-6 mb-4 flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                                    <div className="text-blue-600 dark:text-blue-400 scale-125">{objectTypes.find(t => t.key === selectedType)?.icon}</div>
+                                </div>
+                            )}
+                        </div>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {/* ROOM */}
+                                {selectedType === "room" && (
+                                    <div className="col-span-full">
+                                        <label className="block text-gray-900 dark:text-white">
+                                            <span className="block mb-2 font-medium">Enter the name of the room</span>
+                                            <input
+                                                name="name"
+                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                onChange={handleChange}
+                                                required
+                                                placeholder="Room name"
+                                            />
+                                        </label>
                                     </div>
                                 )}
-                            </div>
-                            <form onSubmit={handleSubmit} className="w-full flex flex-col items-center gap-6">
-                                <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
-                                    {/* ROOM */}
-                                    {selectedType === "room" && (
-                                        <div className="col-span-full flex flex-col gap-4 items-center">
-                                            <label className="block text-white w-full max-w-md">
-                                                <span className="block mb-2">Enter the name of the room</span>
+
+                                {/* PLACE */}
+                                {selectedType === "place" && (
+                                    <>
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Room</span>
+                                                <select
+                                                    value={selectedRoomForPlace ?? ""}
+                                                    onChange={e => setSelectedRoomForPlace(Number(e.target.value) || null)}
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    required
+                                                >
+                                                    <option value="">Select a room</option>
+                                                    {rooms.map(room => (
+                                                        <option key={room.id} value={room.id}>{room.name}</option>
+                                                    ))}
+                                                </select>
+                                            </label>
+                                        </div>
+                                        <div className="col-span-2">
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Place name</span>
                                                 <input
                                                     name="name"
-                                                    className="theme-input w-full text-center text-lg bg-black/40 border border-blue-400 rounded-lg px-4 py-2 text-white placeholder:text-zinc-400"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                     onChange={handleChange}
                                                     required
-                                                    placeholder="Room name"
+                                                    placeholder="Place name"
                                                 />
                                             </label>
                                         </div>
-                                    )}
-                                    {/* PLACE */}
-                                    {selectedType === "place" && (
-                                        <>
-                                            <div className="flex flex-col gap-4">
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Room</span>
-                                                    <select
-                                                        value={selectedRoomForPlace ?? ""}
-                                                        onChange={e => setSelectedRoomForPlace(Number(e.target.value) || null)}
-                                                        className="theme-input w-full bg-black/40 border border-blue-400 text-white rounded-lg px-4 py-2"
-                                                        required
-                                                    >
-                                                        <option value="">Select a room</option>
-                                                        {rooms.map(room => (
-                                                            <option key={room.id} value={room.id}>{room.name}</option>
-                                                        ))}
-                                                    </select>
-                                                </label>
-                                            </div>
-                                            <div className="flex flex-col gap-4">
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Place name</span>
-                                                    <input
-                                                        name="name"
-                                                        className="theme-input w-full text-center text-lg bg-black/40 border border-blue-400 rounded-lg px-4 py-2 text-white placeholder:text-zinc-400"
-                                                        onChange={handleChange}
-                                                        required
-                                                        placeholder="Place name"
-                                                    />
-                                                </label>
-                                            </div>
-                                            <div className="flex flex-col gap-4">
-                                                {/* Empty div for spacing */}
-                                            </div>
-                                        </>
-                                    )}
-                                    {/* CONTAINER */}
-                                    {selectedType === "container" && (
-                                        <>
-                                            <div className="flex flex-col gap-4">
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Room</span>
-                                                    <select
-                                                        value={selectedRoomForContainer ?? ""}
-                                                        onChange={e => {
-                                                            const val = Number(e.target.value) || null;
-                                                            setSelectedRoomForContainer(val);
-                                                            setSelectedPlaceForContainer(null);
-                                                        }}
-                                                        className="theme-input w-full bg-black/40 border border-blue-400 text-white rounded-lg px-4 py-2"
-                                                        required
-                                                    >
-                                                        <option value="">Select a room</option>
-                                                        {rooms.map(room => (
-                                                            <option key={room.id} value={room.id}>{room.name}</option>
-                                                        ))}
-                                                    </select>
-                                                </label>
-                                            </div>
-                                            <div className="flex flex-col gap-4">
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Place</span>
-                                                    <select
-                                                        value={selectedPlaceForContainer ?? ""}
-                                                        onChange={e => setSelectedPlaceForContainer(Number(e.target.value) || null)}
-                                                        className="theme-input w-full bg-black/40 border border-blue-400 text-white rounded-lg px-4 py-2"
-                                                        required
-                                                        disabled={!selectedRoomForContainer}
-                                                    >
-                                                        <option value="">Select a place</option>
-                                                        {places.filter(p => p.roomId === selectedRoomForContainer).map(place => (
-                                                            <option key={place.id} value={place.id}>{place.name}</option>
-                                                        ))}
-                                                    </select>
-                                                </label>
-                                            </div>
-                                            <div className="flex flex-col gap-4">
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Container name</span>
-                                                    <input
-                                                        name="name"
-                                                        className="theme-input w-full text-center text-lg bg-black/40 border border-blue-400 rounded-lg px-4 py-2 text-white placeholder:text-zinc-400"
-                                                        onChange={handleChange}
-                                                        required
-                                                        placeholder="Container name"
-                                                    />
-                                                </label>
-                                            </div>
-                                        </>
-                                    )}
-                                    {/* ITEM */}
-                                    {selectedType === "item" && (
-                                        <>
-                                            {/* Item name - Full width */}
-                                            <div className="col-span-full">
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Item name</span>
-                                                    <input
-                                                        name="name"
-                                                        className="theme-input w-full text-center text-lg bg-black/40 border border-blue-400 rounded-lg px-4 py-2 text-white placeholder:text-zinc-400"
-                                                        onChange={handleChange}
-                                                        required
-                                                        placeholder="Item name"
-                                                    />
-                                                </label>
-                                            </div>
+                                    </>
+                                )}
 
-                                            {/* Status - Full width */}
-                                            <div className="col-span-full">
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Status (optional)</span>
-                                                    <input
-                                                        name="status"
-                                                        className="theme-input w-full bg-black/40 border border-blue-400 rounded-lg px-4 py-2 text-white placeholder:text-zinc-400"
-                                                        onChange={handleChange}
-                                                        placeholder="Status"
-                                                    />
-                                                </label>
-                                            </div>
+                                {/* CONTAINER */}
+                                {selectedType === "container" && (
+                                    <>
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Room</span>
+                                                <select
+                                                    value={selectedRoomForContainer ?? ""}
+                                                    onChange={e => {
+                                                        const val = Number(e.target.value) || null;
+                                                        setSelectedRoomForContainer(val);
+                                                        setSelectedPlaceForContainer(null);
+                                                    }}
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    required
+                                                >
+                                                    <option value="">Select a room</option>
+                                                    {rooms.map(room => (
+                                                        <option key={room.id} value={room.id}>{room.name}</option>
+                                                    ))}
+                                                </select>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Place</span>
+                                                <select
+                                                    value={selectedPlaceForContainer ?? ""}
+                                                    onChange={e => setSelectedPlaceForContainer(Number(e.target.value) || null)}
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    required
+                                                    disabled={!selectedRoomForContainer}
+                                                >
+                                                    <option value="">Select a place</option>
+                                                    {places.filter(p => p.roomId === selectedRoomForContainer).map(place => (
+                                                        <option key={place.id} value={place.id}>{place.name}</option>
+                                                    ))}
+                                                </select>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Container name</span>
+                                                <input
+                                                    name="name"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={handleChange}
+                                                    required
+                                                    placeholder="Container name"
+                                                />
+                                            </label>
+                                        </div>
+                                    </>
+                                )}
 
-                                            {/* Location row - 3 columns */}
-                                            <div>
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Room</span>
-                                                    <select
-                                                        value={selectedRoomForItem ?? ""}
-                                                        onChange={e => {
-                                                            const val = Number(e.target.value) || null;
-                                                            setSelectedRoomForItem(val);
-                                                            setSelectedPlaceForItem(null);
-                                                            setSelectedContainerForItem(null);
-                                                        }}
-                                                        className="theme-input w-full bg-black/40 border border-blue-400 text-white rounded-lg px-4 py-2"
-                                                    >
-                                                        <option value="">Select a room</option>
-                                                        {rooms.map(room => (
-                                                            <option key={room.id} value={room.id}>{room.name}</option>
-                                                        ))}
-                                                    </select>
-                                                </label>
-                                            </div>
-                                            <div>
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Place (optional)</span>
-                                                    <select
-                                                        value={selectedPlaceForItem ?? ""}
-                                                        onChange={e => {
-                                                            const val = Number(e.target.value) || null;
-                                                            setSelectedPlaceForItem(val);
-                                                            setSelectedContainerForItem(null);
-                                                        }}
-                                                        className="theme-input w-full bg-black/40 border border-blue-400 text-white rounded-lg px-4 py-2"
-                                                        disabled={!selectedRoomForItem}
-                                                    >
-                                                        <option value="">Select a place</option>
-                                                        {places.filter(p => p.roomId === selectedRoomForItem).map(place => (
-                                                            <option key={place.id} value={place.id}>{place.name}</option>
-                                                        ))}
-                                                    </select>
-                                                </label>
-                                            </div>
-                                            <div>
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Container (optional)</span>
-                                                    <select
-                                                        value={selectedContainerForItem ?? ""}
-                                                        onChange={e => setSelectedContainerForItem(Number(e.target.value) || null)}
-                                                        className="theme-input w-full bg-black/40 border border-blue-400 text-white rounded-lg px-4 py-2"
-                                                        disabled={!selectedPlaceForItem}
-                                                    >
-                                                        <option value="">Select a container</option>
-                                                        {containers.filter(c => c.placeId === selectedPlaceForItem).map(container => (
-                                                            <option key={container.id} value={container.id}>{container.name}</option>
-                                                        ))}
-                                                    </select>
-                                                </label>
-                                            </div>
+                                {/* ITEM */}
+                                {selectedType === "item" && (
+                                    <>
+                                        {/* Item name - Full width */}
+                                        <div className="col-span-full">
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Item name</span>
+                                                <input
+                                                    name="name"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={handleChange}
+                                                    required
+                                                    placeholder="Item name"
+                                                />
+                                            </label>
+                                        </div>
 
-                                            {/* Quantity, Price, Sell Price row - 3 columns */}
-                                            <div>
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Quantity</span>
-                                                    <input
-                                                        name="quantity"
-                                                        type="number"
-                                                        min="1"
-                                                        className="theme-input w-full bg-black/40 border border-blue-400 rounded-lg px-4 py-2 text-white placeholder:text-zinc-400"
-                                                        onChange={handleChange}
-                                                        defaultValue={1}
-                                                        placeholder="1"
-                                                    />
-                                                </label>
-                                            </div>
-                                            <div>
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Price MSRP</span>
-                                                    <input
-                                                        name="price"
-                                                        type="number"
-                                                        step="0.01"
-                                                        className="theme-input w-full bg-black/40 border border-blue-400 rounded-lg px-4 py-2 text-white placeholder:text-zinc-400"
-                                                        onChange={handleChange}
-                                                        placeholder="0.00"
-                                                    />
-                                                </label>
-                                            </div>
-                                            <div>
-                                                <label className="block text-white">
-                                                    <span className="block mb-2">Sell Price (optional)</span>
-                                                    <input
-                                                        name="sellprice"
-                                                        type="number"
-                                                        step="0.01"
-                                                        className="theme-input w-full bg-black/40 border border-blue-400 rounded-lg px-4 py-2 text-white placeholder:text-zinc-400"
-                                                        onChange={handleChange}
-                                                        placeholder="0.00"
-                                                    />
-                                                </label>
-                                            </div>
+                                        {/* Status - Full width */}
+                                        <div className="col-span-full">
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Status (optional)</span>
+                                                <input
+                                                    name="status"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={handleChange}
+                                                    placeholder="Status"
+                                                />
+                                            </label>
+                                        </div>
 
-                                            {/* Consumable checkbox - Full width */}
-                                            <div className="col-span-full">
-                                                <label className="flex items-center text-white justify-center">
-                                                    <input
-                                                        name="consumable"
-                                                        type="checkbox"
-                                                        className="mr-2"
-                                                        onChange={e => setForm({ ...form, consumable: e.target.checked })}
-                                                    />
-                                                    Consumable Item
-                                                </label>
-                                            </div>
-                                        </>
-                                    )}
+                                        {/* Location row - 3 columns */}
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Room</span>
+                                                <select
+                                                    value={selectedRoomForItem ?? ""}
+                                                    onChange={e => {
+                                                        const val = Number(e.target.value) || null;
+                                                        setSelectedRoomForItem(val);
+                                                        setSelectedPlaceForItem(null);
+                                                        setSelectedContainerForItem(null);
+                                                    }}
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                >
+                                                    <option value="">Select a room</option>
+                                                    {rooms.map(room => (
+                                                        <option key={room.id} value={room.id}>{room.name}</option>
+                                                    ))}
+                                                </select>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Place (optional)</span>
+                                                <select
+                                                    value={selectedPlaceForItem ?? ""}
+                                                    onChange={e => {
+                                                        const val = Number(e.target.value) || null;
+                                                        setSelectedPlaceForItem(val);
+                                                        setSelectedContainerForItem(null);
+                                                    }}
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    disabled={!selectedRoomForItem}
+                                                >
+                                                    <option value="">Select a place</option>
+                                                    {places.filter(p => p.roomId === selectedRoomForItem).map(place => (
+                                                        <option key={place.id} value={place.id}>{place.name}</option>
+                                                    ))}
+                                                </select>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Container (optional)</span>
+                                                <select
+                                                    value={selectedContainerForItem ?? ""}
+                                                    onChange={e => setSelectedContainerForItem(Number(e.target.value) || null)}
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    disabled={!selectedPlaceForItem}
+                                                >
+                                                    <option value="">Select a container</option>
+                                                    {containers.filter(c => c.placeId === selectedPlaceForItem).map(container => (
+                                                        <option key={container.id} value={container.id}>{container.name}</option>
+                                                    ))}
+                                                </select>
+                                            </label>
+                                        </div>
+
+                                        {/* Quantity, Price, Sell Price row - 3 columns */}
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Quantity</span>
+                                                <input
+                                                    name="quantity"
+                                                    type="number"
+                                                    min="1"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={handleChange}
+                                                    defaultValue={1}
+                                                    placeholder="1"
+                                                />
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Price MSRP</span>
+                                                <input
+                                                    name="price"
+                                                    type="number"
+                                                    step="0.01"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={handleChange}
+                                                    placeholder="0.00"
+                                                />
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Sell Price (optional)</span>
+                                                <input
+                                                    name="sellprice"
+                                                    type="number"
+                                                    step="0.01"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={handleChange}
+                                                    placeholder="0.00"
+                                                />
+                                            </label>
+                                        </div>
+
+                                        {/* Consumable checkbox - Full width */}
+                                        <div className="col-span-full">
+                                            <label className="flex items-center text-gray-900 dark:text-white">
+                                                <input
+                                                    name="consumable"
+                                                    type="checkbox"
+                                                    className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                    onChange={e => setForm({ ...form, consumable: e.target.checked })}
+                                                />
+                                                <span className="font-medium">Consumable Item</span>
+                                            </label>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            <div className="flex justify-center pt-6">
+                                <button
+                                    type="submit"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-8 py-3 text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-0.5 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
+                                    disabled={loading}
+                                >
+                                    {loading ? "Creating..." : `Create a ${objectTypes.find(t => t.key === selectedType)?.label.toLowerCase()}`}
+                                </button>
+                            </div>
+
+                            {error && (
+                                <div className="text-red-600 dark:text-red-400 text-sm text-center bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800 shadow-sm">
+                                    <div className="flex items-center justify-center gap-2">
+                                        <span className="text-red-500">⚠</span>
+                                        {error}
+                                    </div>
                                 </div>
-                                <div className="w-full flex justify-center">
-                                    <button
-                                        type="submit"
-                                        className="bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-full px-8 py-2 text-lg transition shadow"
-                                        disabled={loading}
-                                    >
-                                        {loading ? "Creating..." : `Create a ${objectTypes.find(t => t.key === selectedType)?.label.toLowerCase()}`}
-                                    </button>
+                            )}
+                            {success && (
+                                <div className="text-green-600 dark:text-green-400 text-sm text-center bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800 shadow-sm">
+                                    <div className="flex items-center justify-center gap-2">
+                                        <span className="text-green-500">✓</span>
+                                        Created successfully!
+                                    </div>
                                 </div>
-                                {error && <div className="text-red-400 text-sm mt-2">{error}</div>}
-                                {success && <div className="text-green-400 text-sm mt-2">Created!</div>}
-                            </form>
-                        </div>
+                            )}
+                        </form>
                     </div>
                 )}
             </div>

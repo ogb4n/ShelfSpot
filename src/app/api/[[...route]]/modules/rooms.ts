@@ -31,11 +31,6 @@ export const roomsModule: ApiModule = {
             );
           }
         },
-      },
-    },
-    {
-      path: "room/add",
-      handlers: {
         POST: async (req) => {
           try {
             const body = await req.json();
@@ -65,16 +60,21 @@ export const roomsModule: ApiModule = {
       },
     },
     {
-      path: "room/delete",
+      path: "room/:id",
       handlers: {
-        DELETE: async (req) => {
+        DELETE: async (req, params) => {
           try {
-            const body = await req.json();
-            console.log("Parsed body:", body);
+            const id = parseInt(params.id);
+            if (!id) {
+              return NextResponse.json(
+                { error: "Invalid room ID" },
+                { status: 400 }
+              );
+            }
 
             const room = await prisma.room.delete({
               where: {
-                id: body.id,
+                id: id,
               },
             });
 
@@ -92,19 +92,22 @@ export const roomsModule: ApiModule = {
             );
           }
         },
-      },
-    },
-    {
-      path: "room/edit",
-      handlers: {
-        POST: async (req) => {
+        PUT: async (req, params) => {
           try {
+            const id = parseInt(params.id);
+            if (!id) {
+              return NextResponse.json(
+                { error: "Invalid room ID" },
+                { status: 400 }
+              );
+            }
+
             const body = await req.json();
             console.log("Parsed body:", body);
 
             const room = await prisma.room.update({
               where: {
-                id: body.id,
+                id: id,
               },
               data: {
                 name: body.name,

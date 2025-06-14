@@ -221,7 +221,7 @@
   }
 
   .theme-input {
-    @apply border-[var(--input)] bg-[var(--card)]/60 text-[var(--foreground)] backdrop-blur-md;
+    @apply border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
   }
 
   .theme-popover {
@@ -239,44 +239,60 @@
   .theme-primary {
     @apply bg-[var(--primary)] text-[var(--primary-foreground)];
   }
-}
 
-@keyframes blob1 {
-
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
+  /* Hide scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
-  33% {
-    transform: translateY(-40px) scale(1.08, 0.95) skewY(-2deg);
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 
-  66% {
-    transform: translateY(40px) scale(0.95, 1.08) skewY(2deg);
-  }
-}
-
-@keyframes blob2 {
-
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
+  /* Enhanced modal styling */
+  .modal-backdrop {
+    backdrop-filter: blur(4px);
+    animation: modalBackdropIn 0.2s ease-out;
   }
 
-  25% {
-    transform: translateY(60px) scale(1.1, 0.92) skewX(-2deg);
+  .modal-content {
+    animation: modalContentIn 0.2s ease-out;
+    transform-origin: center;
   }
 
-  75% {
-    transform: translateY(-60px) scale(0.92, 1.1) skewX(2deg);
+  @keyframes modalBackdropIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
-}
 
-.animate-blob1 {
-  animation: blob1 18s ease-in-out infinite alternate;
-}
+  @keyframes modalContentIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(-10px);
+    }
 
-.animate-blob2 {
-  animation: blob2 22s ease-in-out infinite alternate;
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Enhanced form styling */
+  .form-grid {
+    gap: 1rem;
+  }
+
+  .form-section {
+    background: rgb(249 250 251 / 0.5);
+  }
+
+  .dark .form-section {
+    background: rgb(31 41 55 / 0.3);
+  }
 }

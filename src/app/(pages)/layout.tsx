@@ -1,36 +1,28 @@
-import type { Metadata } from "next";
-import React from "react";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+"use client";
+
 import Sidebar from "@/components/Sidebar";
 
-export const metadata: Metadata = {
-  title: "ShelfSpot",
-  description: "Keep an eye on your stocks",
-};
-
-export default async function RootLayout({
+export default function PagesLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const session = await getServerSession();
-
-  if (!session) {
-    redirect("/register");
-    return null;
-  }
-
+}) {
   return (
-    <div className="flex flex-row w-full relative overflow-hidden">
-      {/* Animated purple blobs background */}
-      <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute left-[-15vw] top-1/4 w-[50vw] h-[50vw] bg-gradient-to-br from-violet-700 via-violet-500 to-fuchsia-700 opacity-60 blur-3xl animate-blob1" />
-        <div className="absolute right-[-15vw] top-1/2 w-[50vw] h-[50vw] bg-gradient-to-br from-fuchsia-700 via-violet-500 to-violet-700 opacity-60 blur-3xl animate-blob2" />
+    <div className="flex h-screen w-screen bg-gray-50 dark:bg-gray-900">
+      {/* Fixed Sidebar */}
+      <div className="w-64 flex-shrink-0">
+        <Sidebar />
       </div>
-      <Sidebar />
-      <div className="flex-1 md:ml-[220px] overflow-y-auto pb-[72px] md:pb-0 z-10">
-        {children}
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

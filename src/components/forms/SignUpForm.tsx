@@ -1,7 +1,6 @@
 // Simple SignUpForm de base pour corriger l'erreur d'import
 "use client";
 import React, { useState } from "react";
-import { BorderBeam } from "../magicui/border-beam";
 
 export default function SignUpForm() {
     const [email, setEmail] = useState("");
@@ -50,13 +49,9 @@ export default function SignUpForm() {
     };
 
     return (
-        <div className="relative w-80">
-            <div
-                className="glass-card relative overflow-hidden rounded-2xl shadow-lg border border-white/20 backdrop-blur-md bg-white/10 dark:bg-black/20"
-                style={{ boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)", borderRadius: "1.25rem" }}
-            >
-                <BorderBeam size={80} duration={7} colorFrom="#34d056" colorTo="#208336" className="z-10" />
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full p-6 relative z-20">
+        <div className="w-80">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full p-6">
                     <h2 className="text-xl font-bold mb-2 text-zinc-900 dark:text-zinc-100">Create an account</h2>
                     <label className="flex flex-col text-zinc-800 dark:text-zinc-200">
                         Username

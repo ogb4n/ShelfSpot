@@ -29,11 +29,6 @@ export const placesModule: ApiModule = {
             );
           }
         },
-      },
-    },
-    {
-      path: "place/add",
-      handlers: {
         POST: async (req) => {
           try {
             const body = await req.json();
@@ -63,7 +58,7 @@ export const placesModule: ApiModule = {
             return NextResponse.json(place);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } catch (error: any) {
-            console.error("Error in POST /api/places/add:", error);
+            console.error("Error in POST /api/place:", error);
             return NextResponse.json(
               {
                 error: "Failed to process the request",
@@ -78,14 +73,18 @@ export const placesModule: ApiModule = {
       },
     },
     {
-      path: "place/delete",
+      path: "place/:id",
       handlers: {
-        DELETE: async (req) => {
-          const placeDeleteSchema = z.object({
-            id: z.number(),
-          });
+        DELETE: async (req, params) => {
           try {
-            const { id } = placeDeleteSchema.parse(await req.json());
+            const id = parseInt(params.id);
+            if (!id) {
+              return NextResponse.json(
+                { error: "Invalid place ID" },
+                { status: 400 }
+              );
+            }
+
             const existingPlace = await prisma.place.findUnique({
               where: { id },
             });
@@ -108,42 +107,56 @@ export const placesModule: ApiModule = {
             );
           }
         },
-      },
-    },
-    {
-      path: "place/edit",
-      handlers: {
-        POST: async (req) => {
-          const body = await req.json();
+        PUT: async (req, params) => {
+          try {
+            const id = parseInt(params.id);
+            if (!id) {
+              return NextResponse.json(
+                { error: "Invalid place ID" },
+                { status: 400 }
+              );
+            }
 
-          if (!body || typeof body !== "object") {
+            const body = await req.json();
+
+            if (!body || typeof body !== "object") {
+              return NextResponse.json(
+                { error: "Invalid request body" },
+                { status: 400 }
+              );
+            }
+
+            const placeExists = await prisma.place.findUnique({
+              where: { id },
+            });
+
+            if (!placeExists) {
+              return NextResponse.json(
+                { error: `Place with ID ${id} does not exist.` },
+                { status: 404 }
+              );
+            }
+
+            const updatedPlace = await prisma.place.update({
+              where: { id },
+              data: {
+                name: body.name,
+                icon: body.icon,
+              },
+            });
+
+            return NextResponse.json(updatedPlace);
+          } catch (error) {
+            console.error("Error updating place:", error);
             return NextResponse.json(
-              { error: "Invalid request body" },
-              { status: 400 }
+              {
+                error: "Failed to update place.",
+                details:
+                  error instanceof Error ? error.message : "Unknown error",
+              },
+              { status: 500 }
             );
           }
-
-          const placeId = body.id;
-          const placeExists = await prisma.place.findUnique({
-            where: { id: placeId },
-          });
-
-          if (!placeExists) {
-            return NextResponse.json(
-              { error: `Place with ID ${placeId} does not exist.` },
-              { status: 404 }
-            );
-          }
-
-          const updatedPlace = await prisma.place.update({
-            where: { id: placeId },
-            data: {
-              name: body.name,
-              icon: body.icon,
-            },
-          });
-
-          return NextResponse.json(updatedPlace);
         },
       },
     },
