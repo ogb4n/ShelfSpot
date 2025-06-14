@@ -9,7 +9,7 @@ interface UseFetchOptions {
   dependencies?: unknown[];
   enabled?: boolean;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  body?: any;
+  body?: unknown;
   headers?: Record<string, string>;
 }
 
@@ -28,6 +28,9 @@ function useFetch<T>(url: string | null, options: UseFetchOptions = {}) {
   
   // Utiliser useRef pour éviter les re-créations inutiles
   const abortControllerRef = useRef<AbortController | null>(null);
+  
+  // Sérialiser les dépendances complexes pour éviter les re-renders
+  const serializedDependencies = JSON.stringify(dependencies);
 
   const fetchData = useCallback(async () => {
     if (!url || !enabled) return;
@@ -74,7 +77,7 @@ function useFetch<T>(url: string | null, options: UseFetchOptions = {}) {
     } finally {
       setLoading(false);
     }
-  }, [url, enabled, method, JSON.stringify(body), JSON.stringify(headers)]);
+  }, [url, enabled, method, body, headers]);
 
   useEffect(() => {
     fetchData();
@@ -85,7 +88,7 @@ function useFetch<T>(url: string | null, options: UseFetchOptions = {}) {
         abortControllerRef.current.abort();
       }
     };
-  }, [url, enabled, JSON.stringify(dependencies)]);
+  }, [fetchData, serializedDependencies]);
 
   // Cleanup lors du démontage
   useEffect(() => {

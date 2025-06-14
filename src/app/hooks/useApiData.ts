@@ -33,6 +33,9 @@ export function useApiData<T>(
   urlRef.current = url;
   enabledRef.current = enabled;
   initialDataRef.current = initialData;
+  
+  // Sérialiser les dépendances complexes pour éviter les re-renders
+  const serializedDependencies = JSON.stringify(dependencies);
 
   const fetchData = useCallback(async () => {
     if (!enabledRef.current) return;
@@ -56,7 +59,7 @@ export function useApiData<T>(
 
   useEffect(() => {
     fetchData();
-  }, [url, enabled, JSON.stringify(dependencies)]);
+  }, [fetchData, url, enabled, serializedDependencies]);
 
   return { data, loading, error, refetch: fetchData };
 }
