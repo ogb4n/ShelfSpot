@@ -7,7 +7,6 @@ export const API_ENDPOINTS = {
   ITEMS: "/api/items",
   TAGS: "/api/tag",
   FAVOURITES: "/api/favourites",
-  ADMIN_STATS: "/api/admin/stats",
   USER: "/api/user",
 } as const;
 

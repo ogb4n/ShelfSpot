@@ -46,15 +46,11 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, itemsRes] = await Promise.all([
-          fetch("/api/admin/stats"),
+        const [itemsRes] = await Promise.all([
+
           fetch("/api/items?limit=5&sort=recent&include=location")
         ]);
 
-        if (statsRes.ok) {
-          const statsData = await statsRes.json();
-          setStats(statsData);
-        }
 
         if (itemsRes.ok) {
           const itemsData = await itemsRes.json();

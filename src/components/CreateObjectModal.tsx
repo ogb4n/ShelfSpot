@@ -151,14 +151,16 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop p-4">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative modal-content">
                 <button
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => {
                         resetModal();
                         onClose();
                     }}
                     aria-label="Fermer"
                 >
-                    ×
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
 
                 {step === "select" && (
