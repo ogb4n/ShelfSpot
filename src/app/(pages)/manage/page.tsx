@@ -100,11 +100,18 @@ const ManagePage = () => {
   };
 
   const handleDeleteTag = async (id: number) => {
-    try {
-      await fetcher(`${API}tag/${id}`, { method: 'DELETE' });
-      fetchAll();
-    } catch (error) {
-      console.error('Error deleting tag:', error);
+    // Trouve le nom du tag pour la confirmation
+    const tagToDelete = tags.find(tag => tag.id === id);
+    const tagName = tagToDelete ? tagToDelete.name : 'ce tag';
+
+    // Affiche une confirmation avant la suppression
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer le tag "${tagName}" ? Cette action est irréversible.`)) {
+      try {
+        await fetcher(`${API}tag/${id}`, { method: 'DELETE' });
+        fetchAll();
+      } catch (error) {
+        console.error('Error deleting tag:', error);
+      }
     }
   };
 
@@ -262,7 +269,7 @@ const ManagePage = () => {
                           </button>
                           <button
                             onClick={handleCancelEdit}
-                            className="text-gray-600 hover:text-gray-700 text-sm font-medium"
+                            className="text-red-600 hover:text-red-700 text-sm font-medium"
                           >
                             Cancel
                           </button>
@@ -508,14 +515,14 @@ const ManagePage = () => {
                       </button>
                       <button
                         onClick={handleCancelEdit}
-                        className="text-gray-600 hover:text-gray-700 text-xs"
+                        className="text-gray-400 hover:text-red-700 text-xs"
                       >
                         ×
                       </button>
                     </>
                   ) : (
                     <>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{tag.name}</span>
+                      <span className="text-sm font-medium text-red-900 dark:text-white">{tag.name}</span>
                       <button
                         onClick={() => handleEditTag(tag)}
                         className="text-blue-600 hover:text-blue-700 text-xs"
@@ -524,7 +531,7 @@ const ManagePage = () => {
                       </button>
                       <button
                         onClick={() => handleDeleteTag(tag.id)}
-                        className="text-red-600 hover:text-red-700 text-xs"
+                        className="text-gray-400 hover:text-red-700 text-xs"
                       >
                         ×
                       </button>
