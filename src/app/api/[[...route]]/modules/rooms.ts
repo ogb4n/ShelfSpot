@@ -102,7 +102,6 @@ export const roomsModule: ApiModule = {
             }
 
             const body = await req.json();
-            console.log("Parsed body:", body);
 
             const room = await prisma.room.update({
               where: {

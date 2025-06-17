@@ -35,7 +35,7 @@ interface SearchItem {
 }
 
 export default function Dashboard() {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [stats] = useState<Stats | null>(null);
   const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");

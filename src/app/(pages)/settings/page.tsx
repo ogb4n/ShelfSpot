@@ -361,7 +361,7 @@ export default function Settings() {
                 <h4 className="text-md font-medium text-gray-900 dark:text-white mb-3">Sign Out</h4>
                 <div className="space-y-3">
                   <p className="text-gray-600 dark:text-gray-400 text-sm">
-                    Signing out will end your current session. You'll need to sign in again to access your account.
+                    Signing out will end your current session. You&apos;ll need to sign in again to access your account.
                   </p>
                   <div className="flex gap-3">
                     <button
