@@ -92,16 +92,6 @@ Configurer un service externe (GitHub Actions, Zapier, etc.) pour appeler :
 curl -X POST https://yourapp.com/api/alerts/check
 ```
 
-### Option 3: Déclenchement manuel
-
-```bash
-# Via le script TypeScript
-npx tsx scripts/check-alerts.ts
-
-# Via curl
-curl -X POST http://localhost:3000/api/alerts/check
-```
-
 ## 📊 Utilisation dans l'interface
 
 ### Créer une alerte
@@ -177,8 +167,7 @@ Alert check result: { sentAlerts: 2, triggeredAlerts: 3, checkedAlerts: 15 }
 
 ## 📈 Évolutions futures
 
-- [ ] Alertes par utilisateur (actuellement global)
-- [ ] Canaux de notification multiples (Slack, Discord, SMS)
+- [ ] Canaux de notification multiples (Slack, Discord, Telegram)
 - [ ] Alertes sur dates de péremption
 - [ ] Dashboard de monitoring des alertes
-- [ ] API webhooks pour intégrations externes
+- [ ] Intégration avec des services de réapprovisionnement automatique
