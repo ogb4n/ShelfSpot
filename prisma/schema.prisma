@@ -24,6 +24,7 @@ model Item {
   name       String
   quantity   Int         @default(1)
   image      String?
+  itemLink  String?
   price      Float?
   sellprice  Float?
   status     String?
@@ -36,6 +37,7 @@ model Item {
   itemTags   ItemTag[] // Relation pour les tags normalisés
   containerId Int? // Ajout du champ pour la relation many-to-one
   container   Container? @relation(fields: [containerId], references: [id], onDelete: SetNull)
+  alerts     Alert[]   // Relation pour les alertes configurées sur cet objet
 
   @@index([placeId]) // Index pour accélérer les recherches par lieu
   @@index([roomId]) // Index pour accélérer les recherches par pièce
@@ -106,4 +108,21 @@ model Container {
 
   @@index([roomId])
   @@index([placeId])
+}
+
+model Alert {
+  id          Int      @id @default(autoincrement())
+  itemId      Int
+  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  threshold   Int      // Seuil en dessous duquel l'alerte se déclenche
+  name        String?  // Nom optionnel pour identifier l'alerte (ex: "Alerte critique", "Réapprovisionnement")
+  isActive    Boolean  @default(true) // Permet de désactiver temporairement une alerte
+  lastSent    DateTime? // Dernière fois que l'email d'alerte a été envoyé
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([itemId, threshold]) // Éviter les doublons de seuil pour le même objet
+  @@index([itemId])
+  @@index([isActive]) // Pour optimiser les recherches d'alertes actives
+  @@index([threshold]) // Pour optimiser les vérifications de seuils
 }

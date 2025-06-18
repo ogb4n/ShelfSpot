@@ -2,6 +2,85 @@ import { NextResponse } from "next/server";
 import { ApiModule } from "../types";
 import { prisma } from "@/app/utils/prisma";
 import { Item } from "@/app/types";
+import { sendTriggeredAlerts } from "@/lib/email";
+
+// Fonction pour vérifier et déclencher les alertes pour un item spécifique
+async function checkItemAlerts(itemId: number) {
+  try {
+    // Récupérer l'item avec sa quantité actuelle
+    const item = await prisma.item.findUnique({
+      where: { id: itemId },
+    });
+
+    if (!item) return;
+
+    // Récupérer les alertes actives pour cet item
+    const alerts = await prisma.alert.findMany({
+      where: {
+        itemId: itemId,
+        isActive: true,
+      },
+    });
+
+    // Filtrer les alertes déclenchées (quantity <= threshold)
+    const triggeredAlerts = alerts.filter(alert => item.quantity <= alert.threshold);
+
+    if (triggeredAlerts.length === 0) return;
+
+    // Filtrer les alertes qui n'ont pas été envoyées récemment (moins de 24h)
+    const now = new Date();
+    const alertsToSend = triggeredAlerts.filter(alert => {
+      if (!alert.lastSent) return true;
+      
+      const lastSent = new Date(alert.lastSent);
+      const hoursSinceLastSent = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60);
+      
+      return hoursSinceLastSent >= 24;
+    });
+
+    if (alertsToSend.length === 0) return;
+
+    // Envoyer l'email
+    await sendTriggeredAlerts(
+      alertsToSend.map(alert => ({
+        alert: {
+          id: alert.id,
+          itemId: alert.itemId,
+          threshold: alert.threshold,
+          name: alert.name,
+          isActive: alert.isActive,
+          lastSent: alert.lastSent?.toISOString(),
+          createdAt: alert.createdAt.toISOString(),
+          updatedAt: alert.updatedAt.toISOString(),
+        },
+        item: {
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          status: item.status,
+          itemLink: item.itemLink,
+        },
+      }))
+    );
+
+    // Mettre à jour la date du dernier envoi
+    await prisma.alert.updateMany({
+      where: {
+        id: {
+          in: alertsToSend.map(alert => alert.id),
+        },
+      },
+      data: {
+        lastSent: now,
+      },
+    });
+
+    console.log(`Sent ${alertsToSend.length} alert(s) for item ${item.name}`);
+  } catch (error) {
+    console.error('Error checking item alerts:', error);
+    // Ne pas interrompre le processus principal si les alertes échouent
+  }
+}
 
 export const itemsModule: ApiModule = {
   routes: [
@@ -247,6 +326,9 @@ export const itemsModule: ApiModule = {
               where: { id: body.id },
               data: updateData,
             });
+
+            // Vérifier et déclencher les alertes pour l'item modifié
+            await checkItemAlerts(body.id);
 
             return NextResponse.json(item);
           } catch (error) {

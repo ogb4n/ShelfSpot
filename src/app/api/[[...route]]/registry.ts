@@ -8,6 +8,7 @@ import { placesModule } from "./modules/places";
 import { roomsModule } from "./modules/rooms";
 import { adminModule } from "./modules/admin";
 import { containersModule } from "./modules/containers";
+import { alertsModule } from "./modules/alerts";
 
 class RouteRegistry {
   private routes: Record<string, RouteHandlers> = {};
@@ -20,6 +21,7 @@ class RouteRegistry {
     this.registerModule(roomsModule);
     this.registerModule(adminModule);
     this.registerModule(containersModule);
+    this.registerModule(alertsModule);
   }
 
   registerModule(module: ApiModule) {
