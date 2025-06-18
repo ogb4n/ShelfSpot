@@ -47,3 +47,14 @@ export type User = {
   username: string;
   email: string;
 };
+
+export type Alert = {
+  id: number;
+  itemId: number;
+  threshold: number;
+  name?: string;
+  isActive: boolean;
+  lastSent?: string;
+  createdAt: string;
+  updatedAt: string;
+};

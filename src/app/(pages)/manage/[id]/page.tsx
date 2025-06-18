@@ -1,5 +1,6 @@
 "use client"
 import ManageObjectClient from "@/components/ManageObjectClient";
+import AlertsManager from "@/components/AlertsManager";
 import useGetItems from "@/app/hooks/useGetItems";
 import { useParams } from "next/navigation";
 
@@ -72,13 +73,11 @@ export default function ManageObjectPage() {
             </div>
 
             {/* Quantity Alert Card */}
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Quantity alert</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">No quantity alert configured for this object.</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                    To edit or delete this object, use the buttons above. If you can&apos;t find the object, check if it&apos;s in another room.
-                </p>
-            </div>
+            <AlertsManager
+                itemId={item.id}
+                itemName={item.name}
+                currentQuantity={item.quantity}
+            />
         </div>
     );
 }
