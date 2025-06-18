@@ -58,6 +58,7 @@ async function checkItemAlerts(itemId: number) {
           name: item.name,
           quantity: item.quantity,
           status: item.status,
+          itemLink: item.itemLink,
         },
       }))
     );
