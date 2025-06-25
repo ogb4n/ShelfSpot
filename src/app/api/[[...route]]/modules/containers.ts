@@ -1,74 +1,15 @@
 import { NextResponse } from "next/server";
 import { ApiModule } from "../types";
 import { prisma } from "@/app/utils/prisma";
+import { GET, POST } from "../controllers/containers";
 
 export const containersModule: ApiModule = {
   routes: [
     {
       path: "container",
       handlers: {
-        GET: async () => {
-          try {
-            const containers = await prisma.container.findMany({
-              include: {
-                items: true,
-              },
-            });
-            return NextResponse.json(containers);
-          } catch (error) {
-            console.error("Error fetching containers:", error);
-
-            return NextResponse.json(
-              {
-                error: "Failed to fetch containers.",
-                details:
-                  error instanceof Error ? error.message : "Unknown error",
-              },
-              { status: 500 }
-            );
-          }
-        },
-        POST: async (req) => {
-          try {
-            const body = await req.json();
-
-            if (body.placeId) {
-              const placeExists = await prisma.place.findUnique({
-                where: { id: body.placeId },
-              });
-
-              if (!placeExists) {
-                return NextResponse.json(
-                  { error: `Place with id ${body.placeId} does not exist` },
-                  { status: 400 }
-                );
-              }
-            }
-
-            const container = await prisma.container.create({
-              data: {
-                name: body.name,
-                icon: body.icon || "box",
-                placeId: body.placeId,
-                roomId: body.roomId,
-              },
-            });
-
-            return NextResponse.json(container);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          } catch (error: any) {
-            console.error("Error in POST /api/container:", error);
-            return NextResponse.json(
-              {
-                error: "Failed to process the request",
-                details: error.message,
-              },
-              {
-                status: 500,
-              }
-            );
-          }
-        },
+        GET: GET,
+        POST: POST,
       },
     },
     {

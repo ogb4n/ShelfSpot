@@ -34,6 +34,7 @@ export interface Item {
   status: string | null;
   tags: string[];
   consumable?: boolean;
+  itemLink: string | null;
 }
 
 export type Tag = {
