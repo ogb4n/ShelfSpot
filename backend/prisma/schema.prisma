@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  email      String      @unique
+  password   String
+  name       String?
+  admin      Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  favourites Favourite[]
+
+  @@index([email]) // Ajout d'index pour accélération des recherches par email
+}
+
+model Item {
+  id         Int         @id @default(autoincrement())
+  name       String
+  quantity   Int         @default(1)
+  image      String?
+  itemLink  String?
+  price      Float?
+  sellprice  Float?
+  status     String?
+  consumable Boolean     @default(false)
+  placeId    Int?
+  place      Place?      @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  roomId     Int?
+  room       Room?       @relation("RoomToItems", fields: [roomId], references: [id], onDelete: SetNull)
+  favourites Favourite[]
+  itemTags   ItemTag[] // Relation pour les tags normalisés
+  containerId Int? // Ajout du champ pour la relation many-to-one
+  container   Container? @relation(fields: [containerId], references: [id], onDelete: SetNull)
+  alerts     Alert[]   // Relation pour les alertes configurées sur cet objet
+
+  @@index([placeId]) // Index pour accélérer les recherches par lieu
+  @@index([roomId]) // Index pour accélérer les recherches par pièce
+}
+
+model Place {
+  id        Int         @id @default(autoincrement())
+  name      String
+  icon      String?
+  roomId    Int?
+  room      Room?       @relation("RoomToPlaces", fields: [roomId], references: [id], onDelete: SetNull)
+  items     Item[]
+  Container Container[]
+
+  @@unique([name, roomId]) // Éviter les doublons de noms dans la même pièce
+  @@index([roomId]) // Optimisation pour les recherches par room
+}
+
+model Room {
+  id        Int         @id @default(autoincrement())
+  name      String      @unique // Éviter les pièces en double
+  icon      String?
+  places    Place[]     @relation("RoomToPlaces")
+  items     Item[]      @relation("RoomToItems")
+  Container Container[]
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  icon     String?
+  itemTags ItemTag[] // Relation many-to-many normalisée
+}
+
+model ItemTag {
+  id     Int  @id @default(autoincrement())
+  itemId Int
+  tagId  Int
+  item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, tagId]) // Éviter les duplications de relations
+  @@index([tagId])
+  @@index([itemId])
+}
+
+model Favourite {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId Int
+  item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId]) // Un utilisateur ne peut ajouter qu'une fois un item aux favoris
+  @@index([userId])
+  @@index([itemId])
+}
+
+model Container {
+  id      Int     @id @default(autoincrement())
+  name    String
+  icon    String?
+  roomId  Int?
+  room    Room?   @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  items   Item[]  // Relation pour les items contenus dans le conteneur
+  place   Place?  @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  placeId Int?
+
+  @@index([roomId])
+  @@index([placeId])
+}
+
+model Alert {
+  id          Int      @id @default(autoincrement())
+  itemId      Int
+  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  threshold   Int      // Seuil en dessous duquel l'alerte se déclenche
+  name        String?  // Nom optionnel pour identifier l'alerte (ex: "Alerte critique", "Réapprovisionnement")
+  isActive    Boolean  @default(true) // Permet de désactiver temporairement une alerte
+  lastSent    DateTime? // Dernière fois que l'email d'alerte a été envoyé
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([itemId, threshold]) // Éviter les doublons de seuil pour le même objet
+  @@index([itemId])
+  @@index([isActive]) // Pour optimiser les recherches d'alertes actives
+  @@index([threshold]) // Pour optimiser les vérifications de seuils
+}
