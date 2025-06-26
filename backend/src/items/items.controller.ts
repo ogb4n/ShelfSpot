@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { Prisma } from '@prisma/client';
@@ -27,6 +28,11 @@ export class ItemsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.itemsService.findOne(+id);
+  }
+
+  @Get('search')
+  search(@Query('q') searchTerm: string) {
+    return this.itemsService.search(searchTerm || '');
   }
 
   @Patch(':id')

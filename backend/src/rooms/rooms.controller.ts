@@ -24,11 +24,6 @@ export class RoomsController {
     return this.roomsService.findAll();
   }
 
-  @Get('with-count')
-  findAllWithItemCount() {
-    return this.roomsService.findAll();
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.roomsService.findOne(+id);

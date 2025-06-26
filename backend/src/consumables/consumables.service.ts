@@ -3,27 +3,14 @@ import { PrismaService } from '../prisma.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
-export class ItemsService {
+export class ConsumablesService {
   constructor(private prisma: PrismaService) {}
-
-  create(data: Prisma.ItemCreateInput) {
-    return this.prisma.item.create({
-      data,
-      include: {
-        room: true,
-        place: true,
-        container: true,
-        itemTags: {
-          include: {
-            tag: true,
-          },
-        },
-      },
-    });
-  }
 
   findAll() {
     return this.prisma.item.findMany({
+      where: {
+        consumable: true,
+      },
       include: {
         room: true,
         place: true,
@@ -39,7 +26,29 @@ export class ItemsService {
 
   findOne(id: number) {
     return this.prisma.item.findUnique({
-      where: { id },
+      where: {
+        id,
+        consumable: true,
+      },
+      include: {
+        room: true,
+        place: true,
+        container: true,
+        itemTags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+    });
+  }
+
+  create(data: Prisma.ItemCreateInput) {
+    return this.prisma.item.create({
+      data: {
+        ...data,
+        consumable: true,
+      },
       include: {
         room: true,
         place: true,
@@ -55,8 +64,14 @@ export class ItemsService {
 
   update(id: number, data: Prisma.ItemUpdateInput) {
     return this.prisma.item.update({
-      where: { id },
-      data,
+      where: {
+        id,
+        consumable: true,
+      },
+      data: {
+        ...data,
+        consumable: true,
+      },
       include: {
         room: true,
         place: true,
@@ -72,39 +87,21 @@ export class ItemsService {
 
   remove(id: number) {
     return this.prisma.item.delete({
-      where: { id },
+      where: {
+        id,
+        consumable: true,
+      },
     });
   }
 
-  search(searchTerm: string) {
+  // Méthode pour obtenir les consommables avec un stock faible
+  findLowStock(threshold: number = 5) {
     return this.prisma.item.findMany({
       where: {
-        OR: [
-          {
-            name: {
-              contains: searchTerm,
-            },
-          },
-          {
-            status: {
-              contains: searchTerm,
-            },
-          },
-          {
-            room: {
-              name: {
-                contains: searchTerm,
-              },
-            },
-          },
-          {
-            place: {
-              name: {
-                contains: searchTerm,
-              },
-            },
-          },
-        ],
+        consumable: true,
+        quantity: {
+          lte: threshold,
+        },
       },
       include: {
         room: true,
