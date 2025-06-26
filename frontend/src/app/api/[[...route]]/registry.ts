@@ -19,7 +19,8 @@ class RouteRegistry {
     this.registerModule(tagsModule);
     this.registerModule(placesModule);
     this.registerModule(roomsModule);
-    this.registerModule(adminModule);
+    // Désactiver temporairement le module admin jusqu'à ce qu'il soit migré
+    // this.registerModule(adminModule);
     this.registerModule(containersModule);
     this.registerModule(alertsModule);
   }

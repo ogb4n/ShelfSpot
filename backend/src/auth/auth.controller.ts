@@ -77,6 +77,7 @@ export class AuthController {
     description: 'Unauthorized',
   })
   async getProfile(@CurrentUser() user: UserPayload) {
+    console.log('AuthController: getProfile called with user:', user);
     return this.authService.getUserProfile(user.id);
   }
 

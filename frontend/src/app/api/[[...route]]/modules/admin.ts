@@ -1,10 +1,16 @@
 import { prisma } from "@/app/utils/prisma";
 import { ApiModule } from "../types";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/utils/auth";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import * as z from "zod";
+
+// Fonction temporaire pour remplacer getServerSession
+// Ce module ne sera plus utilisé avec le nouveau système d'authentification backend
+async function getServerSession() {
+  return { user: { admin: false } }; // Retourner un objet par défaut pour éviter les erreurs
+}
+
+const authOptions = {}; // Désactivé temporairement
 
 export const adminModule: ApiModule = {
   routes: [
@@ -12,7 +18,7 @@ export const adminModule: ApiModule = {
       path: "admin/accounts",
       handlers: {
         GET: async () => {
-          const session = await getServerSession(authOptions);
+          const session = await getServerSession();
           if (!session?.user?.admin) {
             return NextResponse.json(
               { message: "Access denied" },
@@ -42,7 +48,7 @@ export const adminModule: ApiModule = {
             name: z.string().optional(),
             admin: z.boolean().optional(),
           });
-          const session = await getServerSession(authOptions);
+          const session = await getServerSession();
           if (!session?.user?.admin) {
             return NextResponse.json(
               { message: "Access denied" },
@@ -94,7 +100,7 @@ export const adminModule: ApiModule = {
           const userDeleteSchema = z.object({
             id: z.number(),
           });
-          const session = await getServerSession(authOptions);
+          const session = await getServerSession();
           if (!session?.user?.admin) {
             return NextResponse.json(
               { message: "Access denied" },
@@ -139,7 +145,7 @@ export const adminModule: ApiModule = {
             password: z.string().min(4).optional(),
             admin: z.boolean().optional(),
           });
-          const session = await getServerSession(authOptions);
+          const session = await getServerSession();
           if (!session?.user?.admin) {
             return NextResponse.json(
               { message: "Access denied" },

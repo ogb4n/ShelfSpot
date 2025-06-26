@@ -8,6 +8,7 @@ import { Menu } from "@headlessui/react";
 import { useFloating, FloatingPortal, offset, flip, shift } from '@floating-ui/react';
 import { Item, Tag } from "@/app/types";
 import TablePagination from "@/components/TablePagination";
+import { backendApi } from "@/lib/backend-api";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
 
@@ -87,8 +88,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
         if (itemsProp) return;
         async function fetchItems() {
             try {
-                const res = await fetch("/api/items");
-                const data = await res.json();
+                const data = await backendApi.getItems();
                 setItems(data);
             } catch {
                 setError("Erreur lors du chargement des objets");
@@ -103,8 +103,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
         // Récupère les favoris de l'utilisateur au chargement
         async function fetchFavourites() {
             try {
-                const res = await fetch("/api/favourites", { cache: "no-store" });
-                const data = await res.json();
+                const data = await backendApi.getFavourites();
                 if (Array.isArray(data)) {
                     setFavourites(data.map((fav: { itemId?: number; item?: { id: number } }) => fav.itemId || fav.item?.id).filter((id): id is number => typeof id === 'number'));
                 }
@@ -141,11 +140,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
     };
 
     const handleSave = async () => {
-        await fetch("/api/items/edit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(editValues),
-        });
+        await backendApi.updateItem(editId!, editValues);
         setItems((prev: Item[]) => prev.map((it: Item) => (it.id === editId ? { ...it, ...editValues } : it)));
         setEditId(null);
         setEditValues({});

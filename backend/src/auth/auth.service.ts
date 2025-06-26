@@ -74,6 +74,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
+    console.log('AuthService: User authenticated:', user);
+
     const payload: JwtPayload = {
       sub: user.id, // Déjà string depuis validateUser
       email: user.email,
@@ -81,7 +83,10 @@ export class AuthService {
       admin: user.admin,
     };
 
+    console.log('AuthService: JWT payload:', JSON.stringify(payload, null, 2));
+
     const access_token = this.jwtService.sign(payload);
+    console.log('AuthService: Generated token:', access_token.substring(0, 50) + '...');
 
     return {
       access_token,
@@ -155,6 +160,8 @@ export class AuthService {
   }
 
   async getUserProfile(userId: string): Promise<UserPayload> {
+    console.log('AuthService: getUserProfile called with userId:', userId);
+    
     const user = await this.prisma.user.findUnique({
       where: { id: parseInt(userId, 10) }, // Convert string -> number for database
       select: {
@@ -166,10 +173,14 @@ export class AuthService {
     });
 
     if (!user) {
+      console.log('AuthService: User not found for userId:', userId);
       throw new UnauthorizedException('User not found');
     }
 
-    return this.convertPrismaUser(user);
+    console.log('AuthService: User found:', user);
+    const userPayload = this.convertPrismaUser(user);
+    console.log('AuthService: Returning user payload:', userPayload);
+    return userPayload;
   }
 
   async updateUserName(userId: string, newName: string): Promise<UserPayload> {

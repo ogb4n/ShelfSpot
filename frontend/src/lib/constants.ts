@@ -1,13 +1,15 @@
 // Common constants used across the application
 
+// Backend API endpoints (NestJS)
 export const API_ENDPOINTS = {
-  ROOMS: "/api/room",
-  PLACES: "/place",
-  CONTAINERS: "/container",
+  ROOMS: "/rooms",
+  PLACES: "/places", 
+  CONTAINERS: "/containers",
   ITEMS: "/items",
-  TAGS: "/api/tag",
-  FAVOURITES: "/api/favourites",
-  USER: "/api/user",
+  TAGS: "/tags",
+  FAVOURITES: "/favourites",
+  CONSUMABLES: "/consumables",
+  USER: "/auth/profile",
 } as const;
 
 export const PAGE_SIZE_OPTIONS = [5, 10, 20, 50] as const;

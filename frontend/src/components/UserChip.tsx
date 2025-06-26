@@ -1,17 +1,17 @@
 "use client";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
 
 export default function UserChip() {
-    const { data: session } = useSession();
-    if (!session?.user?.name) return null;
+    const { user } = useAuth();
+    if (!user?.name) return null;
     return (
         <Link href="/settings">
             <span
                 className="ml-2 px-3 py-1 rounded-full theme-sidebar text-sm font-medium cursor-pointer hover:theme-primary transition-colors border border-green-500 shadow"
                 title="Paramètres utilisateur"
             >
-                {session.user.name}
+                {user.name}
             </span>
         </Link>
     );

@@ -1,5 +1,7 @@
 // Centralized API utilities
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+
 export interface ApiResponse<T> {
   data: T;
   error?: string;
@@ -12,21 +14,43 @@ export class ApiError extends Error {
   }
 }
 
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
 export async function apiRequest<T>(
-  url: string, 
+  endpoint: string, 
   options?: RequestInit
 ): Promise<T> {
+  const url = `${BACKEND_URL}${endpoint}`;
+  const headers = getAuthHeaders();
+
   const response = await fetch(url, {
+    ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...headers,
       ...options?.headers,
     },
-    ...options,
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new ApiError(response.status, errorText || `HTTP ${response.status}`);
+    let errorMessage = `HTTP ${response.status}`;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch {
+      // Si on ne peut pas parser la réponse d'erreur, on garde le message par défaut
+    }
+    throw new ApiError(response.status, errorMessage);
   }
 
   return response.json();

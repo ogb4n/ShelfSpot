@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MapPin, Search } from "lucide-react";
 import DashboardCharts from "@/components/DashboardCharts";
+import { backendApi } from "@/lib/backend-api";
+import { useAuth } from "@/lib/auth-context";
 
 // Types
 interface Stats {
@@ -35,6 +37,7 @@ interface SearchItem {
 }
 
 export default function Dashboard() {
+  const { user, loading: authLoading } = useAuth();
   const [stats] = useState<Stats | null>(null);
   const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,40 +46,49 @@ export default function Dashboard() {
   const [searchLoading, setSearchLoading] = useState(false);
   const router = useRouter();
 
+  // Rediriger vers login si pas authentifié
   useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
+    // Ne charger les données que si l'utilisateur est authentifié
+    if (!user || authLoading) {
+      console.log("Dashboard: User not authenticated yet", { user, authLoading });
+      return;
+    }
+
+    console.log("Dashboard: Starting to fetch data for user:", user);
+
     const fetchData = async () => {
       try {
-        const [itemsRes] = await Promise.all([
-
-          fetch("/api/items?limit=5&sort=recent&include=location")
-        ]);
-
-
-        if (itemsRes.ok) {
-          const itemsData = await itemsRes.json();
-          setRecentItems(itemsData);
-        }
+        console.log("Dashboard: Calling backendApi.getItems()");
+        const itemsData = await backendApi.getItems();
+        console.log("Dashboard: Received items data:", itemsData);
+        // Prendre les 5 plus récents (assumant qu'ils sont déjà triés)
+        setRecentItems(itemsData.slice(0, 5));
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("Dashboard: Error fetching dashboard data:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [user, authLoading]);
 
   // Effect pour la recherche
   useEffect(() => {
-    if (!search) {
+    if (!search || !user) {
       setSearchResults([]);
       return;
     }
     setSearchLoading(true);
     const handler = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/items?search=${encodeURIComponent(search)}&include=location`);
-        const data = await res.json();
+        const data = await backendApi.getItems(search);
         setSearchResults(data);
       } catch {
         setSearchResults([]);
@@ -85,7 +97,21 @@ export default function Dashboard() {
       }
     }, 300);
     return () => clearTimeout(handler);
-  }, [search]);
+  }, [search, user]);
+
+  // Afficher loading pendant l'authentification
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+      </div>
+    );
+  }
+
+  // Si pas authentifié, ne rien afficher (redirection en cours)
+  if (!user) {
+    return null;
+  }
 
   if (loading) {
     return (

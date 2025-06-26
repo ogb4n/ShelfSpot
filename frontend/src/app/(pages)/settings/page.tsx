@@ -2,22 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { ChangeEvent, FormEvent } from "react";
-import { signOut } from "next-auth/react";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "@/lib/auth-context";
+import { backendApi, BackendApiError } from "@/lib/backend-api";
 
-// Types pour la session et les utilisateurs
+// Types pour les utilisateurs
 interface User {
-  id: string;
+  id: number;
   name?: string;
   email: string;
   admin?: boolean;
 }
-interface Session {
-  user: User;
-}
 
 export default function Settings() {
-  const [session, setSession] = useState<Session | null>(null);
+  const { user, logout, refreshUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [userForm, setUserForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
@@ -38,24 +36,19 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    // Fetch session info
-    fetch("/api/auth/session")
-      .then((res) => res.json())
-      .then((data) => {
-        setSession(data);
-        if (data?.user) {
-          setUserForm((f) => ({ ...f, name: data.user.name || "", email: data.user.email || "" }));
-        }
-        // If admin, fetch users
-        if (data?.user?.admin) {
-          setLoadingUsers(true);
-          fetch("/api/admin/accounts")
-            .then((res) => res.json())
-            .then((users) => setUsers(users))
-            .finally(() => setLoadingUsers(false));
-        }
-      });
-  }, []);
+    if (user) {
+      setUserForm((f) => ({ ...f, name: user.name || "", email: user.email || "" }));
+
+      // If admin, fetch users
+      if (user.admin) {
+        setLoadingUsers(true);
+        backendApi.getAllUsers()
+          .then((users) => setUsers(users))
+          .catch((error) => console.error('Failed to fetch users:', error))
+          .finally(() => setLoadingUsers(false));
+      }
+    }
+  }, [user]);
 
   // Handlers for user info update
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -65,47 +58,63 @@ export default function Settings() {
   const handleNameChange = async (e: FormEvent) => {
     e.preventDefault();
     setMessage("");
-    if (!session) return;
-    const res = await fetch("/api/user/name/edit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: session.user.id, name: userForm.name }),
-    });
-    const data = await res.json();
-    setMessage(data.message || data.error || "Name updated.");
+    if (!user) return;
+
+    try {
+      await backendApi.updateProfile(userForm.name);
+      await refreshUser(); // Refresh user data
+      setMessage("Name updated successfully");
+    } catch (error) {
+      if (error instanceof BackendApiError) {
+        setMessage(error.message);
+      } else {
+        setMessage("Error updating name");
+      }
+    }
   };
 
   const handleEmailChange = async (e: FormEvent) => {
     e.preventDefault();
     setMessage("");
-    if (!session) return;
-    const res = await fetch("/api/admin/accounts/edit", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: Number(session.user.id), email: userForm.email }),
-    });
-    const data = await res.json();
-    setMessage(data.message || data.error || "Email updated.");
+    if (!user) return;
+
+    try {
+      await backendApi.updateUser(user.id, { email: userForm.email });
+      await refreshUser(); // Refresh user data
+      setMessage("Email updated successfully");
+    } catch (error) {
+      if (error instanceof BackendApiError) {
+        setMessage(error.message);
+      } else {
+        setMessage("Error updating email");
+      }
+    }
   };
 
   const handlePasswordChange = async (e: FormEvent) => {
     e.preventDefault();
     setMessage("");
-    if (!session) return;
+    if (!user) return;
+
     if (userForm.password !== userForm.confirmPassword) {
       setMessage("Passwords do not match.");
       return;
     }
-    const res = await fetch("/api/user/password/reset", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: session.user.id, password: userForm.password, confirmPassword: userForm.confirmPassword }),
-    });
-    const data = await res.json();
-    setMessage(data.success ? "Password updated." : data.error || "Error updating password.");
+
+    try {
+      await backendApi.resetPassword(user.email, userForm.password);
+      setMessage("Password updated successfully");
+      setUserForm(prev => ({ ...prev, password: "", confirmPassword: "" }));
+    } catch (error) {
+      if (error instanceof BackendApiError) {
+        setMessage(error.message);
+      } else {
+        setMessage("Error updating password");
+      }
+    }
   };
 
-  if (!session) return (
+  if (!user) return (
     <div className="flex items-center justify-center h-64">
       <div className="text-gray-600 dark:text-gray-400">Loading...</div>
     </div>
@@ -124,7 +133,7 @@ export default function Settings() {
       </div>
 
       {/* Admin Section - Site Users */}
-      {session.user.admin && (
+      {user.admin && (
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
           <button
             onClick={() => toggleSection('users')}
@@ -339,7 +348,7 @@ export default function Settings() {
                       </div>
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {session?.user?.name || session?.user?.email}
+                          {user?.name || user?.email}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Logged in • Active session
@@ -365,7 +374,7 @@ export default function Settings() {
                   </p>
                   <div className="flex gap-3">
                     <button
-                      onClick={(e) => { e.preventDefault(); signOut(); }}
+                      onClick={(e) => { e.preventDefault(); logout(); }}
                       className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

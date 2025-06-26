@@ -1,27 +1,36 @@
 "use client";
 import React, { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useAuth } from "@/lib/auth-context";
+import { BackendApiError } from "@/lib/backend-api";
 
 export default function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const { login } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError("");
-        const res = await signIn("credentials", {
-            redirect: false,
-            email,
-            password,
-        });
-        setLoading(false);
-        if (res?.error) {
-            setError("Incorrect email or password.");
-        } else if (res?.ok) {
+
+        console.log("LoginForm: Starting login process", { email });
+
+        try {
+            await login(email, password);
+            console.log("LoginForm: Login successful, redirecting to dashboard");
+            // Rediriger vers le dashboard
             window.location.href = "/dashboard";
+        } catch (error) {
+            console.error("LoginForm: Login failed", error);
+            if (error instanceof BackendApiError) {
+                setError("Incorrect email or password.");
+            } else {
+                setError("Network or server error");
+            }
+        } finally {
+            setLoading(false);
         }
     };
 

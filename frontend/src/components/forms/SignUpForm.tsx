@@ -1,6 +1,7 @@
 // Simple SignUpForm de base pour corriger l'erreur d'import
 "use client";
 import React, { useState } from "react";
+import { backendApi, BackendApiError } from "@/lib/backend-api";
 
 export default function SignUpForm() {
     const [email, setEmail] = useState("");
@@ -15,34 +16,32 @@ export default function SignUpForm() {
         e.preventDefault();
         setMessage("");
         setNameError("");
+
         if (name.length < 5) {
             setNameError("Username must be at least 5 characters long.");
             return;
         }
+
+        if (password !== confirmPassword) {
+            setMessage("Passwords do not match");
+            return;
+        }
+
         setLoading(true);
         try {
-            const res = await fetch("/api/user/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    username: name,
-                    email,
-                    password,
-                    confirmPassword,
-                }),
-            });
-            const data = await res.json();
-            if (res.ok) {
-                setMessage("Registration successful! You can now log in.");
-                setEmail("");
-                setPassword("");
-                setConfirmPassword("");
-                setName("");
+            const response = await backendApi.register(email, password, name);
+
+            setMessage("Registration successful! You can now log in.");
+            setEmail("");
+            setPassword("");
+            setConfirmPassword("");
+            setName("");
+        } catch (error) {
+            if (error instanceof BackendApiError) {
+                setMessage(error.message || "Registration error");
             } else {
-                setMessage(data.message || data.error || "Registration error");
+                setMessage("Network or server error");
             }
-        } catch {
-            setMessage("Network or server error");
         } finally {
             setLoading(false);
         }
