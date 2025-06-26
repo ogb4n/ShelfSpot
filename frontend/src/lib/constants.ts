@@ -2,9 +2,9 @@
 
 export const API_ENDPOINTS = {
   ROOMS: "/api/room",
-  PLACES: "/api/place", 
-  CONTAINERS: "/api/container",
-  ITEMS: "/api/items",
+  PLACES: "/place",
+  CONTAINERS: "/container",
+  ITEMS: "/items",
   TAGS: "/api/tag",
   FAVOURITES: "/api/favourites",
   USER: "/api/user",

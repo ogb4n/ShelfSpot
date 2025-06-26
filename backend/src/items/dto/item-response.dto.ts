@@ -28,7 +28,7 @@ export class ItemResponseDto {
   @ApiProperty({
     example: { id: 1, name: 'Living Room' },
     description: 'Room information',
-    required: false,
+    required: true,
   })
   room?: {
     id: number;
@@ -38,7 +38,7 @@ export class ItemResponseDto {
   @ApiProperty({
     example: { id: 1, name: 'Kitchen Counter' },
     description: 'Place information',
-    required: false,
+    required: true,
   })
   place?: {
     id: number;
