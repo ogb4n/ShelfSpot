@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<UserPayload> {
     // Vérifier que l'utilisateur existe toujours dans la base de données
     const user = await this.prisma.user.findUnique({
-      where: { id: parseInt(payload.sub) }, // Conversion string -> number pour Prisma
+      where: { id: parseInt(payload.sub) },
       select: {
         id: true,
         email: true,
@@ -33,7 +33,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       id: String(user.id), // Conversion number -> string pour compatibilité frontend
       email: user.email,
-      name: user.name || undefined, // null -> undefined pour compatibilité frontend
+      name: user.name || undefined,
       admin: user.admin,
     };
   }

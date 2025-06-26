@@ -8,6 +8,8 @@ import { RoomsModule } from './rooms/rooms.module';
 import { PlacesModule } from './places/places.module';
 import { FavouritesModule } from './favourites/favourites.module';
 import { ConsumablesModule } from './consumables/consumables.module';
+import { TagsModule } from './tags/tags.module';
+import { ContainersModule } from './containers/containers.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { ConsumablesModule } from './consumables/consumables.module';
     PlacesModule,
     FavouritesModule,
     ConsumablesModule,
+    TagsModule,
+    ContainersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
