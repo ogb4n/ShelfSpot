@@ -6,45 +6,113 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { FavouritesService } from './favourites.service';
-import { Prisma } from '@prisma/client';
+import { CreateFavouriteDto } from './dto/favourite.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/user.decorator';
+import { UserPayload } from '../auth/interfaces/auth.interface';
 
+@ApiTags('Favourites')
 @Controller('favourites')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class FavouritesController {
   constructor(private readonly favouritesService: FavouritesService) {}
 
   @Post()
-  create(@Body() createFavouriteDto: Prisma.FavouriteCreateInput) {
-    return this.favouritesService.create(createFavouriteDto);
+  @ApiOperation({ summary: 'Create a new favourite' })
+  @ApiBody({ type: CreateFavouriteDto })
+  @ApiResponse({ status: 201, description: 'Favourite created successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  create(
+    @Body() createFavouriteDto: CreateFavouriteDto,
+    @CurrentUser() user: UserPayload,
+  ) {
+    return this.favouritesService.createWithUserId(createFavouriteDto.itemId, user.id);
   }
 
-  @Post('by-item-user')
-  createByItemAndUser(@Body() body: { itemId: number; userName: string }) {
-    return this.favouritesService.createByItemAndUser(
-      body.itemId,
-      body.userName,
-    );
+  @Post('item/:itemId')
+  @ApiOperation({ summary: 'Add item to favourites' })
+  @ApiParam({ name: 'itemId', description: 'Item ID to add to favourites' })
+  @ApiResponse({
+    status: 201,
+    description: 'Item added to favourites successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Item already in favourites' })
+  @ApiResponse({ status: 404, description: 'Item not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  createByItem(
+    @Param('itemId', ParseIntPipe) itemId: number,
+    @CurrentUser() user: UserPayload,
+  ) {
+    return this.favouritesService.createWithUserId(itemId, user.id);
   }
 
   @Get()
-  findAll(@Query('userId') userId?: string) {
-    if (userId) {
-      return this.favouritesService.findByUser(+userId);
+  @ApiOperation({ summary: 'Get user favourites' })
+  @ApiQuery({ name: 'userId', description: 'User ID (admin only)', required: false })
+  @ApiResponse({
+    status: 200,
+    description: 'Favourites retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required for userId parameter' })
+  findAll(@CurrentUser() user: UserPayload, @Query('userId') userId?: string) {
+    if (userId && user.admin) {
+      // Si admin et userId spécifié, retourner les favoris de cet utilisateur
+      return this.favouritesService.findByUser(userId);
+    } else {
+      // Retourner les favoris de l'utilisateur connecté
+      return this.favouritesService.findByUser(user.id);
     }
-    return this.favouritesService.findAll();
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.favouritesService.remove(+id);
+  @ApiOperation({ summary: 'Remove favourite by ID' })
+  @ApiParam({ name: 'id', description: 'Favourite ID' })
+  @ApiResponse({ status: 200, description: 'Favourite removed successfully' })
+  @ApiResponse({ status: 404, description: 'Favourite not found' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Cannot delete other users favourites' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: UserPayload,
+  ) {
+    if (user.admin) {
+      // Admin peut supprimer n'importe quel favori
+      return this.favouritesService.remove(id);
+    } else {
+      // Utilisateur normal peut seulement supprimer ses propres favoris
+      return this.favouritesService.removeWithUserId(id, user.id);
+    }
   }
 
-  @Delete('by-item-user')
-  removeByItemAndUser(@Body() body: { itemId: number; userName: string }) {
-    return this.favouritesService.removeByItemAndUser(
-      body.itemId,
-      body.userName,
-    );
+  @Delete('item/:itemId')
+  @ApiOperation({ summary: 'Remove item from favourites' })
+  @ApiParam({ name: 'itemId', description: 'Item ID to remove from favourites' })
+  @ApiResponse({
+    status: 200,
+    description: 'Item removed from favourites successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Favourite not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  removeByItem(
+    @Param('itemId', ParseIntPipe) itemId: number,
+    @CurrentUser() user: UserPayload,
+  ) {
+    return this.favouritesService.removeByItemAndUserId(itemId, user.id);
   }
 }
