@@ -16,31 +16,32 @@ model User {
   createdAt  DateTime    @default(now())
   favourites Favourite[]
 
-  @@index([email]) // Ajout d'index pour accélération des recherches par email
+  @@index([email])
 }
 
 model Item {
-  id         Int         @id @default(autoincrement())
-  name       String
-  quantity   Int         @default(1)
-  image      String?
-  itemLink  String?
-  price      Float?
-  sellprice  Float?
-  status     String?
-  consumable Boolean     @default(false)
-  placeId    Int?
-  place      Place?      @relation(fields: [placeId], references: [id], onDelete: SetNull)
-  roomId     Int?
-  room       Room?       @relation("RoomToItems", fields: [roomId], references: [id], onDelete: SetNull)
-  favourites Favourite[]
-  itemTags   ItemTag[] // Relation pour les tags normalisés
-  containerId Int? // Ajout du champ pour la relation many-to-one
-  container   Container? @relation(fields: [containerId], references: [id], onDelete: SetNull)
-  alerts     Alert[]   // Relation pour les alertes configurées sur cet objet
+  id          Int         @id @default(autoincrement())
+  name        String
+  quantity    Int         @default(1)
+  image       String?
+  price       Float?
+  sellprice   Float?
+  status      String?
+  consumable  Boolean     @default(false)
+  placeId     Int?
+  roomId      Int?
+  containerId Int?
+  itemLink    String?
+  alerts      Alert[]
+  favourites  Favourite[]
+  container   Container?  @relation(fields: [containerId], references: [id])
+  place       Place?      @relation(fields: [placeId], references: [id])
+  room        Room?       @relation("RoomToItems", fields: [roomId], references: [id])
+  itemTags    ItemTag[]
 
-  @@index([placeId]) // Index pour accélérer les recherches par lieu
-  @@index([roomId]) // Index pour accélérer les recherches par pièce
+  @@index([placeId])
+  @@index([roomId])
+  @@index([containerId], map: "Item_containerId_fkey")
 }
 
 model Place {
@@ -48,28 +49,28 @@ model Place {
   name      String
   icon      String?
   roomId    Int?
-  room      Room?       @relation("RoomToPlaces", fields: [roomId], references: [id], onDelete: SetNull)
-  items     Item[]
   Container Container[]
+  items     Item[]
+  room      Room?       @relation("RoomToPlaces", fields: [roomId], references: [id])
 
-  @@unique([name, roomId]) // Éviter les doublons de noms dans la même pièce
-  @@index([roomId]) // Optimisation pour les recherches par room
+  @@unique([name, roomId])
+  @@index([roomId])
 }
 
 model Room {
   id        Int         @id @default(autoincrement())
-  name      String      @unique // Éviter les pièces en double
+  name      String      @unique
   icon      String?
-  places    Place[]     @relation("RoomToPlaces")
-  items     Item[]      @relation("RoomToItems")
   Container Container[]
+  items     Item[]      @relation("RoomToItems")
+  places    Place[]     @relation("RoomToPlaces")
 }
 
 model Tag {
   id       Int       @id @default(autoincrement())
   name     String    @unique
   icon     String?
-  itemTags ItemTag[] // Relation many-to-many normalisée
+  itemTags ItemTag[]
 }
 
 model ItemTag {
@@ -79,7 +80,7 @@ model ItemTag {
   item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
   tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
-  @@unique([itemId, tagId]) // Éviter les duplications de relations
+  @@unique([itemId, tagId])
   @@index([tagId])
   @@index([itemId])
 }
@@ -87,11 +88,11 @@ model ItemTag {
 model Favourite {
   id     Int  @id @default(autoincrement())
   userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   itemId Int
   item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, itemId]) // Un utilisateur ne peut ajouter qu'une fois un item aux favoris
+  @@unique([userId, itemId])
   @@index([userId])
   @@index([itemId])
 }
@@ -101,28 +102,28 @@ model Container {
   name    String
   icon    String?
   roomId  Int?
-  room    Room?   @relation(fields: [roomId], references: [id], onDelete: SetNull)
-  items   Item[]  // Relation pour les items contenus dans le conteneur
-  place   Place?  @relation(fields: [placeId], references: [id], onDelete: SetNull)
   placeId Int?
+  place   Place?  @relation(fields: [placeId], references: [id])
+  room    Room?   @relation(fields: [roomId], references: [id])
+  items   Item[]
 
   @@index([roomId])
   @@index([placeId])
 }
 
 model Alert {
-  id          Int      @id @default(autoincrement())
-  itemId      Int
-  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  threshold   Int      // Seuil en dessous duquel l'alerte se déclenche
-  name        String?  // Nom optionnel pour identifier l'alerte (ex: "Alerte critique", "Réapprovisionnement")
-  isActive    Boolean  @default(true) // Permet de désactiver temporairement une alerte
-  lastSent    DateTime? // Dernière fois que l'email d'alerte a été envoyé
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int       @id @default(autoincrement())
+  itemId    Int
+  threshold Int
+  name      String?
+  isActive  Boolean   @default(true)
+  lastSent  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  item      Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
-  @@unique([itemId, threshold]) // Éviter les doublons de seuil pour le même objet
+  @@unique([itemId, threshold])
   @@index([itemId])
-  @@index([isActive]) // Pour optimiser les recherches d'alertes actives
-  @@index([threshold]) // Pour optimiser les vérifications de seuils
+  @@index([isActive])
+  @@index([threshold])
 }
