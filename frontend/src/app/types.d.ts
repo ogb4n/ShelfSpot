@@ -23,10 +23,8 @@ export interface Item {
   id: number;
   name: string;
   quantity: number;
-  status: string;
   roomId: number;
   placeId?: number;
-  tags: string[];
   containerId?: number;
   container?: { id: number; name: string; icon: string; placeId: number; roomId: number; } | null;
   room: { id: number; name: string; icon: string } | null;
@@ -35,6 +33,10 @@ export interface Item {
   tags: string[];
   consumable?: boolean;
   itemLink: string | null;
+}
+
+export interface Consumable extends Item {
+  consumable: true;
 }
 
 export type Tag = {

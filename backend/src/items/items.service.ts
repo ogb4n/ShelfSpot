@@ -6,8 +6,20 @@ import { Prisma } from '@prisma/client';
 export class ItemsService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: Prisma.ItemCreateInput) {
-    return this.prisma.item.create({
+  private transformItem(item: any) {
+    if (!item) {
+      return null;
+    }
+    const { itemTags, ...rest } = item;
+    const tags = itemTags ? itemTags.map((it: any) => it.tag.name) : [];
+    return {
+      ...rest,
+      tags,
+    };
+  }
+
+  async create(data: Prisma.ItemCreateInput) {
+    const item = await this.prisma.item.create({
       data,
       include: {
         room: true,
@@ -20,10 +32,11 @@ export class ItemsService {
         },
       },
     });
+    return this.transformItem(item);
   }
 
-  findAll() {
-    return this.prisma.item.findMany({
+  async findAll() {
+    const items = await this.prisma.item.findMany({
       include: {
         room: true,
         place: true,
@@ -35,10 +48,11 @@ export class ItemsService {
         },
       },
     });
+    return items.map((item) => this.transformItem(item));
   }
 
-  findOne(id: number) {
-    return this.prisma.item.findUnique({
+  async findOne(id: number) {
+    const item = await this.prisma.item.findUnique({
       where: { id },
       include: {
         room: true,
@@ -51,10 +65,11 @@ export class ItemsService {
         },
       },
     });
+    return this.transformItem(item);
   }
 
-  update(id: number, data: Prisma.ItemUpdateInput) {
-    return this.prisma.item.update({
+  async update(id: number, data: Prisma.ItemUpdateInput) {
+    const item = await this.prisma.item.update({
       where: { id },
       data,
       include: {
@@ -68,6 +83,7 @@ export class ItemsService {
         },
       },
     });
+    return this.transformItem(item);
   }
 
   remove(id: number) {
@@ -76,8 +92,8 @@ export class ItemsService {
     });
   }
 
-  search(searchTerm: string) {
-    return this.prisma.item.findMany({
+  async search(searchTerm: string) {
+    const items = await this.prisma.item.findMany({
       where: {
         OR: [
           {
@@ -117,5 +133,6 @@ export class ItemsService {
         },
       },
     });
+    return items.map((item) => this.transformItem(item));
   }
 }

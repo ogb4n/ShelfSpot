@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma } from '@prisma/client';
 
@@ -13,9 +13,22 @@ export class FavouritesService {
   }
 
   // Créer un favori avec l'ID utilisateur (string converti en number pour la DB)
-  createWithUserId(itemId: number, userId: string | number) {
+  async createWithUserId(itemId: number, userId: string | number) {
     const numericUserId =
       typeof userId === 'string' ? parseInt(userId, 10) : userId;
+
+    const existingFavourite = await this.prisma.favourite.findUnique({
+      where: {
+        userId_itemId: {
+          userId: numericUserId,
+          itemId,
+        },
+      },
+    });
+
+    if (existingFavourite) {
+      throw new ConflictException('Item already in favourites');
+    }
 
     return this.prisma.favourite.create({
       data: {

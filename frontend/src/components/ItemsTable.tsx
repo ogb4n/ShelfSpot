@@ -136,12 +136,32 @@ function ItemsTable({ search, items: itemsProp, columns = [
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setEditValues({ ...editValues, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        let processedValue: any = value;
+        
+        // Convertir quantity en nombre
+        if (name === 'quantity') {
+            processedValue = parseInt(value, 10) || 0;
+        }
+        
+        setEditValues({ ...editValues, [name]: processedValue });
     };
 
     const handleSave = async () => {
-        await backendApi.updateItem(editId!, editValues);
-        setItems((prev: Item[]) => prev.map((it: Item) => (it.id === editId ? { ...it, ...editValues } : it)));
+        // Filtrer les données pour n'envoyer que les champs modifiables en ligne
+        const allowedFields = {
+            name: editValues.name,
+            quantity: editValues.quantity,
+            status: editValues.status,
+        };
+        
+        // Supprimer les valeurs undefined et vides
+        const filteredData = Object.fromEntries(
+            Object.entries(allowedFields).filter(([_, value]) => value !== undefined && value !== "")
+        );
+        
+        await backendApi.updateItem(editId!, filteredData);
+        setItems((prev: Item[]) => prev.map((it: Item) => (it.id === editId ? { ...it, ...filteredData } : it)));
         setEditId(null);
         setEditValues({});
     };
@@ -365,32 +385,23 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                         )}
                                         {columns.includes("room") && (
                                             <TableCell>
-                                                <input
-                                                    name="room"
-                                                    value={editValues.room?.name || ""}
-                                                    onChange={handleChange}
-                                                    className="theme-input rounded px-2 py-1 w-full"
-                                                />
+                                                <span className="text-gray-600 dark:text-gray-400">
+                                                    {item.room?.name || "N/A"}
+                                                </span>
                                             </TableCell>
                                         )}
                                         {columns.includes("place") && (
                                             <TableCell>
-                                                <input
-                                                    name="place"
-                                                    value={editValues.place?.name || ""}
-                                                    onChange={handleChange}
-                                                    className="theme-input rounded px-2 py-1 w-full"
-                                                />
+                                                <span className="text-gray-600 dark:text-gray-400">
+                                                    {item.place?.name || "N/A"}
+                                                </span>
                                             </TableCell>
                                         )}
                                         {columns.includes("container") && (
                                             <TableCell>
-                                                <input
-                                                    name="container"
-                                                    value={editValues.container?.name || ""}
-                                                    onChange={handleChange}
-                                                    className="theme-input rounded px-2 py-1 w-full"
-                                                />
+                                                <span className="text-gray-600 dark:text-gray-400">
+                                                    {item.container?.name || "N/A"}
+                                                </span>
                                             </TableCell>
                                         )}
                                         {columns.includes("tags") && (

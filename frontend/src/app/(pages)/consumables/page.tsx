@@ -27,9 +27,16 @@ export default function Consumables() {
             <div className="text-red-600 dark:text-red-400">{error}</div>
           </div>
         )}
-        {!loading && !error && (
+        {!loading && !error && items && items.length > 0 && (
           <div className="p-6">
             <ItemsTable items={items} />
+          </div>
+        )}
+        {!loading && !error && items && items.length === 0 && (
+          <div className="p-6">
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              No consumables found. Create your first consumable item to get started.
+            </div>
           </div>
         )}
       </div>

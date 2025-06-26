@@ -6,8 +6,20 @@ import { Prisma } from '@prisma/client';
 export class ConsumablesService {
   constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.item.findMany({
+  private transformItem(item: any) {
+    if (!item) {
+      return null;
+    }
+    const { itemTags, ...rest } = item;
+    const tags = itemTags ? itemTags.map((it: any) => it.tag.name) : [];
+    return {
+      ...rest,
+      tags,
+    };
+  }
+
+  async findAll() {
+    const items = await this.prisma.item.findMany({
       where: {
         consumable: true,
       },
@@ -22,10 +34,11 @@ export class ConsumablesService {
         },
       },
     });
+    return items.map((item) => this.transformItem(item));
   }
 
-  findOne(id: number) {
-    return this.prisma.item.findUnique({
+  async findOne(id: number) {
+    const item = await this.prisma.item.findUnique({
       where: {
         id,
         consumable: true,
@@ -41,10 +54,11 @@ export class ConsumablesService {
         },
       },
     });
+    return this.transformItem(item);
   }
 
-  create(data: Prisma.ItemCreateInput) {
-    return this.prisma.item.create({
+  async create(data: Prisma.ItemCreateInput) {
+    const item = await this.prisma.item.create({
       data: {
         ...data,
         consumable: true,
@@ -60,10 +74,11 @@ export class ConsumablesService {
         },
       },
     });
+    return this.transformItem(item);
   }
 
-  update(id: number, data: Prisma.ItemUpdateInput) {
-    return this.prisma.item.update({
+  async update(id: number, data: Prisma.ItemUpdateInput) {
+    const item = await this.prisma.item.update({
       where: {
         id,
         consumable: true,
@@ -83,6 +98,7 @@ export class ConsumablesService {
         },
       },
     });
+    return this.transformItem(item);
   }
 
   remove(id: number) {
@@ -95,8 +111,8 @@ export class ConsumablesService {
   }
 
   // Méthode pour obtenir les consommables avec un stock faible
-  findLowStock(threshold: number = 5) {
-    return this.prisma.item.findMany({
+  async findLowStock(threshold: number = 5) {
+    const items = await this.prisma.item.findMany({
       where: {
         consumable: true,
         quantity: {
@@ -114,5 +130,6 @@ export class ConsumablesService {
         },
       },
     });
+    return items.map((item) => this.transformItem(item));
   }
 }
