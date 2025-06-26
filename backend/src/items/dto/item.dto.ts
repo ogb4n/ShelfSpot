@@ -11,7 +11,11 @@ export class CreateItemDto {
   @Min(1)
   quantity: number;
 
-  @ApiProperty({ example: 'Available', description: 'Item status', required: false })
+  @ApiProperty({
+    example: 'Available',
+    description: 'Item status',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   status?: string;
@@ -31,18 +35,31 @@ export class CreateItemDto {
 }
 
 export class UpdateItemDto {
-  @ApiProperty({ example: 'Laptop Dell XPS 13', description: 'Item name', required: false })
+  @ApiProperty({
+    example: 'Laptop Dell XPS 13',
+    description: 'Item name',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   name?: string;
 
-  @ApiProperty({ example: 1, description: 'Item quantity', minimum: 1, required: false })
+  @ApiProperty({
+    example: 1,
+    description: 'Item quantity',
+    minimum: 1,
+    required: false,
+  })
   @IsOptional()
   @IsNumber()
   @Min(1)
   quantity?: number;
 
-  @ApiProperty({ example: 'Available', description: 'Item status', required: false })
+  @ApiProperty({
+    example: 'Available',
+    description: 'Item status',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   status?: string;

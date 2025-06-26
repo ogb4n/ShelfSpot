@@ -6,19 +6,31 @@ export class CreateRoomDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'Main living area', description: 'Room description', required: false })
+  @ApiProperty({
+    example: 'Main living area',
+    description: 'Room description',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   description?: string;
 }
 
 export class UpdateRoomDto {
-  @ApiProperty({ example: 'Living Room', description: 'Room name', required: false })
+  @ApiProperty({
+    example: 'Living Room',
+    description: 'Room name',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   name?: string;
 
-  @ApiProperty({ example: 'Main living area', description: 'Room description', required: false })
+  @ApiProperty({
+    example: 'Main living area',
+    description: 'Room description',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   description?: string;

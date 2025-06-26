@@ -11,7 +11,11 @@ export class CreateConsumableDto {
   @Min(0)
   quantity: number;
 
-  @ApiProperty({ example: 'Available', description: 'Consumable status', required: false })
+  @ApiProperty({
+    example: 'Available',
+    description: 'Consumable status',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   status?: string;
@@ -31,18 +35,31 @@ export class CreateConsumableDto {
 }
 
 export class UpdateConsumableDto {
-  @ApiProperty({ example: 'Coffee Beans', description: 'Consumable name', required: false })
+  @ApiProperty({
+    example: 'Coffee Beans',
+    description: 'Consumable name',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   name?: string;
 
-  @ApiProperty({ example: 5, description: 'Consumable quantity', minimum: 0, required: false })
+  @ApiProperty({
+    example: 5,
+    description: 'Consumable quantity',
+    minimum: 0,
+    required: false,
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
   quantity?: number;
 
-  @ApiProperty({ example: 'Available', description: 'Consumable status', required: false })
+  @ApiProperty({
+    example: 'Available',
+    description: 'Consumable status',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   status?: string;

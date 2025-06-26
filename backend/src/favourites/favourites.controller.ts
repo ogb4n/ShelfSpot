@@ -41,7 +41,10 @@ export class FavouritesController {
     @Body() createFavouriteDto: CreateFavouriteDto,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.favouritesService.createWithUserId(createFavouriteDto.itemId, user.id);
+    return this.favouritesService.createWithUserId(
+      createFavouriteDto.itemId,
+      user.id,
+    );
   }
 
   @Post('item/:itemId')
@@ -63,13 +66,20 @@ export class FavouritesController {
 
   @Get()
   @ApiOperation({ summary: 'Get user favourites' })
-  @ApiQuery({ name: 'userId', description: 'User ID (admin only)', required: false })
+  @ApiQuery({
+    name: 'userId',
+    description: 'User ID (admin only)',
+    required: false,
+  })
   @ApiResponse({
     status: 200,
     description: 'Favourites retrieved successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required for userId parameter' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required for userId parameter',
+  })
   findAll(@CurrentUser() user: UserPayload, @Query('userId') userId?: string) {
     if (userId && user.admin) {
       // Si admin et userId spécifié, retourner les favoris de cet utilisateur
@@ -85,7 +95,10 @@ export class FavouritesController {
   @ApiParam({ name: 'id', description: 'Favourite ID' })
   @ApiResponse({ status: 200, description: 'Favourite removed successfully' })
   @ApiResponse({ status: 404, description: 'Favourite not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Cannot delete other users favourites' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Cannot delete other users favourites',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   remove(
     @Param('id', ParseIntPipe) id: number,
@@ -102,7 +115,10 @@ export class FavouritesController {
 
   @Delete('item/:itemId')
   @ApiOperation({ summary: 'Remove item from favourites' })
-  @ApiParam({ name: 'itemId', description: 'Item ID to remove from favourites' })
+  @ApiParam({
+    name: 'itemId',
+    description: 'Item ID to remove from favourites',
+  })
   @ApiResponse({
     status: 200,
     description: 'Item removed from favourites successfully',

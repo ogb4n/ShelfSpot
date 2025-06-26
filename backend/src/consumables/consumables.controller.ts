@@ -10,14 +10,14 @@ import {
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
-import { 
-  ApiBearerAuth, 
+import {
+  ApiBearerAuth,
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBody,
   ApiParam,
-  ApiQuery
+  ApiQuery,
 } from '@nestjs/swagger';
 import { ConsumablesService } from './consumables.service';
 import { CreateConsumableDto, UpdateConsumableDto } from './dto/consumable.dto';
@@ -42,7 +42,10 @@ export class ConsumablesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all consumables' })
-  @ApiResponse({ status: 200, description: 'Consumables retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Consumables retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   findAll() {
     return this.consumablesService.findAll();
@@ -50,8 +53,15 @@ export class ConsumablesController {
 
   @Get('low-stock')
   @ApiOperation({ summary: 'Get low stock consumables' })
-  @ApiQuery({ name: 'threshold', description: 'Stock threshold (default: 5)', required: false })
-  @ApiResponse({ status: 200, description: 'Low stock consumables retrieved successfully' })
+  @ApiQuery({
+    name: 'threshold',
+    description: 'Stock threshold (default: 5)',
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Low stock consumables retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   findLowStock(@Query('threshold') threshold?: string) {
     const thresholdValue = threshold ? parseInt(threshold, 10) : 5;
@@ -61,7 +71,10 @@ export class ConsumablesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get consumable by ID' })
   @ApiParam({ name: 'id', description: 'Consumable ID' })
-  @ApiResponse({ status: 200, description: 'Consumable retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Consumable retrieved successfully',
+  })
   @ApiResponse({ status: 404, description: 'Consumable not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   findOne(@Param('id', ParseIntPipe) id: number) {

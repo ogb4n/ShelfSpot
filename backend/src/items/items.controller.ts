@@ -10,14 +10,14 @@ import {
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
-import { 
-  ApiBearerAuth, 
-  ApiTags, 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
   ApiBody,
   ApiParam,
-  ApiQuery
+  ApiQuery,
 } from '@nestjs/swagger';
 import { ItemsService } from './items.service';
 import { CreateItemDto, UpdateItemDto } from './dto/item.dto';
@@ -34,10 +34,10 @@ export class ItemsController {
   @Post()
   @ApiOperation({ summary: 'Create a new item' })
   @ApiBody({ type: CreateItemDto })
-  @ApiResponse({ 
-    status: 201, 
+  @ApiResponse({
+    status: 201,
     description: 'Item created successfully',
-    type: ItemResponseDto 
+    type: ItemResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -47,10 +47,10 @@ export class ItemsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all items' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Items retrieved successfully',
-    type: [ItemResponseDto]
+    type: [ItemResponseDto],
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   findAll() {
@@ -60,10 +60,10 @@ export class ItemsController {
   @Get('search')
   @ApiOperation({ summary: 'Search items' })
   @ApiQuery({ name: 'q', description: 'Search term', required: false })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Search results retrieved successfully',
-    type: [ItemResponseDto]
+    type: [ItemResponseDto],
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   search(@Query('q') searchTerm: string) {
@@ -73,10 +73,10 @@ export class ItemsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get item by ID' })
   @ApiParam({ name: 'id', description: 'Item ID' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Item retrieved successfully',
-    type: ItemResponseDto
+    type: ItemResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Item not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })

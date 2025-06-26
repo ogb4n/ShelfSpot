@@ -6,19 +6,31 @@ export class CreatePlaceDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'Counter in the kitchen', description: 'Place description', required: false })
+  @ApiProperty({
+    example: 'Counter in the kitchen',
+    description: 'Place description',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   description?: string;
 }
 
 export class UpdatePlaceDto {
-  @ApiProperty({ example: 'Kitchen Counter', description: 'Place name', required: false })
+  @ApiProperty({
+    example: 'Kitchen Counter',
+    description: 'Place name',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   name?: string;
 
-  @ApiProperty({ example: 'Counter in the kitchen', description: 'Place description', required: false })
+  @ApiProperty({
+    example: 'Counter in the kitchen',
+    description: 'Place description',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   description?: string;

@@ -9,13 +9,13 @@ import {
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
-import { 
-  ApiBearerAuth, 
+import {
+  ApiBearerAuth,
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBody,
-  ApiParam
+  ApiParam,
 } from '@nestjs/swagger';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto, UpdateRoomDto } from './dto/room.dto';
