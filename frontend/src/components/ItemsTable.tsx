@@ -138,28 +138,25 @@ function ItemsTable({ search, items: itemsProp, columns = [
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         let processedValue: any = value;
-        
-        // Convertir quantity en nombre
+
         if (name === 'quantity') {
             processedValue = parseInt(value, 10) || 0;
         }
-        
+
         setEditValues({ ...editValues, [name]: processedValue });
     };
 
     const handleSave = async () => {
-        // Filtrer les données pour n'envoyer que les champs modifiables en ligne
         const allowedFields = {
             name: editValues.name,
             quantity: editValues.quantity,
             status: editValues.status,
         };
-        
-        // Supprimer les valeurs undefined et vides
+
         const filteredData = Object.fromEntries(
             Object.entries(allowedFields).filter(([_, value]) => value !== undefined && value !== "")
         );
-        
+
         await backendApi.updateItem(editId!, filteredData);
         setItems((prev: Item[]) => prev.map((it: Item) => (it.id === editId ? { ...it, ...filteredData } : it)));
         setEditId(null);
@@ -192,7 +189,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
         const { refs, floatingStyles } = useFloating({
             placement: 'bottom-end',
             middleware: [offset(4), flip(), shift()],
-            strategy: 'fixed', // Use fixed positioning to avoid overflow issues
+            strategy: 'fixed',
         });
         return (
             <Menu as="div" className="inline-block text-left relative z-[60]">

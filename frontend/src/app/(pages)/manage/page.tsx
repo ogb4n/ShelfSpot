@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const API = "/api/";
-
-const fetcher = async (url: string, options?: RequestInit) => {
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-};
+import { backendApi } from "@/lib/backend-api";
 
 // Types
 interface Room { id: number; name: string; }
@@ -37,10 +30,10 @@ const ManagePage = () => {
   const fetchAll = async () => {
     try {
       const [roomsData, placesData, containersData, tagsData] = await Promise.all([
-        fetcher(`${API}room`),
-        fetcher(`${API}place`),
-        fetcher(`${API}container`),
-        fetcher(`${API}tag`),
+        backendApi.getRooms(),
+        backendApi.getPlaces(),
+        backendApi.getContainers(),
+        backendApi.getTags(),
       ]);
       setRooms(roomsData);
       setPlaces(placesData);
@@ -58,7 +51,7 @@ const ManagePage = () => {
   // Delete handlers
   const handleDeleteRoom = async (id: number) => {
     try {
-      await fetcher(`${API}room/${id}`, { method: 'DELETE' });
+      await backendApi.deleteRoom(id);
       fetchAll();
     } catch (error) {
       console.error('Error deleting room:', error);
@@ -67,7 +60,7 @@ const ManagePage = () => {
 
   const handleDeletePlace = async (id: number) => {
     try {
-      await fetcher(`${API}place/${id}`, { method: 'DELETE' });
+      await backendApi.deletePlace(id);
       fetchAll();
     } catch (error) {
       console.error('Error deleting place:', error);
@@ -76,7 +69,7 @@ const ManagePage = () => {
 
   const handleDeleteContainer = async (id: number) => {
     try {
-      await fetcher(`${API}container/${id}`, { method: 'DELETE' });
+      await backendApi.deleteContainer(id);
       fetchAll();
     } catch (error) {
       console.error('Error deleting container:', error);
@@ -87,11 +80,7 @@ const ManagePage = () => {
   const handleAddTag = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetcher(`${API}tag`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: tagName }),
-      });
+      await backendApi.createTag({ name: tagName });
       setTagName("");
       fetchAll();
     } catch (error) {
@@ -100,14 +89,14 @@ const ManagePage = () => {
   };
 
   const handleDeleteTag = async (id: number) => {
-    // Trouve le nom du tag pour la confirmation
+    // Find the tag name for confirmation
     const tagToDelete = tags.find(tag => tag.id === id);
-    const tagName = tagToDelete ? tagToDelete.name : 'ce tag';
+    const tagName = tagToDelete ? tagToDelete.name : 'this tag';
 
-    // Affiche une confirmation avant la suppression
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer le tag "${tagName}" ? Cette action est irréversible.`)) {
+    // Show confirmation before deletion
+    if (window.confirm(`Are you sure you want to delete the tag "${tagName}"? This action is irreversible.`)) {
       try {
-        await fetcher(`${API}tag/${id}`, { method: 'DELETE' });
+        await backendApi.deleteTag(id);
         fetchAll();
       } catch (error) {
         console.error('Error deleting tag:', error);
@@ -142,11 +131,7 @@ const ManagePage = () => {
 
   const handleSaveRoom = async (id: number) => {
     try {
-      await fetcher(`${API}room/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: editValues.name }),
-      });
+      await backendApi.updateRoom(id, { name: editValues.name as string });
       setEditingRoom(null);
       setEditValues({});
       fetchAll();
@@ -157,11 +142,7 @@ const ManagePage = () => {
 
   const handleSavePlace = async (id: number) => {
     try {
-      await fetcher(`${API}place/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: editValues.name }),
-      });
+      await backendApi.updatePlace(id, { name: editValues.name as string });
       setEditingPlace(null);
       setEditValues({});
       fetchAll();
@@ -172,14 +153,10 @@ const ManagePage = () => {
 
   const handleSaveContainer = async (id: number) => {
     try {
-      await fetcher(`${API}container/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: editValues.name,
-          roomId: editValues.roomId,
-          placeId: editValues.placeId
-        }),
+      await backendApi.updateContainer(id, {
+        name: editValues.name as string,
+        roomId: editValues.roomId as number,
+        placeId: editValues.placeId as number
       });
       setEditingContainer(null);
       setEditValues({});
@@ -191,11 +168,7 @@ const ManagePage = () => {
 
   const handleSaveTag = async (id: number) => {
     try {
-      await fetcher(`${API}tag/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: editValues.name }),
-      });
+      await backendApi.updateTag(id, { name: editValues.name as string });
       setEditingTag(null);
       setEditValues({});
       fetchAll();
