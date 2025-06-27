@@ -1,0 +1,73 @@
+// Centralized API utilities
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+
+export interface ApiResponse<T> {
+  data: T;
+  error?: string;
+}
+
+export class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
+export async function apiRequest<T>(
+  endpoint: string, 
+  options?: RequestInit
+): Promise<T> {
+  const url = `${BACKEND_URL}${endpoint}`;
+  const headers = getAuthHeaders();
+
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...headers,
+      ...options?.headers,
+    },
+  });
+
+  if (!response.ok) {
+    let errorMessage = `HTTP ${response.status}`;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch {
+      // Si on ne peut pas parser la réponse d'erreur, on garde le message par défaut
+    }
+    throw new ApiError(response.status, errorMessage);
+  }
+
+  return response.json();
+}
+
+export const api = {
+  get: <T>(url: string) => apiRequest<T>(url),
+  post: <T>(url: string, data: unknown) => 
+    apiRequest<T>(url, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  put: <T>(url: string, data: unknown) => 
+    apiRequest<T>(url, {
+      method: "PUT", 
+      body: JSON.stringify(data),
+    }),
+  delete: <T>(url: string) => 
+    apiRequest<T>(url, { method: "DELETE" }),
+};
