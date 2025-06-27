@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Home, Box, Star, Settings, Package, Warehouse } from "lucide-react";
+import { Home, Box, Star, Settings, Package, Warehouse, FolderOpen } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import UserChip from "@/components/UserChip";
@@ -14,6 +14,7 @@ const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
     { href: "/inventory", label: "Inventory", icon: Warehouse },
     { href: "/consumables", label: "Consumables", icon: Package },
+    { href: "/projects", label: "Projects", icon: FolderOpen },
     { href: "/favourites", label: "Favorites", icon: Star },
     { href: "/manage", label: "Manage", icon: Box },
 ];
