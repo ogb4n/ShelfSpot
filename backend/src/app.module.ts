@@ -11,6 +11,8 @@ import { FavouritesModule } from './favourites/favourites.module';
 import { ConsumablesModule } from './consumables/consumables.module';
 import { TagsModule } from './tags/tags.module';
 import { ContainersModule } from './containers/containers.module';
+import { AlertsModule } from './alerts/alerts.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { ContainersModule } from './containers/containers.module';
     ConsumablesModule,
     TagsModule,
     ContainersModule,
+    AlertsModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

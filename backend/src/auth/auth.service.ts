@@ -86,7 +86,10 @@ export class AuthService {
     console.log('AuthService: JWT payload:', JSON.stringify(payload, null, 2));
 
     const access_token = this.jwtService.sign(payload);
-    console.log('AuthService: Generated token:', access_token.substring(0, 50) + '...');
+    console.log(
+      'AuthService: Generated token:',
+      access_token.substring(0, 50) + '...',
+    );
 
     return {
       access_token,
@@ -161,7 +164,7 @@ export class AuthService {
 
   async getUserProfile(userId: string): Promise<UserPayload> {
     console.log('AuthService: getUserProfile called with userId:', userId);
-    
+
     const user = await this.prisma.user.findUnique({
       where: { id: parseInt(userId, 10) }, // Convert string -> number for database
       select: {

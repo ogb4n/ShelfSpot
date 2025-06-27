@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { AlertsService } from '../alerts/alerts.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ConsumablesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private alertsService: AlertsService,
+  ) {}
 
   private transformItem(item: any) {
     if (!item) {
@@ -74,10 +78,30 @@ export class ConsumablesService {
         },
       },
     });
+
+    // Vérifier les alertes pour le nouveau consommable
+    if (typeof data.quantity === 'number') {
+      // Vérifier les alertes de manière asynchrone sans bloquer la réponse
+      this.alertsService
+        .checkItemAlerts(item.id, data.quantity)
+        .catch((error) => {
+          console.error(
+            `Error checking alerts for new consumable ${item.id}:`,
+            error,
+          );
+        });
+    }
+
     return this.transformItem(item);
   }
 
   async update(id: number, data: Prisma.ItemUpdateInput) {
+    // Récupérer l'ancienne quantité avant la mise à jour
+    const oldItem = await this.prisma.item.findUnique({
+      where: { id, consumable: true },
+      select: { quantity: true },
+    });
+
     const item = await this.prisma.item.update({
       where: {
         id,
@@ -98,6 +122,22 @@ export class ConsumablesService {
         },
       },
     });
+
+    // Vérifier les alertes si la quantité a changé
+    if (
+      data.quantity !== undefined &&
+      oldItem &&
+      typeof data.quantity === 'number'
+    ) {
+      const newQuantity = data.quantity;
+      if (newQuantity !== oldItem.quantity) {
+        // Vérifier les alertes de manière asynchrone sans bloquer la réponse
+        this.alertsService.checkItemAlerts(id, newQuantity).catch((error) => {
+          console.error(`Error checking alerts for consumable ${id}:`, error);
+        });
+      }
+    }
+
     return this.transformItem(item);
   }
 
