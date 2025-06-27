@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AlertsService } from '../alerts/alerts.service';
+import { ScoringService } from '../scoring/scoring.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -8,6 +9,7 @@ export class ItemsService {
   constructor(
     private prisma: PrismaService,
     private alertsService: AlertsService,
+    private scoringService: ScoringService,
   ) {}
 
   private transformItem(item: any) {

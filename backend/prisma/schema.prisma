@@ -20,28 +20,31 @@ model User {
 }
 
 model Item {
-  id          Int         @id @default(autoincrement())
-  name        String
-  quantity    Int         @default(1)
-  image       String?
-  price       Float?
-  sellprice   Float?
-  status      String?
-  consumable  Boolean     @default(false)
-  placeId     Int?
-  roomId      Int?
-  containerId Int?
-  itemLink    String?
-  alerts      Alert[]
-  favourites  Favourite[]
-  container   Container?  @relation(fields: [containerId], references: [id])
-  place       Place?      @relation(fields: [placeId], references: [id])
-  room        Room?       @relation("RoomToItems", fields: [roomId], references: [id])
-  itemTags    ItemTag[]
+  id              Int           @id @default(autoincrement())
+  name            String
+  quantity        Int           @default(1)
+  image           String?
+  price           Float?
+  sellprice       Float?
+  status          String?
+  consumable      Boolean       @default(false)
+  placeId         Int?
+  roomId          Int?
+  containerId     Int?
+  itemLink        String?
+  importanceScore Float         @default(0)
+  alerts          Alert[]
+  favourites      Favourite[]
+  projectItems    ProjectItem[]
+  container       Container?    @relation(fields: [containerId], references: [id])
+  place           Place?        @relation(fields: [placeId], references: [id])
+  room            Room?         @relation("RoomToItems", fields: [roomId], references: [id])
+  itemTags        ItemTag[]
 
   @@index([placeId])
   @@index([roomId])
   @@index([containerId], map: "Item_containerId_fkey")
+  @@index([importanceScore])
 }
 
 model Place {
@@ -126,4 +129,53 @@ model Alert {
   @@index([itemId])
   @@index([isActive])
   @@index([threshold])
+}
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  priority    ProjectPriority @default(MEDIUM)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  projectItems ProjectItem[]
+
+  @@index([status])
+  @@index([priority])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+model ProjectItem {
+  id         Int     @id @default(autoincrement())
+  projectId  Int
+  itemId     Int
+  quantity   Int     @default(1)
+  isActive   Boolean @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  item       Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, itemId])
+  @@index([projectId])
+  @@index([itemId])
+  @@index([isActive])
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
+
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }

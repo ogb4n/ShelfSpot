@@ -3,9 +3,10 @@ import { ItemsService } from './items.service';
 import { ItemsController } from './items.controller';
 import { PrismaModule } from '../prisma.module';
 import { AlertsModule } from '../alerts/alerts.module';
+import { ScoringModule } from '../scoring/scoring.module';
 
 @Module({
-  imports: [PrismaModule, AlertsModule],
+  imports: [PrismaModule, AlertsModule, ScoringModule],
   controllers: [ItemsController],
   providers: [ItemsService],
 })
