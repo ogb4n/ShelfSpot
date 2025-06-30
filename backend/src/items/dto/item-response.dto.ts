@@ -14,6 +14,29 @@ export class ItemResponseDto {
   status: string;
 
   @ApiProperty({
+    example: 'https://example.com/item-link',
+    description: 'Link to the item',
+    required: false,
+  })
+  itemLink?: string;
+
+  // boolean property to check if the item is a consumable
+  @ApiProperty({
+    example: true,
+    description: 'Indicates if the item is a consumable',
+    required: false,
+  })
+  consumable: boolean;
+
+  // price property
+  @ApiProperty({
+    example: 999.99,
+    description: 'Price of the item',
+    required: false,
+  })
+  price?: number;
+
+  @ApiProperty({
     example: '2024-01-01T00:00:00.000Z',
     description: 'Creation date',
   })

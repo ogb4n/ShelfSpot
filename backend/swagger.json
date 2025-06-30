@@ -2779,6 +2779,21 @@
             "example": "Available",
             "description": "Item status"
           },
+          "itemLink": {
+            "type": "string",
+            "example": "https://example.com/item-link",
+            "description": "Link to the item"
+          },
+          "price": {
+            "type": "number",
+            "example": 999.99,
+            "description": "Price of the item"
+          },
+          "consumable": {
+            "type": "boolean",
+            "example": true,
+            "description": "Indicates if the item is a consumable"
+          },
           "roomId": {
             "type": "number",
             "example": 1,
@@ -2824,6 +2839,21 @@
             "type": "string",
             "example": "Available",
             "description": "Item status"
+          },
+          "itemLink": {
+            "type": "string",
+            "example": "https://example.com/item-link",
+            "description": "Link to the item"
+          },
+          "consumable": {
+            "type": "boolean",
+            "example": true,
+            "description": "Indicates if the item is a consumable"
+          },
+          "price": {
+            "type": "number",
+            "example": 999.99,
+            "description": "Price of the item"
           },
           "createdAt": {
             "type": "string",
@@ -2889,6 +2919,16 @@
             "type": "string",
             "example": "Available",
             "description": "Item status"
+          },
+          "itemLink": {
+            "type": "string",
+            "example": "https://example.com/item-link",
+            "description": "Link to the item"
+          },
+          "price": {
+            "type": "number",
+            "example": 999.99,
+            "description": "Price of the item"
           },
           "roomId": {
             "type": "number",
