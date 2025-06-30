@@ -28,9 +28,10 @@ Le système d'alertes de ShelfSpot permet de recevoir des notifications par emai
 ```bash
 # Configuration Resend pour l'envoi d'emails
 RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL="ShelfSpot <noreply@yourapp.com>"
 
 # Email de destination pour les alertes
-ALERT_EMAIL=admin@yourcompany.com
+ALERT_EMAIL_RECIPIENT=admin@yourcompany.com
 
 # URL de l'application (pour les scripts cron)
 NEXTAUTH_URL=https://yourapp.com
@@ -151,9 +152,10 @@ Alert check result: { sentAlerts: 2, triggeredAlerts: 3, checkedAlerts: 15 }
 
 ### Les emails ne sont pas envoyés
 1. Vérifier `RESEND_API_KEY` dans .env
-2. Vérifier `ALERT_EMAIL` dans .env
-3. Contrôler les logs de l'application
-4. Tester manuellement : `POST /api/alerts/check`
+2. Vérifier `ALERT_EMAIL_RECIPIENT` dans .env
+3. Vérifier `RESEND_FROM_EMAIL` dans .env  
+4. Contrôler les logs de l'application
+5. Tester manuellement : `POST /api/alerts/check`
 
 ### Trop d'emails
 - Les alertes sont limitées à 1 email par 24h par alerte
