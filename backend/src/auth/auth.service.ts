@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma.service';
+import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -22,6 +23,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private emailService: EmailService, // Inject EmailService
   ) {}
 
   // Fonction utilitaire pour convertir les types Prisma vers les types frontend
@@ -205,6 +207,32 @@ export class AuthService {
     return this.convertPrismaUser(user);
   }
 
+  async updateUserEmail(userId: string, newEmail: string): Promise<UserPayload> {
+    // Validate email format is handled by the DTO validator
+    
+    // Check if the new email is already in use by another user
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: newEmail },
+    });
+
+    if (existingUser && existingUser.id !== parseInt(userId, 10)) {
+      throw new ConflictException('Email already exists');
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id: parseInt(userId, 10) }, // Convert string -> number for database
+      data: { email: newEmail },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        admin: true,
+      },
+    });
+
+    return this.convertPrismaUser(user);
+  }
+
   async resetPassword(email: string, newPassword: string): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: { email },
@@ -221,6 +249,38 @@ export class AuthService {
       where: { id: user.id },
       data: { password: hashedPassword },
     });
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    // Check if user exists
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Generate a temporary password (8 characters)
+    const tempPassword = Math.random().toString(36).slice(-8);
+
+    // Hash the temporary password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(tempPassword, saltRounds);
+
+    // Update user with temporary password
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword },
+    });
+
+    // Send email with temporary password
+    try {
+      await this.emailService.sendPasswordResetEmail(user.email, tempPassword, user.name || 'User');
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+      // Don't throw error to avoid revealing email sending failures
+    }
   }
 
   // ========== ADMIN METHODS ==========
@@ -345,7 +405,7 @@ export class AuthService {
     }
 
     // Mettre à jour l'utilisateur
-    const user = await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id: numericUserId },
       data: updateData,
       select: {
@@ -356,25 +416,22 @@ export class AuthService {
       },
     });
 
-    return this.convertPrismaUser(user);
+    return this.convertPrismaUser(updatedUser);
   }
 
   async deleteUserByAdmin(userId: number | string): Promise<void> {
     const numericUserId =
       typeof userId === 'string' ? parseInt(userId, 10) : userId;
 
-    // Vérifier que l'utilisateur existe
-    const existingUser = await this.prisma.user.findUnique({
-      where: { id: numericUserId },
-    });
-
-    if (!existingUser) {
-      throw new NotFoundException('User not found');
+    try {
+      await this.prisma.user.delete({
+        where: { id: numericUserId },
+      });
+    } catch (error: any) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException('User not found');
+      }
+      throw error;
     }
-
-    // Supprimer l'utilisateur (les favoris seront supprimés automatiquement grâce à onDelete: Cascade)
-    await this.prisma.user.delete({
-      where: { id: numericUserId },
-    });
   }
 }

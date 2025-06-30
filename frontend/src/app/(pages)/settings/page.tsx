@@ -15,7 +15,7 @@ interface User {
 }
 
 export default function Settings() {
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout, refreshUser, updateProfileEmail } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [userForm, setUserForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
@@ -79,8 +79,7 @@ export default function Settings() {
     if (!user) return;
 
     try {
-      await backendApi.updateUser(user.id, { email: userForm.email });
-      await refreshUser(); // Refresh user data
+      await updateProfileEmail(userForm.email);
       setMessage("Email updated successfully");
     } catch (error) {
       if (error instanceof BackendApiError) {

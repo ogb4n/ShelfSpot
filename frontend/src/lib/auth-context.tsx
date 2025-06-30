@@ -18,7 +18,9 @@ interface AuthContextType {
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
   updateProfile: (name: string) => Promise<void>;
+  updateProfileEmail: (email: string) => Promise<void>;
   resetPassword: (email: string, newPassword: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -108,9 +110,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfileEmail = async (email: string) => {
+    try {
+      const updatedUser = await backendApi.updateProfileEmail(email);
+      setUser(updatedUser);
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const resetPassword = async (email: string, newPassword: string) => {
     try {
       await backendApi.resetPassword(email, newPassword);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const forgotPassword = async (email: string) => {
+    try {
+      await backendApi.forgotPassword(email);
     } catch (error) {
       throw error;
     }
@@ -135,7 +154,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     logout,
     updateProfile,
+    updateProfileEmail,
     resetPassword,
+    forgotPassword,
     refreshUser,
   };
 

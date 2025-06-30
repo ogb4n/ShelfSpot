@@ -88,10 +88,24 @@ class BackendApiService {
     });
   }
 
+  async updateProfileEmail(email: string) {
+    return this.request<any>('/auth/profile/email', {
+      method: 'PUT',
+      body: JSON.stringify({ email }),
+    });
+  }
+
   async resetPassword(email: string, newPassword: string) {
     return this.request<{ message: string }>('/auth/password/reset', {
       method: 'POST',
       body: JSON.stringify({ email, newPassword }),
+    });
+  }
+
+  async forgotPassword(email: string) {
+    return this.request<{ message: string }>('/auth/password/forgot', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
     });
   }
 

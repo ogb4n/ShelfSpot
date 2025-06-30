@@ -18,6 +18,7 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateEmailDto } from './dto/update-email.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/user.decorator';
@@ -117,6 +118,34 @@ export class AuthController {
     return this.authService.updateUserName(user.id, name);
   }
 
+  @Put('profile/email')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update user email' })
+  @ApiBody({ type: UpdateEmailDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User email updated successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid email format',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Email already exists',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  async updateEmail(
+    @CurrentUser() user: UserPayload,
+    @Body() updateEmailDto: UpdateEmailDto,
+  ) {
+    return this.authService.updateUserEmail(user.id, updateEmailDto.email);
+  }
+
   @Post('password/reset')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset user password' })
@@ -152,5 +181,37 @@ export class AuthController {
   ) {
     await this.authService.resetPassword(email, newPassword);
     return { message: 'Password reset successfully' };
+  }
+
+  @Post('password/forgot')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request password reset with temporary password' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: {
+          type: 'string',
+          format: 'email',
+          example: 'user@example.com',
+        },
+      },
+      required: ['email'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Temporary password sent to email if account exists',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid email format',
+  })
+  async forgotPassword(@Body('email') email: string) {
+    await this.authService.forgotPassword(email);
+    return {
+      message:
+        'If an account with this email exists, a temporary password has been sent to your email address.',
+    };
   }
 }
