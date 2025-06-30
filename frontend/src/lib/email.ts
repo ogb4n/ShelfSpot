@@ -2,8 +2,8 @@
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const emailFrom = process.env.ALERT_EMAIL_FROM || 'onboarding@resend.dev'
-const emailTo = process.env.ALERT_EMAIL || ''
+const emailFrom = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
+const emailTo = process.env.ALERT_EMAIL_RECIPIENT || ''
 
 export const sendTriggeredAlerts = async (triggeredAlerts: Array<{
   alert: {
@@ -39,7 +39,7 @@ export const sendTriggeredAlerts = async (triggeredAlerts: Array<{
 
   // Destination email verification
   if (!emailTo) {
-    console.error('❌ [EMAIL] ERROR: ALERT_EMAIL is not defined in environment variables');
+    console.error('❌ [EMAIL] ERROR: ALERT_EMAIL_RECIPIENT is not defined in environment variables');
   } else {
     console.log(`📧 [EMAIL] Destination email configured: ${emailTo}`);
   }

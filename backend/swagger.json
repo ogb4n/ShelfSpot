@@ -166,17 +166,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "newemail@example.com"
-                  }
-                },
-                "required": [
-                  "email"
-                ]
+                "$ref": "#/components/schemas/UpdateEmailDto"
               }
             }
           }
@@ -2710,6 +2700,18 @@
         "required": [
           "email",
           "password"
+        ]
+      },
+      "UpdateEmailDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "newemail@example.com"
+          }
+        },
+        "required": [
+          "email"
         ]
       },
       "CreateUserDto": {
