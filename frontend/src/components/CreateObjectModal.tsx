@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Archive, DoorOpen, Lamp, SquareLibrary } from "lucide-react";
+import { Archive, DoorOpen, Lamp, SquareLibrary, FolderOpen } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { API_ENDPOINTS } from "@/lib/constants";
 
@@ -8,7 +8,7 @@ interface CreateObjectModalProps {
     onClose: () => void;
 }
 
-// Types pour les entités
+// Types for entities
 interface Room { id: number; name: string; }
 interface Place { id: number; name: string; roomId: number; }
 interface Container { id: number; name: string; roomId: number; placeId: number; }
@@ -18,6 +18,7 @@ const objectTypes = [
     { key: "place", label: "Place", icon: <SquareLibrary className="w-7 h-7 mb-2 text-blue-600 dark:text-blue-400" /> },
     { key: "container", label: "Container", icon: <Archive className="w-7 h-7 mb-2 text-blue-600 dark:text-blue-400" /> },
     { key: "item", label: "Item", icon: <Lamp className="w-7 h-7 mb-2 text-blue-600 dark:text-blue-400" /> },
+    { key: "project", label: "Project", icon: <FolderOpen className="w-7 h-7 mb-2 text-blue-600 dark:text-blue-400" /> },
 ];
 
 export default function CreateObjectModal({ open, onClose }: CreateObjectModalProps) {
@@ -28,12 +29,12 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
-    // Data states pour les listes déroulantes
+    // Data states for dropdowns
     const [rooms, setRooms] = useState<Room[]>([]);
     const [places, setPlaces] = useState<Place[]>([]);
     const [containers, setContainers] = useState<Container[]>([]);
 
-    // States pour les sélections hiérarchiques
+    // States for hierarchical selections
     const [selectedRoomForPlace, setSelectedRoomForPlace] = useState<number | null>(null);
     const [selectedRoomForContainer, setSelectedRoomForContainer] = useState<number | null>(null);
     const [selectedPlaceForContainer, setSelectedPlaceForContainer] = useState<number | null>(null);
@@ -98,14 +99,14 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
         try {
             let endpoint = "/api/" + selectedType;
 
-            // Correction spécifique pour les items
+            // Specific correction for items
             if (selectedType === "item") {
                 endpoint = "/api/items/add";
             }
 
             const payload: Record<string, unknown> = { ...form };
 
-            // Ajouter les IDs des relations selon le type
+            // Add relation IDs according to type
             if (selectedType === "place" && selectedRoomForPlace) {
                 payload.roomId = selectedRoomForPlace;
             }
@@ -119,13 +120,13 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                 if (selectedContainerForItem) payload.containerId = selectedContainerForItem;
             }
 
-            // Convertir les valeurs numériques
-            if (payload.quantity) payload.quantity = parseInt(payload.quantity);
-            if (payload.price) payload.price = parseFloat(payload.price);
-            if (payload.sellprice) payload.sellprice = parseFloat(payload.sellprice);
-            if (payload.roomId) payload.roomId = parseInt(payload.roomId);
-            if (payload.placeId) payload.placeId = parseInt(payload.placeId);
-            if (payload.containerId) payload.containerId = parseInt(payload.containerId);
+            // Convert numeric values
+            if (payload.quantity) payload.quantity = parseInt(String(payload.quantity));
+            if (payload.price) payload.price = parseFloat(String(payload.price));
+            if (payload.sellprice) payload.sellprice = parseFloat(String(payload.sellprice));
+            if (payload.roomId) payload.roomId = parseInt(String(payload.roomId));
+            if (payload.placeId) payload.placeId = parseInt(String(payload.placeId));
+            if (payload.containerId) payload.containerId = parseInt(String(payload.containerId));
 
             const res = await fetch(endpoint, {
                 method: "POST",
@@ -156,7 +157,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                         resetModal();
                         onClose();
                     }}
-                    aria-label="Fermer"
+                    aria-label="Close"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -39,9 +39,7 @@ export class ItemsService {
       },
     });
 
-    // Vérifier les alertes pour le nouvel item
     if (typeof data.quantity === 'number') {
-      // Vérifier les alertes de manière asynchrone sans bloquer la réponse
       this.alertsService
         .checkItemAlerts(item.id, data.quantity)
         .catch((error) => {
@@ -89,7 +87,6 @@ export class ItemsService {
   }
 
   async update(id: number, data: Prisma.ItemUpdateInput) {
-    // Récupérer l'ancienne quantité avant la mise à jour
     const oldItem = await this.prisma.item.findUnique({
       where: { id },
       select: { quantity: true },

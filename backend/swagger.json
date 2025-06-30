@@ -1,0 +1,3315 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "AppController_getHealthStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "409": {
+            "description": "Email already exists"
+          }
+        },
+        "summary": "Register a new user",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        },
+        "summary": "Login user",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/auth/profile": {
+      "get": {
+        "operationId": "AuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get current user profile",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/auth/profile/name": {
+      "put": {
+        "operationId": "AuthController_updateName",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe",
+                    "minLength": 5
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User name updated successfully"
+          },
+          "400": {
+            "description": "Invalid name"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update user name",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/auth/profile/email": {
+      "put": {
+        "operationId": "AuthController_updateEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "newemail@example.com"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User email updated successfully"
+          },
+          "400": {
+            "description": "Invalid email format"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Email already exists"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update user email",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/auth/password/reset": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "example": "newPassword123",
+                    "minLength": 8
+                  }
+                },
+                "required": [
+                  "email",
+                  "newPassword"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully"
+          },
+          "401": {
+            "description": "User not found"
+          }
+        },
+        "summary": "Reset user password",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/auth/password/forgot": {
+      "post": {
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Temporary password sent to email if account exists"
+          },
+          "400": {
+            "description": "Invalid email format"
+          }
+        },
+        "summary": "Request password reset with temporary password",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "operationId": "AdminController_getAllUsers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of all users retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Admin access required"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all users (Admin only)",
+        "tags": [
+          "Admin - User Management"
+        ]
+      },
+      "post": {
+        "operationId": "AdminController_createUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Admin access required"
+          },
+          "409": {
+            "description": "Email already exists"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new user (Admin only)",
+        "tags": [
+          "Admin - User Management"
+        ]
+      }
+    },
+    "/admin/users/{id}": {
+      "put": {
+        "operationId": "AdminController_updateUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Admin access required"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "409": {
+            "description": "Email already exists"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a user (Admin only)",
+        "tags": [
+          "Admin - User Management"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminController_deleteUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Admin access required"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a user (Admin only)",
+        "tags": [
+          "Admin - User Management"
+        ]
+      }
+    },
+    "/items": {
+      "post": {
+        "operationId": "ItemsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new item",
+        "tags": [
+          "Items"
+        ]
+      },
+      "get": {
+        "operationId": "ItemsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Items retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all items",
+        "tags": [
+          "Items"
+        ]
+      }
+    },
+    "/items/search": {
+      "get": {
+        "operationId": "ItemsController_search",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search term",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Search items",
+        "tags": [
+          "Items"
+        ]
+      }
+    },
+    "/items/{id}": {
+      "get": {
+        "operationId": "ItemsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Item ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Item not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get item by ID",
+        "tags": [
+          "Items"
+        ]
+      },
+      "patch": {
+        "operationId": "ItemsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Item ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item updated successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Item not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update item",
+        "tags": [
+          "Items"
+        ]
+      },
+      "delete": {
+        "operationId": "ItemsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Item ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Item not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete item",
+        "tags": [
+          "Items"
+        ]
+      }
+    },
+    "/alerts": {
+      "post": {
+        "operationId": "AlertsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAlertDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Alert created successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Item not found"
+          },
+          "409": {
+            "description": "Alert with this threshold already exists for this item"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new alert",
+        "tags": [
+          "Alerts"
+        ]
+      },
+      "get": {
+        "operationId": "AlertsController_findAll",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": false,
+            "in": "query",
+            "description": "Filter alerts by item ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Alerts retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get alerts",
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/alerts/{id}": {
+      "get": {
+        "operationId": "AlertsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Alert ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Alert retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Alert not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get alert by ID",
+        "tags": [
+          "Alerts"
+        ]
+      },
+      "patch": {
+        "operationId": "AlertsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Alert ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAlertDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Alert updated successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Alert not found"
+          },
+          "409": {
+            "description": "Alert with this threshold already exists for this item"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update alert",
+        "tags": [
+          "Alerts"
+        ]
+      },
+      "delete": {
+        "operationId": "AlertsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Alert ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Alert deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Alert not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete alert",
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/alerts/check": {
+      "post": {
+        "operationId": "AlertsController_checkAlerts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Alerts checked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "checkedAlerts": {
+                      "type": "number"
+                    },
+                    "triggeredAlerts": {
+                      "type": "number"
+                    },
+                    "sentAlerts": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Failed to check alerts"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check all alerts and send notifications if needed",
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/alerts/test-email": {
+      "post": {
+        "description": "Sends a test email to the configured recipient to verify that email functionality is working properly",
+        "operationId": "AlertsController_testEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "required": false,
+            "in": "query",
+            "description": "Email address to send test email to",
+            "schema": {
+              "example": "test@example.com",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Test email sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "messageId": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email service not configured"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Failed to send test email"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send test email to verify email configuration",
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/rooms": {
+      "post": {
+        "operationId": "RoomsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoomDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Room created successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new room",
+        "tags": [
+          "Rooms"
+        ]
+      },
+      "get": {
+        "operationId": "RoomsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Rooms retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all rooms",
+        "tags": [
+          "Rooms"
+        ]
+      }
+    },
+    "/rooms/{id}": {
+      "get": {
+        "operationId": "RoomsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Room ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Room not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get room by ID",
+        "tags": [
+          "Rooms"
+        ]
+      },
+      "patch": {
+        "operationId": "RoomsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Room ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoomDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Room updated successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Room not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update room",
+        "tags": [
+          "Rooms"
+        ]
+      },
+      "delete": {
+        "operationId": "RoomsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Room ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Room not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete room",
+        "tags": [
+          "Rooms"
+        ]
+      }
+    },
+    "/places": {
+      "post": {
+        "operationId": "PlacesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePlaceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Place created successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new place",
+        "tags": [
+          "Places"
+        ]
+      },
+      "get": {
+        "operationId": "PlacesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Places retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all places",
+        "tags": [
+          "Places"
+        ]
+      }
+    },
+    "/places/{id}": {
+      "get": {
+        "operationId": "PlacesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Place ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Place retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Place not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get place by ID",
+        "tags": [
+          "Places"
+        ]
+      },
+      "patch": {
+        "operationId": "PlacesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Place ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlaceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Place updated successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Place not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update place",
+        "tags": [
+          "Places"
+        ]
+      },
+      "delete": {
+        "operationId": "PlacesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Place ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Place deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Place not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete place",
+        "tags": [
+          "Places"
+        ]
+      }
+    },
+    "/favourites": {
+      "post": {
+        "operationId": "FavouritesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFavouriteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Favourite created successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new favourite",
+        "tags": [
+          "Favourites"
+        ]
+      },
+      "get": {
+        "operationId": "FavouritesController_findAll",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "User ID (admin only)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Favourites retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required for userId parameter"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user favourites",
+        "tags": [
+          "Favourites"
+        ]
+      }
+    },
+    "/favourites/item/{itemId}": {
+      "post": {
+        "operationId": "FavouritesController_createByItem",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "description": "Item ID to add to favourites",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Item added to favourites successfully"
+          },
+          "400": {
+            "description": "Item already in favourites"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Item not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add item to favourites",
+        "tags": [
+          "Favourites"
+        ]
+      },
+      "delete": {
+        "operationId": "FavouritesController_removeByItem",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "description": "Item ID to remove from favourites",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item removed from favourites successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Favourite not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove item from favourites",
+        "tags": [
+          "Favourites"
+        ]
+      }
+    },
+    "/favourites/{id}": {
+      "delete": {
+        "operationId": "FavouritesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Favourite ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Favourite removed successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Cannot delete other users favourites"
+          },
+          "404": {
+            "description": "Favourite not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove favourite by ID",
+        "tags": [
+          "Favourites"
+        ]
+      }
+    },
+    "/consumables": {
+      "post": {
+        "operationId": "ConsumablesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConsumableDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Consumable created successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new consumable",
+        "tags": [
+          "Consumables"
+        ]
+      },
+      "get": {
+        "operationId": "ConsumablesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Consumables retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all consumables",
+        "tags": [
+          "Consumables"
+        ]
+      }
+    },
+    "/consumables/low-stock": {
+      "get": {
+        "operationId": "ConsumablesController_findLowStock",
+        "parameters": [
+          {
+            "name": "threshold",
+            "required": false,
+            "in": "query",
+            "description": "Stock threshold (default: 5)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Low stock consumables retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get low stock consumables",
+        "tags": [
+          "Consumables"
+        ]
+      }
+    },
+    "/consumables/{id}": {
+      "get": {
+        "operationId": "ConsumablesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Consumable ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consumable retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Consumable not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get consumable by ID",
+        "tags": [
+          "Consumables"
+        ]
+      },
+      "patch": {
+        "operationId": "ConsumablesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Consumable ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConsumableDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Consumable updated successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Consumable not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update consumable",
+        "tags": [
+          "Consumables"
+        ]
+      },
+      "delete": {
+        "operationId": "ConsumablesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Consumable ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consumable deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Consumable not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete consumable",
+        "tags": [
+          "Consumables"
+        ]
+      }
+    },
+    "/tags": {
+      "post": {
+        "operationId": "TagsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTagDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tag created successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new tag",
+        "tags": [
+          "Tags"
+        ]
+      },
+      "get": {
+        "operationId": "TagsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Tags retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all tags",
+        "tags": [
+          "Tags"
+        ]
+      }
+    },
+    "/tags/{id}": {
+      "get": {
+        "operationId": "TagsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tag ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tag retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tag not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get tag by ID",
+        "tags": [
+          "Tags"
+        ]
+      },
+      "patch": {
+        "operationId": "TagsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tag ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTagDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tag updated successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tag not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update tag",
+        "tags": [
+          "Tags"
+        ]
+      },
+      "delete": {
+        "operationId": "TagsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tag ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tag deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tag not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete tag",
+        "tags": [
+          "Tags"
+        ]
+      }
+    },
+    "/containers": {
+      "post": {
+        "operationId": "ContainersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContainerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Container created successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Place or Room not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new container",
+        "tags": [
+          "Containers"
+        ]
+      },
+      "get": {
+        "operationId": "ContainersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Containers retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all containers",
+        "tags": [
+          "Containers"
+        ]
+      }
+    },
+    "/containers/{id}": {
+      "get": {
+        "operationId": "ContainersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Container ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Container retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Container not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get container by ID",
+        "tags": [
+          "Containers"
+        ]
+      },
+      "patch": {
+        "operationId": "ContainersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Container ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateContainerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Container updated successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Container, Place or Room not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update container",
+        "tags": [
+          "Containers"
+        ]
+      },
+      "delete": {
+        "operationId": "ContainersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Container ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Container deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Container not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete container",
+        "tags": [
+          "Containers"
+        ]
+      }
+    },
+    "/projects": {
+      "post": {
+        "operationId": "ProjectsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Projet créé avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "409": {
+            "description": "Un projet avec ce nom existe déjà"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Créer un nouveau projet",
+        "tags": [
+          "Projects"
+        ]
+      },
+      "get": {
+        "operationId": "ProjectsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Liste des projets récupérée avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lister tous les projets",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/scoring/statistics": {
+      "get": {
+        "description": "Retourne des statistiques sur la distribution des scores d'importance de tous les items",
+        "operationId": "ProjectsController_getScoringStatistics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Statistiques des scores d'importance récupérées avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalItems": {
+                      "type": "number"
+                    },
+                    "itemsWithScore": {
+                      "type": "number"
+                    },
+                    "averageScore": {
+                      "type": "number"
+                    },
+                    "maxScore": {
+                      "type": "number"
+                    },
+                    "distribution": {
+                      "type": "object",
+                      "properties": {
+                        "critical": {
+                          "type": "number"
+                        },
+                        "high": {
+                          "type": "number"
+                        },
+                        "medium": {
+                          "type": "number"
+                        },
+                        "low": {
+                          "type": "number"
+                        },
+                        "zero": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non autorisé"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtenir les statistiques globales des scores d'importance",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/scoring/top-items": {
+      "get": {
+        "description": "Retourne la liste des items triés par score d'importance décroissant",
+        "operationId": "ProjectsController_getTopImportanceItems",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Top des items par importance récupéré avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtenir les items avec les scores d'importance les plus élevés",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/scoring/critical-items": {
+      "get": {
+        "description": "Retourne les items qui ont un score d'importance élevé mais un stock faible, triés par criticité",
+        "operationId": "ProjectsController_getCriticalItems",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Items critiques récupérés avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtenir les items critiques (score élevé + stock faible)",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/scoring/recalculate": {
+      "post": {
+        "description": "Lance le recalcul des scores d'importance pour tous les items de l'inventaire",
+        "operationId": "ProjectsController_recalculateAllScores",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Recalcul des scores terminé avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "updated": {
+                      "type": "number"
+                    },
+                    "errors": {
+                      "type": "number"
+                    },
+                    "topItems": {
+                      "type": "array"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non autorisé"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Recalculer tous les scores d'importance",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/{id}": {
+      "get": {
+        "operationId": "ProjectsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID du projet",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détails du projet récupérés avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "404": {
+            "description": "Projet non trouvé"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtenir les détails d'un projet",
+        "tags": [
+          "Projects"
+        ]
+      },
+      "patch": {
+        "operationId": "ProjectsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID du projet",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Projet mis à jour avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "404": {
+            "description": "Projet non trouvé"
+          },
+          "409": {
+            "description": "Un projet avec ce nom existe déjà"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mettre à jour un projet",
+        "tags": [
+          "Projects"
+        ]
+      },
+      "delete": {
+        "operationId": "ProjectsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID du projet",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Projet supprimé avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "404": {
+            "description": "Projet non trouvé"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Supprimer un projet",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/{id}/statistics": {
+      "get": {
+        "description": "Retourne des statistiques détaillées sur un projet spécifique",
+        "operationId": "ProjectsController_getProjectStatistics",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID du projet",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistiques du projet récupérées avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "404": {
+            "description": "Projet non trouvé"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtenir les statistiques d'un projet",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/{id}/scoring/breakdown": {
+      "get": {
+        "description": "Retourne le détail du calcul des scores d'importance pour tous les items utilisés dans un projet",
+        "operationId": "ProjectsController_getProjectScoringBreakdown",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID du projet",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail des scores récupéré avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "404": {
+            "description": "Projet non trouvé"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtenir le détail des scores d'importance pour les items d'un projet",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/{id}/items": {
+      "post": {
+        "description": "Ajoute un item existant à un projet avec une quantité spécifique",
+        "operationId": "ProjectsController_addItemToProject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID du projet",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddItemToProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item ajouté au projet avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "404": {
+            "description": "Projet ou item non trouvé"
+          },
+          "409": {
+            "description": "Item déjà présent dans le projet"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Ajouter un item à un projet",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/{id}/items/{itemId}": {
+      "patch": {
+        "description": "Modifie la quantité ou l'état actif d'un item dans un projet",
+        "operationId": "ProjectsController_updateProjectItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID du projet",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "description": "ID de l'item",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProjectItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item du projet mis à jour avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "404": {
+            "description": "Projet ou item non trouvé dans le projet"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Modifier un item dans un projet",
+        "tags": [
+          "Projects"
+        ]
+      },
+      "delete": {
+        "description": "Retire complètement un item d'un projet",
+        "operationId": "ProjectsController_removeItemFromProject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID du projet",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "description": "ID de l'item",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Item retiré du projet avec succès"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "404": {
+            "description": "Projet ou item non trouvé dans le projet"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retirer un item d'un projet",
+        "tags": [
+          "Projects"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "ShelfSpot API",
+    "description": "API for ShelfSpot application with JWT Authentication",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "name": "JWT",
+        "description": "Enter JWT token",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "token_type": {
+            "type": "string",
+            "example": "bearer"
+          },
+          "expires_in": {
+            "type": "number",
+            "example": 3600
+          },
+          "user": {
+            "type": "object",
+            "example": {
+              "id": "1",
+              "email": "user@example.com",
+              "name": "John Doe",
+              "admin": false
+            }
+          }
+        },
+        "required": [
+          "access_token",
+          "token_type",
+          "expires_in",
+          "user"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "admin": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "admin": {
+            "type": "boolean",
+            "example": false
+          },
+          "password": {
+            "type": "string",
+            "example": "newPassword123"
+          }
+        }
+      },
+      "CreateItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Laptop Dell XPS 13",
+            "description": "Item name"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1,
+            "description": "Item quantity",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "example": "Available",
+            "description": "Item status"
+          },
+          "roomId": {
+            "type": "number",
+            "example": 1,
+            "description": "Room ID"
+          },
+          "placeId": {
+            "type": "number",
+            "example": 1,
+            "description": "Place ID"
+          },
+          "containerId": {
+            "type": "number",
+            "example": 1,
+            "description": "Container ID"
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "roomId",
+          "placeId"
+        ]
+      },
+      "ItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1,
+            "description": "Item ID"
+          },
+          "name": {
+            "type": "string",
+            "example": "Laptop Dell XPS 13",
+            "description": "Item name"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1,
+            "description": "Item quantity"
+          },
+          "status": {
+            "type": "string",
+            "example": "Available",
+            "description": "Item status"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2024-01-01T00:00:00.000Z",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2024-01-01T00:00:00.000Z",
+            "description": "Last update date"
+          },
+          "room": {
+            "type": "object",
+            "example": {
+              "id": 1,
+              "name": "Living Room"
+            },
+            "description": "Room information"
+          },
+          "place": {
+            "type": "object",
+            "example": {
+              "id": 1,
+              "name": "Kitchen Counter"
+            },
+            "description": "Place information"
+          },
+          "container": {
+            "type": "object",
+            "example": {
+              "id": 1,
+              "name": "Storage Box"
+            },
+            "description": "Container information"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "quantity",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "room",
+          "place"
+        ]
+      },
+      "UpdateItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Laptop Dell XPS 13",
+            "description": "Item name"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1,
+            "description": "Item quantity",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "example": "Available",
+            "description": "Item status"
+          },
+          "roomId": {
+            "type": "number",
+            "example": 1,
+            "description": "Room ID"
+          },
+          "placeId": {
+            "type": "number",
+            "example": 1,
+            "description": "Place ID"
+          },
+          "containerId": {
+            "type": "number",
+            "example": 1,
+            "description": "Container ID"
+          }
+        }
+      },
+      "CreateAlertDto": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "number",
+            "example": 1,
+            "description": "Item ID for the alert"
+          },
+          "threshold": {
+            "type": "number",
+            "example": 5,
+            "description": "Threshold quantity that triggers the alert",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string",
+            "example": "Low stock alert",
+            "description": "Alert name/description"
+          }
+        },
+        "required": [
+          "itemId",
+          "threshold"
+        ]
+      },
+      "UpdateAlertDto": {
+        "type": "object",
+        "properties": {
+          "threshold": {
+            "type": "number",
+            "example": 5,
+            "description": "Threshold quantity that triggers the alert",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string",
+            "example": "Low stock alert",
+            "description": "Alert name/description"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether the alert is active"
+          }
+        }
+      },
+      "CreateRoomDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Living Room",
+            "description": "Room name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Main living area",
+            "description": "Room description"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateRoomDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Living Room",
+            "description": "Room name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Main living area",
+            "description": "Room description"
+          }
+        }
+      },
+      "CreatePlaceDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Kitchen Counter"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdatePlaceDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Kitchen Counter"
+          }
+        }
+      },
+      "CreateFavouriteDto": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "number",
+            "example": 1,
+            "description": "Item ID to add to favourites"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      },
+      "CreateConsumableDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Coffee Beans",
+            "description": "Consumable name"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 5,
+            "description": "Consumable quantity",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "example": "Available",
+            "description": "Consumable status"
+          },
+          "roomId": {
+            "type": "number",
+            "example": 1,
+            "description": "Room ID"
+          },
+          "placeId": {
+            "type": "number",
+            "example": 1,
+            "description": "Place ID"
+          },
+          "containerId": {
+            "type": "number",
+            "example": 1,
+            "description": "Container ID"
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "roomId",
+          "placeId"
+        ]
+      },
+      "UpdateConsumableDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Coffee Beans",
+            "description": "Consumable name"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 5,
+            "description": "Consumable quantity",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "example": "Available",
+            "description": "Consumable status"
+          },
+          "roomId": {
+            "type": "number",
+            "example": 1,
+            "description": "Room ID"
+          },
+          "placeId": {
+            "type": "number",
+            "example": 1,
+            "description": "Place ID"
+          },
+          "containerId": {
+            "type": "number",
+            "example": 1,
+            "description": "Container ID"
+          }
+        }
+      },
+      "CreateTagDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Electronics",
+            "description": "Tag name"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateTagDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Electronics",
+            "description": "Tag name"
+          }
+        }
+      },
+      "CreateContainerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Storage Box",
+            "description": "Container name"
+          },
+          "icon": {
+            "type": "string",
+            "example": "box",
+            "description": "Container icon"
+          },
+          "placeId": {
+            "type": "number",
+            "example": 1,
+            "description": "Place ID"
+          },
+          "roomId": {
+            "type": "number",
+            "example": 1,
+            "description": "Room ID"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateContainerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Storage Box",
+            "description": "Container name"
+          },
+          "icon": {
+            "type": "string",
+            "example": "box",
+            "description": "Container icon"
+          },
+          "placeId": {
+            "type": "number",
+            "example": 1,
+            "description": "Place ID"
+          },
+          "roomId": {
+            "type": "number",
+            "example": 1,
+            "description": "Room ID"
+          }
+        }
+      },
+      "CreateProjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Renovation Bureau",
+            "description": "Nom du projet"
+          },
+          "description": {
+            "type": "string",
+            "example": "Rénovation complète du bureau principal",
+            "description": "Description détaillée du projet"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "COMPLETED",
+              "PAUSED",
+              "CANCELLED"
+            ],
+            "example": "ACTIVE",
+            "description": "Statut du projet"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ],
+            "example": "HIGH",
+            "description": "Priorité du projet"
+          },
+          "startDate": {
+            "type": "string",
+            "example": "2025-07-01T00:00:00Z",
+            "description": "Date de début du projet"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2025-12-31T23:59:59Z",
+            "description": "Date de fin prévue du projet"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateProjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Renovation Bureau - Phase 2",
+            "description": "Nom du projet"
+          },
+          "description": {
+            "type": "string",
+            "example": "Rénovation complète du bureau principal - Phase 2",
+            "description": "Description détaillée du projet"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "COMPLETED",
+              "PAUSED",
+              "CANCELLED"
+            ],
+            "example": "COMPLETED",
+            "description": "Statut du projet"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ],
+            "example": "MEDIUM",
+            "description": "Priorité du projet"
+          },
+          "startDate": {
+            "type": "string",
+            "example": "2025-07-01T00:00:00Z",
+            "description": "Date de début du projet"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2025-12-31T23:59:59Z",
+            "description": "Date de fin prévue du projet"
+          }
+        }
+      },
+      "AddItemToProjectDto": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "number",
+            "example": 1,
+            "description": "ID de l'item à ajouter au projet"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 3,
+            "description": "Quantité de cet item utilisée dans le projet",
+            "minimum": 1
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true,
+            "description": "Si l'utilisation de cet item est active dans le projet"
+          }
+        },
+        "required": [
+          "itemId",
+          "quantity"
+        ]
+      },
+      "UpdateProjectItemDto": {
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "type": "number",
+            "example": 5,
+            "description": "Nouvelle quantité de cet item utilisée dans le projet",
+            "minimum": 1
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": false,
+            "description": "Si l'utilisation de cet item est active dans le projet"
+          }
+        }
+      }
+    }
+  }
+}

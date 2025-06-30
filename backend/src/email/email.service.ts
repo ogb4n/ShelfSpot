@@ -51,10 +51,13 @@ export class EmailService {
     }
 
     try {
-      const from =
-        options?.from ||
-        process.env.RESEND_FROM_EMAIL ||
-        'ShelfSpot <alerts@shelfspot.com>';
+      // Use a proper format for the from email address
+      const defaultFromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@resend.dev';
+      const defaultFrom = defaultFromEmail.includes('@') && !defaultFromEmail.includes('<') 
+        ? `ShelfSpot <${defaultFromEmail}>`
+        : defaultFromEmail;
+      
+      const from = options?.from || defaultFrom;
       const subject =
         options?.subject ||
         `🚨 Alerte stock faible - ${alerts.length} article(s) concerné(s)`;
@@ -228,8 +231,14 @@ Pour configurer vos alertes, connectez-vous à votre tableau de bord.
     }
 
     try {
+      // Use a proper format for the from email address
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@resend.dev';
+      const fromAddress = fromEmail.includes('@') && !fromEmail.includes('<') 
+        ? `ShelfSpot <${fromEmail}>`
+        : fromEmail;
+
       const { data, error } = await this.resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'ShelfSpot <test@shelfspot.com>',
+        from: fromAddress,
         to,
         subject: '✅ Test Email - ShelfSpot',
         html: `
@@ -254,5 +263,142 @@ Pour configurer vos alertes, connectez-vous à votre tableau de bord.
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
+  }
+
+  /**
+   * Send password reset email with temporary password
+   */
+  async sendPasswordResetEmail(
+    to: string,
+    tempPassword: string,
+    userName: string = 'User'
+  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    if (!this.resend) {
+      return { success: false, error: 'Email service not configured' };
+    }
+
+    try {
+      // Use a proper format for the from email address
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@resend.dev';
+      const fromAddress = fromEmail.includes('@') && !fromEmail.includes('<') 
+        ? `ShelfSpot <${fromEmail}>`
+        : fromEmail;
+
+      const { data, error } = await this.resend.emails.send({
+        from: fromAddress,
+        to,
+        subject: '🔐 Temporary Password - ShelfSpot',
+        html: this.generatePasswordResetEmailHtml(tempPassword, userName),
+        text: this.generatePasswordResetEmailText(tempPassword, userName),
+      });
+
+      if (error) {
+        this.logger.error('Failed to send password reset email:', error);
+        return { success: false, error: error.message };
+      }
+
+      this.logger.log(`Password reset email sent successfully. Message ID: ${data?.id}`);
+      return { success: true, messageId: data?.id };
+    } catch (error) {
+      this.logger.error('Error sending password reset email:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  /**
+   * Generate HTML content for password reset email
+   */
+  private generatePasswordResetEmailHtml(tempPassword: string, userName: string): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Password Reset - ShelfSpot</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #3b82f6; margin: 0; font-size: 24px;">🔐 Password Reset</h1>
+            <p style="color: #6b7280; margin: 5px 0 0 0;">ShelfSpot - Inventory Management</p>
+          </div>
+
+          <div style="background-color: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+            <p style="margin: 0; color: #1e40af; font-weight: 500;">
+              Hi ${userName},
+            </p>
+            <p style="margin: 8px 0 0 0; color: #1e40af;">
+              We've generated a temporary password for your ShelfSpot account as requested.
+            </p>
+          </div>
+
+          <div style="background-color: #1f2937; border-radius: 8px; padding: 20px; margin-bottom: 24px; text-align: center;">
+            <p style="margin: 0 0 8px 0; color: #9ca3af; font-size: 14px;">Your temporary password:</p>
+            <div style="background-color: #374151; border-radius: 4px; padding: 12px; display: inline-block;">
+              <span style="color: #f3f4f6; font-family: monospace; font-size: 18px; font-weight: bold; letter-spacing: 2px;">
+                ${tempPassword}
+              </span>
+            </div>
+          </div>
+
+          <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+            <p style="margin: 0; color: #92400e; font-weight: 500;">
+              ⚠️ Important Security Information:
+            </p>
+            <ul style="margin: 8px 0 0 0; color: #92400e; padding-left: 20px;">
+              <li>This is a temporary password that replaces your previous one</li>
+              <li>Use it to log in to your account</li>
+              <li>Change it immediately after logging in for security</li>
+              <li>This password will work until you set a new one</li>
+            </ul>
+          </div>
+
+          <div style="text-align: center; margin-bottom: 24px;">
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" 
+               style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
+              Sign In to ShelfSpot
+            </a>
+          </div>
+
+          <div style="margin-top: 24px; text-align: center; font-size: 12px; color: #9ca3af;">
+            <p style="margin: 0;">
+              If you didn't request this password reset, please contact support immediately.<br>
+              This email was sent automatically by ShelfSpot.
+            </p>
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
+  /**
+   * Generate text content for password reset email
+   */
+  private generatePasswordResetEmailText(tempPassword: string, userName: string): string {
+    return `
+🔐 PASSWORD RESET - ShelfSpot
+
+Hi ${userName},
+
+We've generated a temporary password for your ShelfSpot account as requested.
+
+Your temporary password: ${tempPassword}
+
+IMPORTANT SECURITY INFORMATION:
+- This is a temporary password that replaces your previous one
+- Use it to log in to your account
+- Change it immediately after logging in for security
+- This password will work until you set a new one
+
+Sign in at: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/login
+
+If you didn't request this password reset, please contact support immediately.
+
+---
+This email was sent automatically by ShelfSpot.
+    `.trim();
   }
 }
