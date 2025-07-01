@@ -29,6 +29,11 @@ export class CreateUserDto {
   @IsOptional()
   @IsBoolean()
   admin?: boolean;
+
+  @ApiProperty({ example: 'fcm_token_example_123456', required: false })
+  @IsOptional()
+  @IsString()
+  notificationToken?: string;
 }
 
 export class UpdateUserDto {
@@ -54,4 +59,9 @@ export class UpdateUserDto {
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
   @MaxLength(32, { message: 'Password must be at most 32 characters long' })
   password?: string;
+
+  @ApiProperty({ example: 'fcm_token_example_123456', required: false })
+  @IsOptional()
+  @IsString()
+  notificationToken?: string;
 }

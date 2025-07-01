@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { EmailService } from '../email/email.service';
+import { PushNotificationService } from '../notifications/push-notification.service';
 import { CreateAlertDto, UpdateAlertDto } from './dto/alert.dto';
 
 @Injectable()
@@ -12,6 +13,7 @@ export class AlertsService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,
+    private pushNotificationService: PushNotificationService,
   ) {}
 
   async create(createAlertDto: CreateAlertDto) {
@@ -222,6 +224,59 @@ export class AlertsService {
       }
     }
 
+    // Envoyer les notifications push à tous les utilisateurs avec un token
+    if (alertsToSend.length > 0) {
+      try {
+        // Récupérer tous les utilisateurs avec un notification token
+        const usersWithTokens = await this.prisma.user.findMany({
+          where: {
+            notificationToken: {
+              not: null,
+            },
+          },
+          select: {
+            notificationToken: true,
+          },
+        });
+
+        const pushTokens = usersWithTokens
+          .map((user) => user.notificationToken)
+          .filter((token): token is string => token !== null);
+
+        if (pushTokens.length > 0) {
+          // Créer le message de notification
+          const alertNames = alertsToSend.map((alert) => alert.item.name);
+          const title = 'Alerte Stock';
+          const body =
+            alertsToSend.length === 1
+              ? `Stock faible: ${alertNames[0]} (${alertsToSend[0].item.quantity} restant)`
+              : `${alertsToSend.length} items en stock faible: ${alertNames.slice(0, 3).join(', ')}${alertsToSend.length > 3 ? '...' : ''}`;
+
+          await this.pushNotificationService.sendPushNotifications(pushTokens, {
+            title,
+            body,
+            data: {
+              type: 'low_stock_alert',
+              alertCount: alertsToSend.length,
+              items: alertsToSend.map((alert) => ({
+                id: alert.item.id,
+                name: alert.item.name,
+                quantity: alert.item.quantity,
+                threshold: alert.threshold,
+              })),
+            },
+          });
+
+          console.log(
+            `Sent push notifications to ${pushTokens.length} users for ${alertsToSend.length} alerts`,
+          );
+        }
+      } catch (error) {
+        console.error('Error sending push notifications:', error);
+        // Ne pas faire échouer la fonction si les notifications échouent
+      }
+    }
+
     // Mettre à jour la date du dernier envoi
     await this.prisma.alert.updateMany({
       where: {
@@ -274,6 +329,29 @@ export class AlertsService {
       };
     }
 
+    // Réinitialiser les alertes qui sont maintenant au-dessus du seuil
+    // (quantité remontée au-dessus du seuil = alerte résolue)
+    const alertsToReset = alerts.filter(
+      (alert) => newQuantity > alert.threshold && alert.lastSent !== null,
+    );
+
+    if (alertsToReset.length > 0) {
+      await this.prisma.alert.updateMany({
+        where: {
+          id: {
+            in: alertsToReset.map((alert) => alert.id),
+          },
+        },
+        data: {
+          lastSent: null, // Réinitialiser pour permettre un nouveau déclenchement
+        },
+      });
+
+      console.log(
+        `🔄 Reset ${alertsToReset.length} alerts for item ${itemId} (quantity back above threshold: ${newQuantity})`,
+      );
+    }
+
     // Filtrer les alertes déclenchées (newQuantity <= threshold)
     const triggeredAlerts = alerts.filter(
       (alert) => newQuantity <= alert.threshold,
@@ -284,6 +362,7 @@ export class AlertsService {
         message: 'No alerts triggered for this item',
         triggeredAlerts: 0,
         sentAlerts: 0,
+        resetAlerts: alertsToReset.length,
       };
     }
 
@@ -327,6 +406,55 @@ export class AlertsService {
       }
     }
 
+    // Envoyer les notifications push pour cet item spécifique
+    if (alertsToSend.length > 0) {
+      try {
+        // Récupérer tous les utilisateurs avec un notification token
+        const usersWithTokens = await this.prisma.user.findMany({
+          where: {
+            notificationToken: {
+              not: null,
+            },
+          },
+          select: {
+            notificationToken: true,
+          },
+        });
+
+        const pushTokens = usersWithTokens
+          .map((user) => user.notificationToken)
+          .filter((token): token is string => token !== null);
+
+        if (pushTokens.length > 0) {
+          const itemName = alertsToSend[0].item.name;
+          const title = 'Alerte Stock';
+          const body = `Stock faible: ${itemName} (${newQuantity} restant)`;
+
+          await this.pushNotificationService.sendPushNotifications(pushTokens, {
+            title,
+            body,
+            data: {
+              type: 'low_stock_alert',
+              itemId,
+              itemName,
+              currentQuantity: newQuantity,
+              threshold: alertsToSend[0].threshold,
+            },
+          });
+
+          console.log(
+            `Sent push notifications to ${pushTokens.length} users for item ${itemName}`,
+          );
+        }
+      } catch (error) {
+        console.error(
+          `Error sending push notifications for item ${itemId}:`,
+          error,
+        );
+        // Ne pas faire échouer la fonction si les notifications échouent
+      }
+    }
+
     // Log des alertes déclenchées
     console.log(`🚨 ALERT TRIGGERED for item ${itemId}:`);
     console.log(`   - New quantity: ${newQuantity}`);
@@ -364,9 +492,7 @@ export class AlertsService {
   /**
    * Envoie un email de test pour vérifier la configuration
    */
-  async sendTestEmail(
-    email?: string,
-  ): Promise<{
+  async sendTestEmail(email?: string): Promise<{
     success: boolean;
     messageId?: string;
     error?: string;

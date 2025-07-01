@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id         Int         @id @default(autoincrement())
-  email      String      @unique
-  password   String
-  name       String?
-  admin      Boolean     @default(false)
-  createdAt  DateTime    @default(now())
-  favourites Favourite[]
+  id                Int         @id @default(autoincrement())
+  email             String      @unique
+  password          String
+  name              String?
+  admin             Boolean     @default(false)
+  notificationToken String?
+  createdAt         DateTime    @default(now())
+  favourites        Favourite[]
 
   @@index([email])
 }

@@ -19,6 +19,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UpdateEmailDto } from './dto/update-email.dto';
+import { UpdateNotificationTokenDto } from './dto/update-notification-token.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/user.decorator';
@@ -213,5 +214,36 @@ export class AuthController {
       message:
         'If an account with this email exists, a temporary password has been sent to your email address.',
     };
+  }
+
+  @Put('profile/notification-token')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update user notification token' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        notificationToken: {
+          type: 'string',
+          example: 'fcm_token_example_123456789abcdef',
+          description: 'Firebase Cloud Messaging token for push notifications',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Notification token updated successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  async updateNotificationToken(
+    @CurrentUser() user: UserPayload,
+    @Body('notificationToken') notificationToken: string,
+  ) {
+    return this.authService.updateNotificationToken(user.id, notificationToken);
   }
 }

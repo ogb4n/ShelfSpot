@@ -32,12 +32,14 @@ export class AuthService {
     email: string;
     name: string | null;
     admin: boolean;
+    notificationToken?: string | null;
   }): UserPayload {
     return {
       id: String(user.id), // number -> string
       email: user.email,
       name: user.name || undefined, // null -> undefined
       admin: user.admin,
+      notificationToken: user.notificationToken || undefined, // null -> undefined
     };
   }
 
@@ -53,6 +55,7 @@ export class AuthService {
         password: true,
         name: true,
         admin: true,
+        notificationToken: true,
       },
     });
 
@@ -64,6 +67,7 @@ export class AuthService {
         email: result.email,
         name: result.name || undefined, // null -> undefined
         admin: result.admin,
+        notificationToken: result.notificationToken || undefined, // null -> undefined
       };
     }
     return null;
@@ -83,6 +87,7 @@ export class AuthService {
       email: user.email,
       name: user.name,
       admin: user.admin,
+      notificationToken: user.notificationToken,
     };
 
     console.log('AuthService: JWT payload:', JSON.stringify(payload, null, 2));
@@ -132,12 +137,14 @@ export class AuthService {
         password: hashedPassword,
         name: registerDto.name || null,
         admin: false, // Par défaut, les nouveaux utilisateurs ne sont pas admin
+        notificationToken: registerDto.notificationToken || null,
       },
       select: {
         id: true,
         email: true,
         name: true,
         admin: true,
+        notificationToken: true,
       },
     });
 
@@ -147,6 +154,7 @@ export class AuthService {
       email: user.email,
       name: user.name || undefined, // null -> undefined
       admin: user.admin,
+      notificationToken: user.notificationToken || undefined, // null -> undefined
     };
 
     const access_token = this.jwtService.sign(payload);
@@ -160,6 +168,7 @@ export class AuthService {
         email: user.email,
         name: user.name || undefined, // null -> undefined
         admin: user.admin,
+        notificationToken: user.notificationToken || undefined, // null -> undefined
       },
     };
   }
@@ -174,6 +183,7 @@ export class AuthService {
         email: true,
         name: true,
         admin: true,
+        notificationToken: true,
       },
     });
 
@@ -207,9 +217,12 @@ export class AuthService {
     return this.convertPrismaUser(user);
   }
 
-  async updateUserEmail(userId: string, newEmail: string): Promise<UserPayload> {
+  async updateUserEmail(
+    userId: string,
+    newEmail: string,
+  ): Promise<UserPayload> {
     // Validate email format is handled by the DTO validator
-    
+
     // Check if the new email is already in use by another user
     const existingUser = await this.prisma.user.findUnique({
       where: { email: newEmail },
@@ -276,7 +289,11 @@ export class AuthService {
 
     // Send email with temporary password
     try {
-      await this.emailService.sendPasswordResetEmail(user.email, tempPassword, user.name || 'User');
+      await this.emailService.sendPasswordResetEmail(
+        user.email,
+        tempPassword,
+        user.name || 'User',
+      );
     } catch (error) {
       console.error('Error sending password reset email:', error);
       // Don't throw error to avoid revealing email sending failures
@@ -365,6 +382,7 @@ export class AuthService {
       name?: string | null;
       admin?: boolean;
       password?: string;
+      notificationToken?: string | null;
     } = {};
 
     if (updateUserDto.email) {
@@ -404,6 +422,10 @@ export class AuthService {
       );
     }
 
+    if (updateUserDto.notificationToken !== undefined) {
+      updateData.notificationToken = updateUserDto.notificationToken || null;
+    }
+
     // Mettre à jour l'utilisateur
     const updatedUser = await this.prisma.user.update({
       where: { id: numericUserId },
@@ -413,6 +435,7 @@ export class AuthService {
         email: true,
         name: true,
         admin: true,
+        notificationToken: true,
       },
     });
 
@@ -433,5 +456,24 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  async updateNotificationToken(
+    userId: string,
+    notificationToken: string | null,
+  ): Promise<UserPayload> {
+    const user = await this.prisma.user.update({
+      where: { id: parseInt(userId, 10) }, // Convert string -> number for database
+      data: { notificationToken },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        admin: true,
+        notificationToken: true,
+      },
+    });
+
+    return this.convertPrismaUser(user);
   }
 }

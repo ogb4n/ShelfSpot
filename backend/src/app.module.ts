@@ -15,6 +15,7 @@ import { AlertsModule } from './alerts/alerts.module';
 import { EmailModule } from './email/email.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { ProjectsModule } from './projects/projects.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ProjectsModule } from './projects/projects.module';
     EmailModule,
     ScoringModule,
     ProjectsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
