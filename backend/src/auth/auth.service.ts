@@ -73,6 +73,32 @@ export class AuthService {
     return null;
   }
 
+  private generateTokens(user: any): { access_token: string; refresh_token: string } {
+    const basePayload = {
+      sub: String(user.id),
+      email: user.email,
+      name: user.name || undefined,
+      admin: user.admin,
+      notificationToken: user.notificationToken || undefined,
+    };
+
+    // Access token (short-lived: 15 minutes)
+    const accessPayload: JwtPayload = {
+      ...basePayload,
+      type: 'access',
+    };
+    const access_token = this.jwtService.sign(accessPayload, { expiresIn: '15m' });
+
+    // Refresh token (long-lived: 7 days)
+    const refreshPayload: JwtPayload = {
+      ...basePayload,
+      type: 'refresh',
+    };
+    const refresh_token = this.jwtService.sign(refreshPayload, { expiresIn: '7d' });
+
+    return { access_token, refresh_token };
+  }
+
   async login(loginDto: LoginDto): Promise<AuthResult> {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
@@ -82,26 +108,16 @@ export class AuthService {
 
     console.log('AuthService: User authenticated:', user);
 
-    const payload: JwtPayload = {
-      sub: user.id, // Déjà string depuis validateUser
-      email: user.email,
-      name: user.name,
-      admin: user.admin,
-      notificationToken: user.notificationToken,
-    };
+    const { access_token, refresh_token } = this.generateTokens(user);
 
-    console.log('AuthService: JWT payload:', JSON.stringify(payload, null, 2));
-
-    const access_token = this.jwtService.sign(payload);
-    console.log(
-      'AuthService: Generated token:',
-      access_token.substring(0, 50) + '...',
-    );
+    console.log('AuthService: Generated tokens');
 
     return {
       access_token,
+      refresh_token,
       token_type: 'bearer',
-      expires_in: 3600, // 1 heure en secondes
+      expires_in: 900, // 15 minutes in seconds
+      refresh_expires_in: 604800, // 7 days in seconds
       user: {
         id: user.id,
         email: user.email,
@@ -148,21 +164,15 @@ export class AuthService {
       },
     });
 
-    // Générer le token JWT
-    const payload: JwtPayload = {
-      sub: String(user.id), // Conversion number -> string
-      email: user.email,
-      name: user.name || undefined, // null -> undefined
-      admin: user.admin,
-      notificationToken: user.notificationToken || undefined, // null -> undefined
-    };
-
-    const access_token = this.jwtService.sign(payload);
+    // Generate tokens
+    const { access_token, refresh_token } = this.generateTokens(user);
 
     return {
       access_token,
+      refresh_token,
       token_type: 'bearer',
-      expires_in: 3600,
+      expires_in: 900, // 15 minutes in seconds
+      refresh_expires_in: 604800, // 7 days in seconds
       user: {
         id: String(user.id), // Conversion number -> string
         email: user.email,
@@ -475,5 +485,53 @@ export class AuthService {
     });
 
     return this.convertPrismaUser(user);
+  }
+
+  async refreshToken(refreshToken: string): Promise<AuthResult> {
+    try {
+      const payload = this.jwtService.verify(refreshToken) as JwtPayload;
+      
+      // Verify it's a refresh token
+      if (payload.type !== 'refresh') {
+        throw new UnauthorizedException('Invalid token type');
+      }
+
+      // Get user from database to ensure they still exist
+      const userId = parseInt(payload.sub);
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          admin: true,
+          notificationToken: true,
+        },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      // Generate new tokens
+      const { access_token, refresh_token } = this.generateTokens(user);
+
+      return {
+        access_token,
+        refresh_token: refresh_token,
+        token_type: 'bearer',
+        expires_in: 900, // 15 minutes
+        refresh_expires_in: 604800, // 7 days
+        user: {
+          id: String(user.id),
+          email: user.email,
+          name: user.name || undefined,
+          admin: user.admin,
+          notificationToken: user.notificationToken || undefined,
+        },
+      };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 }

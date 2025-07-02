@@ -1,4 +1,3 @@
-// Nouveau système d'authentification utilisant le backend NestJS
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -70,13 +69,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await backendApi.login(email, password);
 
-      // Stocker le token dans localStorage et cookies
+      // Store both tokens in localStorage
       localStorage.setItem('access_token', response.access_token);
+      localStorage.setItem('refresh_token', response.refresh_token);
 
-      // Stocker aussi dans les cookies pour le middleware
-      document.cookie = `access_token=${response.access_token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 jours
+      // Store access token in cookies with correct expiration (15 minutes)
+      document.cookie = `access_token=${response.access_token}; path=/; max-age=${response.expires_in}`;
 
       setUser(response.user);
+
+      // Setup automatic token refresh
+      setupTokenRefresh(response.expires_in);
     } catch (error) {
       throw error;
     }
@@ -85,17 +88,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (email: string, password: string, name?: string) => {
     try {
       const response = await backendApi.register(email, password, name);
+
+      // Store both tokens
       localStorage.setItem('access_token', response.access_token);
+      localStorage.setItem('refresh_token', response.refresh_token);
+
+      // Store access token in cookies with correct expiration
+      document.cookie = `access_token=${response.access_token}; path=/; max-age=${response.expires_in}`;
+
       setUser(response.user);
+
+      // Setup automatic token refresh
+      setupTokenRefresh(response.expires_in);
     } catch (error) {
       throw error;
     }
   };
 
+  const refreshTokens = async () => {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    const response = await backendApi.refreshToken(refreshToken);
+
+    // Store new tokens
+    localStorage.setItem('access_token', response.access_token);
+    localStorage.setItem('refresh_token', response.refresh_token);
+    document.cookie = `access_token=${response.access_token}; path=/; max-age=${response.expires_in}`;
+
+    setUser(response.user);
+
+    // Setup next refresh
+    setupTokenRefresh(response.expires_in);
+
+    return response;
+  };
+
+  const setupTokenRefresh = (expiresIn: number) => {
+    // Refresh 1 minute before token expires (or immediately if less than 2 minutes)
+    const refreshTime = Math.max((expiresIn - 60) * 1000, 1000);
+
+    setTimeout(async () => {
+      try {
+        await refreshTokens();
+      } catch (error) {
+        console.error('Automatic token refresh failed:', error);
+        logout(); // Force logout if refresh fails
+      }
+    }, refreshTime);
+  };
+
   const logout = () => {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
 
-    // Supprimer aussi le cookie
+    // Remove cookies
     document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
     setUser(null);

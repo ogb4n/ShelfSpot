@@ -7,6 +7,7 @@ import {
   Put,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -245,5 +246,35 @@ export class AuthController {
     @Body('notificationToken') notificationToken: string,
   ) {
     return this.authService.updateNotificationToken(user.id, notificationToken);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        refresh_token: {
+          type: 'string',
+          description: 'Refresh token',
+        },
+      },
+      required: ['refresh_token'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Token refreshed successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid refresh token',
+  })
+  async refresh(@Body('refresh_token') refreshToken: string) {
+    if (!refreshToken) {
+      throw new BadRequestException('Refresh token is required');
+    }
+    return this.authService.refreshToken(refreshToken);
   }
 }

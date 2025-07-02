@@ -318,6 +318,43 @@
         ]
       }
     },
+    "/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh_token": {
+                    "type": "string",
+                    "description": "Refresh token"
+                  }
+                },
+                "required": [
+                  "refresh_token"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully"
+          },
+          "401": {
+            "description": "Invalid refresh token"
+          }
+        },
+        "summary": "Refresh access token",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
     "/admin/users": {
       "get": {
         "operationId": "AdminController_getAllUsers",
@@ -2793,13 +2830,21 @@
             "type": "string",
             "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
           },
+          "refresh_token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
           "token_type": {
             "type": "string",
             "example": "bearer"
           },
           "expires_in": {
             "type": "number",
-            "example": 3600
+            "example": 900
+          },
+          "refresh_expires_in": {
+            "type": "number",
+            "example": 604800
           },
           "user": {
             "type": "object",
@@ -2813,8 +2858,10 @@
         },
         "required": [
           "access_token",
+          "refresh_token",
           "token_type",
           "expires_in",
+          "refresh_expires_in",
           "user"
         ]
       },

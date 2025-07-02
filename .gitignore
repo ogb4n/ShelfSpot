@@ -1,4 +1,5 @@
 # Logs
+
 logs
 *.log
 npm-debug.log*
@@ -121,3 +122,6 @@ build/
 
 # IDE
 .idea/
+
+# Mobile app directory
+shelfspot-mobile/

@@ -11,9 +11,7 @@ prisma/dev.db
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
-!.yarn/versions
-
-# testing
+!.yarn/versions# testing
 /coverage
 
 # next.js

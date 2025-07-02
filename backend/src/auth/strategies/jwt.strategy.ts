@@ -25,6 +25,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<UserPayload> {
     console.log('JWT Strategy: Validating payload:', JSON.stringify(payload, null, 2));
     
+    // Ensure it's an access token
+    if (payload.type !== 'access') {
+      console.log('JWT Strategy: Invalid token type:', payload.type);
+      throw new UnauthorizedException('Invalid token type');
+    }
+    
     // Vérifier que l'utilisateur existe toujours dans la base de données
     const userId = parseInt(payload.sub);
     console.log('JWT Strategy: Looking for user with ID:', userId);

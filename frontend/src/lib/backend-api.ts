@@ -64,16 +64,41 @@ class BackendApiService {
 
   // Auth methods
   async login(email: string, password: string) {
-    return this.request<{ access_token: string; user: any }>('/auth/login', {
+    return this.request<{ 
+      access_token: string; 
+      refresh_token: string;
+      expires_in: number;
+      refresh_expires_in: number;
+      user: any 
+    }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
   }
 
   async register(email: string, password: string, name?: string) {
-    return this.request<{ access_token: string; user: any }>('/auth/register', {
+    return this.request<{ 
+      access_token: string; 
+      refresh_token: string;
+      expires_in: number;
+      refresh_expires_in: number;
+      user: any 
+    }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password, name }),
+    });
+  }
+
+  async refreshToken(refreshToken: string) {
+    return this.request<{ 
+      access_token: string; 
+      refresh_token: string;
+      expires_in: number;
+      refresh_expires_in: number;
+      user: any 
+    }>('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refresh_token: refreshToken }),
     });
   }
 
