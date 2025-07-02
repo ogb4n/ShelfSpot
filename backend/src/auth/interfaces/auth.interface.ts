@@ -3,6 +3,7 @@ export interface JwtPayload {
   email?: string; // Optionnel pour compatibilité frontend
   name?: string; // Optionnel et undefined au lieu de null
   admin?: boolean; // Optionnel pour compatibilité frontend
+  notificationToken?: string; // Token for push notifications
   iat?: number;
   exp?: number;
 }
@@ -12,6 +13,7 @@ export interface UserPayload {
   email?: string; // Optionnel pour compatibilité frontend
   name?: string; // Optionnel et undefined au lieu de null
   admin?: boolean; // Optionnel pour compatibilité frontend
+  notificationToken?: string; // Token for push notifications
 }
 
 export interface AuthResult {

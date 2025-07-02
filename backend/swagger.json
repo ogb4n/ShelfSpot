@@ -278,6 +278,46 @@
         ]
       }
     },
+    "/auth/profile/notification-token": {
+      "put": {
+        "operationId": "AuthController_updateNotificationToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notificationToken": {
+                    "type": "string",
+                    "example": "fcm_token_example_123456789abcdef",
+                    "description": "Firebase Cloud Messaging token for push notifications"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification token updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update user notification token",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
     "/admin/users": {
       "get": {
         "operationId": "AdminController_getAllUsers",
@@ -967,6 +1007,95 @@
         "summary": "Send test email to verify email configuration",
         "tags": [
           "Alerts"
+        ]
+      }
+    },
+    "/notifications/test": {
+      "post": {
+        "operationId": "NotificationsController_sendTestNotification",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pushToken": {
+                    "type": "string",
+                    "example": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
+                    "description": "Expo push token"
+                  },
+                  "title": {
+                    "type": "string",
+                    "example": "Test Notification"
+                  },
+                  "body": {
+                    "type": "string",
+                    "example": "This is a test notification"
+                  }
+                },
+                "required": [
+                  "pushToken",
+                  "title",
+                  "body"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification sent successfully"
+          },
+          "400": {
+            "description": "Invalid request data"
+          }
+        },
+        "summary": "Test push notification",
+        "tags": [
+          "Notifications"
+        ]
+      }
+    },
+    "/notifications/test-alert-reset": {
+      "post": {
+        "operationId": "NotificationsController_testAlertReset",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "itemId": {
+                    "type": "number",
+                    "example": 1,
+                    "description": "ID of the item to test"
+                  },
+                  "quantity": {
+                    "type": "number",
+                    "example": 5,
+                    "description": "New quantity to set"
+                  }
+                },
+                "required": [
+                  "itemId",
+                  "quantity"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Test alert reset behavior",
+        "tags": [
+          "Notifications"
         ]
       }
     },
@@ -2646,6 +2775,10 @@
           "name": {
             "type": "string",
             "example": "John Doe"
+          },
+          "notificationToken": {
+            "type": "string",
+            "example": "fcm_token_example_123456"
           }
         },
         "required": [
@@ -2732,6 +2865,10 @@
           "admin": {
             "type": "boolean",
             "example": false
+          },
+          "notificationToken": {
+            "type": "string",
+            "example": "fcm_token_example_123456"
           }
         },
         "required": [
@@ -2757,6 +2894,10 @@
           "password": {
             "type": "string",
             "example": "newPassword123"
+          },
+          "notificationToken": {
+            "type": "string",
+            "example": "fcm_token_example_123456"
           }
         }
       },
@@ -3032,10 +3173,16 @@
           "name": {
             "type": "string",
             "example": "Kitchen Counter"
+          },
+          "roomId": {
+            "type": "number",
+            "example": 1,
+            "description": "Room ID"
           }
         },
         "required": [
-          "name"
+          "name",
+          "roomId"
         ]
       },
       "UpdatePlaceDto": {

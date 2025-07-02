@@ -1,4 +1,10 @@
-import { IsEmail, IsString, MinLength, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  MaxLength,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
@@ -13,7 +19,13 @@ export class RegisterDto {
   password: string;
 
   @ApiProperty({ example: 'John Doe', required: false })
+  @IsOptional()
   @IsString()
   @MinLength(5, { message: 'Name must be at least 5 characters long' })
   name?: string;
+
+  @ApiProperty({ example: 'fcm_token_example_123456', required: false })
+  @IsOptional()
+  @IsString()
+  notificationToken?: string;
 }
