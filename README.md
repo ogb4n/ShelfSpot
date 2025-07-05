@@ -54,9 +54,6 @@
 
 ---
 
-> *ShelfSpot – Your Perfect Inventory. Organize, track, and never lose sight of what matters most.*[1][5]
+> *ShelfSpot – Your Perfect Inventory. Organize, track, and never lose sight of what matters most.*
 
 ---
-
-[1]: https://github.com/ogb4n/ShelfSpot
-[5]: https://github.com/ogb4n/shelfspot
