@@ -32,9 +32,6 @@ RESEND_FROM_EMAIL="ShelfSpot <noreply@yourapp.com>"
 
 # Email de destination pour les alertes
 ALERT_EMAIL_RECIPIENT=admin@yourcompany.com
-
-# URL de l'application (pour les scripts cron)
-NEXTAUTH_URL=https://yourapp.com
 ```
 
 ### Configuration Resend
@@ -167,9 +164,3 @@ Alert check result: { sentAlerts: 2, triggeredAlerts: 3, checkedAlerts: 15 }
 2. Vérifier que `quantity <= threshold`
 3. Contrôler la dernière date d'envoi (`lastSent`)
 
-## 📈 Évolutions futures
-
-- [ ] Canaux de notification multiples (Slack, Discord, Telegram)
-- [ ] Alertes sur dates de péremption
-- [ ] Dashboard de monitoring des alertes
-- [ ] Intégration avec des services de réapprovisionnement automatique
