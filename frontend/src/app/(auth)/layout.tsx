@@ -7,11 +7,8 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex">
-      <header className="flex-shrink-0"></header>
-      <div className="flex-grow overflow-hidden flex flex-col items-center">
-        <Providers>{children}</Providers>
-      </div>
+    <div className="fixed inset-0 w-full h-full bg-white dark:bg-gray-900">
+      <Providers>{children}</Providers>
     </div>
   );
 }

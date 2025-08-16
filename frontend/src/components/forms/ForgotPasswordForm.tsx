@@ -39,7 +39,7 @@ export default function ForgotPasswordForm() {
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full p-6">
                     <h2 className="text-xl font-bold mb-2">Forgot Password</h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        Enter your email address and we'll send you a temporary password.
+                        Enter your email address and we&apos;ll send you a temporary password.
                     </p>
 
                     <label className="flex flex-col">

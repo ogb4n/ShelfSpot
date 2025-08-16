@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from 'react';
 import { backendApi } from '@/lib/backend-api';
@@ -12,18 +13,8 @@ export default function TestConnection() {
 
         try {
             // Test de connexion simple au backend
-            const response = await fetch('http://localhost:3001/auth/test', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                setResult('✅ Backend connection successful');
-            } else {
-                setResult(`❌ Backend responded with status: ${response.status}`);
-            }
+            await backendApi.getProfile(); // Use any existing endpoint to test connection
+            setResult('✅ Backend connection successful');
         } catch (error) {
             setResult(`❌ Connection failed: ${error}`);
         } finally {

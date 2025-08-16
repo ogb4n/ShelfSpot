@@ -4,6 +4,7 @@ import { Item, Room, Place, Container } from "@/app/types";
 import useGetRooms from "@/app/hooks/useGetRooms";
 import useGetPlaces from "@/app/hooks/useGetPlaces";
 import useGetContainers from "@/app/hooks/useGetContainers";
+import { backendApi } from "@/lib/backend-api";
 
 export default function ManageObjectClient({ item }: { item: Item }) {
     const [showModal, setShowModal] = useState(false);
@@ -19,8 +20,13 @@ export default function ManageObjectClient({ item }: { item: Item }) {
 
     const handleDelete = async () => {
         if (!window.confirm("Do you really want to delete this item? This action is irreversible.")) return;
-        await fetch(`/api/items/delete?id=${item.id}`, { method: "DELETE" });
-        window.location.href = "/manage";
+        try {
+            await backendApi.deleteItem(item.id);
+            window.location.href = "/manage";
+        } catch (error) {
+            console.error("Error deleting item:", error);
+            alert("Error deleting item");
+        }
     };
 
     return (
@@ -54,12 +60,14 @@ export default function ManageObjectClient({ item }: { item: Item }) {
                         </div>
                         <form onSubmit={async e => {
                             e.preventDefault();
-                            await fetch(`/api/items/edit`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(form),
-                            });
-                            setShowModal(false);
+                            try {
+                                await backendApi.updateItem(item.id, form);
+                                setShowModal(false);
+                                window.location.reload(); // Refresh to show updated data
+                            } catch (error) {
+                                console.error("Error updating item:", error);
+                                alert("Error updating item");
+                            }
                         }} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>

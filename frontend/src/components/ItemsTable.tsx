@@ -118,7 +118,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
         if (!window.confirm(`Supprimer ${selectedIds.length} objet(s) sélectionné(s) ?`)) return;
         if (!window.confirm(`Êtes-vous vraiment sûr de vouloir supprimer définitivement ${selectedIds.length} objet(s) ? Cette action est irréversible.`)) return;
         try {
-            await Promise.all(selectedIds.map(id => fetch(`/api/items/delete?id=${id}`, { method: "DELETE" })));
+            await Promise.all(selectedIds.map(id => backendApi.deleteItem(id)));
             setItems((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
             setSelectedIds([]);
         } catch {
@@ -137,6 +137,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let processedValue: any = value;
 
         if (name === 'quantity') {
@@ -154,6 +155,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
         };
 
         const filteredData = Object.fromEntries(
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             Object.entries(allowedFields).filter(([_, value]) => value !== undefined && value !== "")
         );
 
@@ -172,7 +174,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
     const handleDelete = async (id: number) => {
         if (!window.confirm("Supprimer cet objet ?")) return;
         try {
-            await fetch(`/api/items/delete?id=${id}`, { method: "DELETE" });
+            await backendApi.deleteItem(id);
             setItems((prev) => prev.filter((item: Item) => item.id !== id));
         } catch {
             alert("Erreur lors de la suppression");
@@ -236,16 +238,11 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                                 <button
                                                     className={`w-full text-left px-4 py-2 text-sm rounded ${active ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
                                                     onClick={async () => {
-                                                        const userName = (typeof window !== 'undefined' && localStorage.getItem('userName')) || undefined;
                                                         if (isFav) {
-                                                            await fetch(`/api/favourites?id=${item.id}`, { method: 'DELETE' });
+                                                            await backendApi.deleteFavourite(item.id);
                                                             setFavourites((prev: number[]) => prev.filter((favId: number) => favId !== item.id));
                                                         } else {
-                                                            await fetch('/api/favourites', {
-                                                                method: 'POST',
-                                                                headers: { 'Content-Type': 'application/json' },
-                                                                body: JSON.stringify({ itemId: item.id, userName }),
-                                                            });
+                                                            await backendApi.createFavourite(item.id);
                                                             setFavourites([...favourites, item.id]);
                                                         }
                                                     }}

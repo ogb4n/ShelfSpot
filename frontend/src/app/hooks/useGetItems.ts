@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Item } from "@/app/types";
+import { backendApi, BackendApiError } from "@/lib/backend-api";
 
 /**
- * Hook pour récupérer tous les objets ou un objet spécifique de la maison
+ * Hook to fetch all items or a specific item from the house
  */
 function useGetItems(id?: string) {
   const [data, setData] = useState<Item[] | Item | null>(id ? null : []);
@@ -14,14 +15,20 @@ function useGetItems(id?: string) {
       setLoading(true);
       setError(null);
       try {
-        const url = id ? `/api/items?id=${id}` : "/api/items";
-        const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) throw new Error(id ? "Item not found" : "Error loading items");
-        const result = await res.json();
-        setData(result);
+        if (id) {
+          const result = await backendApi.getItem(parseInt(id));
+          setData(result);
+        } else {
+          const result = await backendApi.getItems();
+          setData(result);
+        }
       } catch (err: unknown) {
         setData(id ? null : []);
-        setError((err as Error).message);
+        if (err instanceof BackendApiError) {
+          setError(err.message);
+        } else {
+          setError(id ? "Item not found" : "Error loading items");
+        }
       } finally {
         setLoading(false);
       }

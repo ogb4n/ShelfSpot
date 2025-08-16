@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Archive, DoorOpen, Lamp, SquareLibrary, FolderOpen } from "lucide-react";
-import { apiRequest } from "@/lib/api";
-import { API_ENDPOINTS } from "@/lib/constants";
+import { backendApi } from "@/lib/backend-api";
 
 interface CreateObjectModalProps {
     open: boolean;
@@ -46,9 +45,9 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
     const fetchAll = async () => {
         try {
             const [roomsData, placesData, containersData] = await Promise.all([
-                apiRequest<Room[]>(API_ENDPOINTS.ROOMS),
-                apiRequest<Place[]>(API_ENDPOINTS.PLACES),
-                apiRequest<Container[]>(API_ENDPOINTS.CONTAINERS),
+                backendApi.getRooms(),
+                backendApi.getPlaces(),
+                backendApi.getContainers(),
             ]);
             setRooms(roomsData);
             setPlaces(placesData);
@@ -97,13 +96,6 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
         setSuccess(false);
 
         try {
-            let endpoint = "/api/" + selectedType;
-
-            // Specific correction for items
-            if (selectedType === "item") {
-                endpoint = "/api/items/add";
-            }
-
             const payload: Record<string, unknown> = { ...form };
 
             // Add relation IDs according to type
@@ -128,13 +120,38 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
             if (payload.placeId) payload.placeId = parseInt(String(payload.placeId));
             if (payload.containerId) payload.containerId = parseInt(String(payload.containerId));
 
-            const res = await fetch(endpoint, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
+            // Ensure boolean values are properly set
+            if (selectedType === "item") {
+                payload.consumable = Boolean(payload.consumable);
+            }
 
-            if (!res.ok) throw new Error("Failed to create " + selectedType);
+            // Use the appropriate backend API method based on the selected type
+            switch (selectedType) {
+                case "room":
+                    await backendApi.createRoom(payload);
+                    break;
+                case "place":
+                    await backendApi.createPlace(payload);
+                    break;
+                case "container":
+                    await backendApi.createContainer(payload);
+                    break;
+                case "item":
+                    await backendApi.createItem(payload);
+                    break;
+                case "project":
+                    await backendApi.createProject(payload as {
+                        name: string;
+                        description?: string;
+                        status?: "ACTIVE" | "COMPLETED" | "PAUSED" | "CANCELLED";
+                        priority?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+                        startDate?: string;
+                        endDate?: string;
+                    });
+                    break;
+                default:
+                    throw new Error(`Unknown type: ${selectedType}`);
+            }
 
             setSuccess(true);
             setTimeout(() => {
@@ -149,35 +166,43 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative modal-content">
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/60 modal-backdrop p-4">
+            <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative modal-content">
                 <button
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10 w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-200 backdrop-blur-sm"
                     onClick={() => {
                         resetModal();
                         onClose();
                     }}
                     aria-label="Close"
                 >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
 
                 {step === "select" && (
-                    <div className="p-8">
-                        <h2 className="text-2xl font-semibold mb-8 text-center text-gray-900 dark:text-white">
-                            What would you like to add to your home ?
-                        </h2>
+                    <div className="p-10">
+                        <div className="text-center mb-10">
+                            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 mb-4">
+                                What would you like to add to your home?
+                            </h2>
+                            <p className="text-gray-600 dark:text-gray-300 text-lg">
+                                Choose the type of item you want to create
+                            </p>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {objectTypes.map((type) => (
                                 <div
                                     key={type.key}
-                                    className="border-2 border-gray-200 dark:border-gray-600 rounded-xl p-6 flex flex-col items-center hover:border-blue-500 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer bg-gray-50/50 dark:bg-gray-700/50 backdrop-blur-sm"
+                                    className="group border-2 border-gray-200/50 dark:border-gray-600/50 rounded-2xl p-8 flex flex-col items-center hover:border-blue-400 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm relative overflow-hidden"
                                     onClick={() => handleTypeSelect(type.key)}
                                 >
-                                    <div className="text-blue-600 dark:text-blue-400 mb-3">{type.icon}</div>
-                                    <span className="text-gray-900 dark:text-white font-medium text-center">{type.label}</span>
+                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div className="relative z-10 flex flex-col items-center">
+                                        <div className="text-blue-600 dark:text-blue-400 mb-4 group-hover:scale-110 transition-transform duration-300">{type.icon}</div>
+                                        <span className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">{type.label}</span>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -185,46 +210,52 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                 )}
 
                 {step === "form" && selectedType && (
-                    <div className="p-8">
-                        <div className="flex items-center mb-6">
+                    <div className="p-10">
+                        <div className="flex items-center mb-8">
                             <button
                                 type="button"
                                 onClick={() => setStep("select")}
-                                className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                className="mr-6 p-3 rounded-xl hover:bg-gray-100/50 dark:hover:bg-gray-700/50 backdrop-blur-sm transition-all duration-200 group"
                                 aria-label="Back"
                             >
-                                <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-6 h-6 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                                 </svg>
                             </button>
-                            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white flex-1 text-center">
-                                {selectedType === "room" && "How should this room may be called ?"}
-                                {selectedType === "place" && "How should this place may be called ?"}
-                                {selectedType === "container" && "How should this container may be called ?"}
-                                {selectedType === "item" && "How should this item may be called ?"}
-                            </h2>
-                            <div className="w-9"></div> {/* Spacer for centering */}
+                            <div className="flex-1 text-center">
+                                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 mb-2">
+                                    {selectedType === "room" && "How should this room be called?"}
+                                    {selectedType === "place" && "How should this place be called?"}
+                                    {selectedType === "container" && "How should this container be called?"}
+                                    {selectedType === "item" && "How should this item be called?"}
+                                    {selectedType === "project" && "How should this project be called?"}
+                                </h2>
+                                <p className="text-gray-600 dark:text-gray-300">
+                                    Fill in the details below to create your {selectedType}
+                                </p>
+                            </div>
+                            <div className="w-12"></div> {/* Spacer for centering */}
                         </div>
-                        <div className="mb-6 flex flex-col items-center">
+                        <div className="mb-8 flex flex-col items-center">
                             {objectTypes.find(t => t.key === selectedType)?.icon && (
-                                <div className="rounded-xl p-6 mb-4 flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                                    <div className="text-blue-600 dark:text-blue-400 scale-125">{objectTypes.find(t => t.key === selectedType)?.icon}</div>
+                                <div className="rounded-2xl p-8 mb-6 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-700/50 shadow-lg">
+                                    <div className="text-blue-600 dark:text-blue-400 scale-150">{objectTypes.find(t => t.key === selectedType)?.icon}</div>
                                 </div>
                             )}
                         </div>
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <form onSubmit={handleSubmit} className="space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {/* ROOM */}
                                 {selectedType === "room" && (
                                     <div className="col-span-full">
-                                        <label className="block text-gray-900 dark:text-white">
-                                            <span className="block mb-2 font-medium">Enter the name of the room</span>
+                                        <label className="block">
+                                            <span className="block mb-3 text-lg font-semibold text-gray-900 dark:text-white">Enter the name of the room</span>
                                             <input
                                                 name="name"
-                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="w-full px-4 py-4 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm text-gray-900 dark:text-white text-lg placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200 shadow-md hover:shadow-lg"
                                                 onChange={handleChange}
                                                 required
-                                                placeholder="Room name"
+                                                placeholder="e.g., Living Room, Kitchen, Bedroom..."
                                             />
                                         </label>
                                     </div>
@@ -456,6 +487,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                                                     name="consumable"
                                                     type="checkbox"
                                                     className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                    checked={Boolean(form.consumable)}
                                                     onChange={e => setForm({ ...form, consumable: e.target.checked })}
                                                 />
                                                 <span className="font-medium">Consumable Item</span>
@@ -463,31 +495,129 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                                         </div>
                                     </>
                                 )}
+
+                                {/* PROJECT */}
+                                {selectedType === "project" && (
+                                    <>
+                                        {/* Project name - Full width */}
+                                        <div className="col-span-full">
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Project name</span>
+                                                <input
+                                                    name="name"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={handleChange}
+                                                    required
+                                                    placeholder="Project name"
+                                                />
+                                            </label>
+                                        </div>
+
+                                        {/* Description - Full width */}
+                                        <div className="col-span-full">
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Description (optional)</span>
+                                                <textarea
+                                                    name="description"
+                                                    rows={3}
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                                    placeholder="Describe your project..."
+                                                />
+                                            </label>
+                                        </div>
+
+                                        {/* Status, Priority row - 2 columns */}
+                                        <div className="col-span-2">
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Status</span>
+                                                <select
+                                                    name="status"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={(e) => setForm({ ...form, status: e.target.value })}
+                                                    defaultValue="ACTIVE"
+                                                >
+                                                    <option value="ACTIVE">Active</option>
+                                                    <option value="PAUSED">Paused</option>
+                                                    <option value="COMPLETED">Completed</option>
+                                                    <option value="CANCELLED">Cancelled</option>
+                                                </select>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Priority</span>
+                                                <select
+                                                    name="priority"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={(e) => setForm({ ...form, priority: e.target.value })}
+                                                    defaultValue="MEDIUM"
+                                                >
+                                                    <option value="LOW">Low</option>
+                                                    <option value="MEDIUM">Medium</option>
+                                                    <option value="HIGH">High</option>
+                                                    <option value="CRITICAL">Critical</option>
+                                                </select>
+                                            </label>
+                                        </div>
+
+                                        {/* Start Date, End Date row - 2 columns */}
+                                        <div className="col-span-2">
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">Start Date (optional)</span>
+                                                <input
+                                                    name="startDate"
+                                                    type="date"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={handleChange}
+                                                />
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-900 dark:text-white">
+                                                <span className="block mb-2 font-medium">End Date (optional)</span>
+                                                <input
+                                                    name="endDate"
+                                                    type="date"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    onChange={handleChange}
+                                                />
+                                            </label>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
-                            <div className="flex justify-center pt-6">
+                            <div className="flex justify-center pt-8">
                                 <button
                                     type="submit"
-                                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-8 py-3 text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-0.5 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
+                                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-2xl px-12 py-4 text-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-2xl hover:-translate-y-1 transform focus:ring-4 focus:ring-blue-300/50 dark:focus:ring-blue-800/50 backdrop-blur-sm"
                                     disabled={loading}
                                 >
-                                    {loading ? "Creating..." : `Create a ${objectTypes.find(t => t.key === selectedType)?.label.toLowerCase()}`}
+                                    {loading ? (
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            Creating...
+                                        </div>
+                                    ) : (
+                                        `✨ Create ${objectTypes.find(t => t.key === selectedType)?.label}`
+                                    )}
                                 </button>
                             </div>
 
                             {error && (
-                                <div className="text-red-600 dark:text-red-400 text-sm text-center bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800 shadow-sm">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <span className="text-red-500">⚠</span>
-                                        {error}
+                                <div className="text-red-600 dark:text-red-400 text-sm text-center bg-red-50/80 dark:bg-red-900/20 backdrop-blur-sm p-6 rounded-2xl border border-red-200/50 dark:border-red-800/50 shadow-lg">
+                                    <div className="flex items-center justify-center gap-3">
+                                        <span className="text-red-500 text-lg">⚠️</span>
+                                        <span className="font-medium">{error}</span>
                                     </div>
                                 </div>
                             )}
                             {success && (
-                                <div className="text-green-600 dark:text-green-400 text-sm text-center bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800 shadow-sm">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <span className="text-green-500">✓</span>
-                                        Created successfully!
+                                <div className="text-green-600 dark:text-green-400 text-sm text-center bg-green-50/80 dark:bg-green-900/20 backdrop-blur-sm p-6 rounded-2xl border border-green-200/50 dark:border-green-800/50 shadow-lg">
+                                    <div className="flex items-center justify-center gap-3">
+                                        <span className="text-green-500 text-lg">✅</span>
+                                        <span className="font-medium">Successfully created!</span>
                                     </div>
                                 </div>
                             )}

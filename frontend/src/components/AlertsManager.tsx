@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Alert } from "@/app/types";
+import { backendApi } from "@/lib/backend-api";
 
 interface AlertsManagerProps {
     itemId: number;
@@ -8,6 +9,7 @@ interface AlertsManagerProps {
     currentQuantity: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function AlertsManager({ itemId, itemName, currentQuantity }: AlertsManagerProps) {
     const [alerts, setAlerts] = useState<Alert[]>([]);
     const [loading, setLoading] = useState(true);
@@ -21,11 +23,8 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
     useEffect(() => {
         const fetchAlerts = async () => {
             try {
-                const response = await fetch(`/api/alerts?itemId=${itemId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setAlerts(data);
-                }
+                const data = await backendApi.getAlerts(itemId);
+                setAlerts(data);
             } catch (error) {
                 console.error('Error fetching alerts:', error);
             } finally {
@@ -41,24 +40,14 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
         if (!newAlert.threshold) return;
 
         try {
-            const response = await fetch('/api/alerts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    itemId,
-                    threshold: parseInt(newAlert.threshold),
-                    name: newAlert.name || null,
-                }),
+            const createdAlert = await backendApi.createAlert({
+                itemId,
+                threshold: parseInt(newAlert.threshold),
+                name: newAlert.name || undefined,
             });
-
-            if (response.ok) {
-                const createdAlert = await response.json();
-                setAlerts([...alerts, createdAlert]);
-                setNewAlert({ threshold: '', name: '' });
-                setShowCreateForm(false);
-            }
+            setAlerts([...alerts, createdAlert]);
+            setNewAlert({ threshold: '', name: '' });
+            setShowCreateForm(false);
         } catch (error) {
             console.error('Error creating alert:', error);
         }
@@ -68,13 +57,8 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
         if (!window.confirm("Do you really want to delete this alert?")) return;
 
         try {
-            const response = await fetch(`/api/alerts/${alertId}`, {
-                method: 'DELETE',
-            });
-
-            if (response.ok) {
-                setAlerts(alerts.filter(alert => alert.id !== alertId));
-            }
+            await backendApi.deleteAlert(alertId);
+            setAlerts(alerts.filter(alert => alert.id !== alertId));
         } catch (error) {
             console.error('Error deleting alert:', error);
         }
@@ -82,19 +66,10 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
 
     const toggleAlert = async (alertId: number, isActive: boolean) => {
         try {
-            const response = await fetch(`/api/alerts/${alertId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ isActive: !isActive }),
-            });
-
-            if (response.ok) {
-                setAlerts(alerts.map(alert =>
-                    alert.id === alertId ? { ...alert, isActive: !isActive } : alert
-                ));
-            }
+            await backendApi.updateAlert(alertId, { isActive: !isActive });
+            setAlerts(alerts.map(alert =>
+                alert.id === alertId ? { ...alert, isActive: !isActive } : alert
+            ));
         } catch (error) {
             console.error('Error updating alert:', error);
         }
@@ -187,8 +162,8 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
                             <div
                                 key={alert.id}
                                 className={`p-4 rounded-lg border ${alert.isActive
-                                        ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
-                                        : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
+                                    ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
+                                    : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
                                     } ${currentQuantity <= alert.threshold && alert.isActive
                                         ? 'ring-2 ring-red-500 ring-opacity-50'
                                         : ''
@@ -224,8 +199,8 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
                                         <button
                                             onClick={() => toggleAlert(alert.id, alert.isActive)}
                                             className={`px-3 py-1 text-sm font-medium rounded transition-colors ${alert.isActive
-                                                    ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50'
-                                                    : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50'
+                                                ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50'
+                                                : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50'
                                                 }`}
                                         >
                                             {alert.isActive ? 'Disable' : 'Enable'}

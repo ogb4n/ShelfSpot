@@ -202,47 +202,60 @@ const ManagePage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Manage</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your existing items and create tags. Use the &quot;Create&quot; button in the navigation to add new rooms, places, and containers.</p>
+    <div className="space-y-8">
+      {/* Modern Page Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-800 dark:via-gray-900 dark:to-purple-900/20 border border-gray-200/50 dark:border-gray-700/50 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5" />
+        <div className="relative flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-1 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent dark:from-purple-400 dark:via-pink-400 dark:to-purple-400">
+                Manage
+              </h1>
+            </div>
+            <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+              Manage your existing items and create tags. Use the &quot;Create&quot; button in the navigation to add new rooms, places, and containers.
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Management Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Rooms Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Rooms</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage existing rooms</p>
+      {/* Modern Management Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Modern Rooms Section */}
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+          <div className="p-8 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full"></div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Rooms</h2>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Manage existing rooms</p>
           </div>
-          <div className="p-6">
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+          <div className="p-8">
+            <div className="space-y-3 max-h-64 overflow-y-auto">
               {rooms.length > 0 ? (
                 rooms.map((room) => (
-                  <div key={room.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700">
+                  <div key={room.id} className="flex items-center justify-between p-4 border border-gray-200/50 dark:border-gray-700/50 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 hover:shadow-md">
                     {editingRoom === room.id ? (
                       <>
                         <input
                           type="text"
                           value={editValues.name || ''}
                           onChange={(e) => handleEditValueChange(e.target.value)}
-                          className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white mr-2"
+                          className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white mr-3"
                           autoFocus
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleSaveRoom(room.id)}
-                            className="text-green-600 hover:text-green-700 text-sm font-medium"
+                            className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                           >
                             Save
                           </button>
                           <button
                             onClick={handleCancelEdit}
-                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                            className="text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                           >
                             Cancel
                           </button>
@@ -250,17 +263,17 @@ const ManagePage = () => {
                       </>
                     ) : (
                       <>
-                        <span className="font-medium text-gray-900 dark:text-white">{room.name}</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">{room.name}</span>
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleEditRoom(room)}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteRoom(room.id)}
-                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                            className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                           >
                             Delete
                           </button>
@@ -276,14 +289,17 @@ const ManagePage = () => {
           </div>
         </div>
 
-        {/* Places Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Places</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage existing places within rooms</p>
+        {/* Modern Places Section */}
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+          <div className="p-8 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-6 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Places</h2>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Manage existing places within rooms</p>
           </div>
-          <div className="p-6">
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+          <div className="p-8">
+            <div className="space-y-3 max-h-64 overflow-y-auto">
               {places.length > 0 ? (
                 places.map((place) => (
                   <div key={place.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700">

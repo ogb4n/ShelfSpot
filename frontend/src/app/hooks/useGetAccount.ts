@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { backendApi } from "@/lib/backend-api";
 
 /**
  * Custom hook to fetch user account information from the API
@@ -23,9 +24,8 @@ function useGetAccount() {
      */
     async function fetchAccount() {
       try {
-        // Make API request to get account information
-        const response = await fetch("/api/account");
-        const data = await response.json();
+        // Make API request to get account information using backend API service
+        const data = await backendApi.getProfile();
         // Update state with received account data
         setAccount(data);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

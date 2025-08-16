@@ -84,40 +84,48 @@ export default function CreateProjectModal({ open, onClose, onSuccess }: CreateP
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 overflow-y-auto backdrop-blur-sm bg-black/60" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={handleClose}></div>
+                <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={handleClose}></div>
 
                 <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <div className="relative inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-white" id="modal-title">
-                                Créer un nouveau projet
-                            </h3>
+                <div className="relative inline-block align-bottom bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-200/50 dark:border-gray-700/50">
+                    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm px-6 pt-8 pb-6 sm:p-8 sm:pb-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-purple-400 dark:to-blue-400" id="modal-title">
+                                    Create New Project
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300 mt-2">
+                                    Organize your tasks and track progress
+                                </p>
+                            </div>
                             <button
                                 onClick={handleClose}
-                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-xl hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-200"
                             >
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
 
                         {error && (
-                            <div className="mb-4 p-3 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-md">
-                                <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+                            <div className="mb-6 p-4 bg-red-50/80 dark:bg-red-900/20 backdrop-blur-sm border border-red-200/50 dark:border-red-800/50 rounded-2xl">
+                                <p className="text-red-700 dark:text-red-400 text-sm font-medium flex items-center gap-2">
+                                    <span className="text-red-500">⚠️</span>
+                                    {error}
+                                </p>
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Nom du projet */}
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Project Name */}
                             <div>
-                                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Nom du projet *
+                                <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                    Project Name *
                                 </label>
-                                <div className="mt-1 relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <FileText className="h-5 w-5 text-gray-400" />
                                     </div>
                                     <input
@@ -127,18 +135,18 @@ export default function CreateProjectModal({ open, onClose, onSuccess }: CreateP
                                         required
                                         value={form.name}
                                         onChange={handleChange}
-                                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                                        placeholder="Ex: Rénovation cuisine"
+                                        className="block w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 dark:text-white text-base transition-all duration-200 shadow-md hover:shadow-lg"
+                                        placeholder="e.g., Kitchen Renovation, Home Office Setup..."
                                     />
                                 </div>
                             </div>
 
                             {/* Description */}
                             <div>
-                                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <label htmlFor="description" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                     Description
                                 </label>
-                                <div className="mt-1">
+                                <div>
                                     <textarea
                                         name="description"
                                         id="description"
@@ -243,21 +251,28 @@ export default function CreateProjectModal({ open, onClose, onSuccess }: CreateP
                                 </div>
                             </div>
 
-                            {/* Boutons */}
-                            <div className="flex justify-end space-x-3 pt-4">
+                            {/* Modern Buttons */}
+                            <div className="flex justify-end space-x-4 pt-6">
                                 <button
                                     type="button"
                                     onClick={handleClose}
-                                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                    className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 backdrop-blur-sm transition-all duration-200 hover:shadow-md"
                                 >
-                                    Annuler
+                                    Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={loading || !form.name.trim()}
-                                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-8 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 transform"
                                 >
-                                    {loading ? 'Création...' : 'Créer le projet'}
+                                    {loading ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            Creating...
+                                        </div>
+                                    ) : (
+                                        '✨ Create Project'
+                                    )}
                                 </button>
                             </div>
                         </form>

@@ -19,7 +19,12 @@ async function bootstrap() {
 
   // Configuration CORS pour le frontend
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://frontend:3000', // Docker internal communication
+      process.env.FRONTEND_URL || 'http://localhost:3000',
+    ],
     credentials: true,
   });
 
@@ -37,7 +42,10 @@ async function bootstrap() {
     })
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  writeFileSync(join(process.cwd(), 'swagger.json'), JSON.stringify(document, null, 2));
+  writeFileSync(
+    join(process.cwd(), 'swagger.json'),
+    JSON.stringify(document, null, 2),
+  );
   SwaggerModule.setup('api/swagger', app, document);
 
   await app.listen(process.env.PORT ?? 3001);

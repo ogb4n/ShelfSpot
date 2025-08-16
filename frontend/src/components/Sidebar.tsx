@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Home, Box, Star, Settings, Package, Warehouse, FolderOpen } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import UserChip from "@/components/UserChip";
+import UserChip from "@/components/ui/UserChip";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { Dock, DockIcon } from "@/components/magicui/dock";
 import CreateObjectModal from "@/components/CreateObjectModal";
@@ -27,24 +27,29 @@ export default function Sidebar() {
     return (
         <>
             <CreateObjectModal open={showCreate} onClose={() => setShowCreate(false)} />
-            {/* Desktop Sidebar */}
-            <aside className="bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 fixed left-0 top-0 h-full w-[220px] flex-col z-40 hidden md:flex"
+            {/* Modern Desktop Sidebar */}
+            <aside className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 fixed left-0 top-0 h-full w-[220px] flex-col z-40 hidden md:flex shadow-xl"
             >
-                <div className="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                    <span className="font-bold text-lg text-gray-900 dark:text-white">ShelfSpot</span>
+                <div className="h-16 flex items-center justify-center border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-purple-900/20">
+                    <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">ShelfSpot</span>
                 </div>
 
-                <nav className="flex-1 flex flex-col py-2">
+                <nav className="flex-1 flex flex-col py-4 px-3">
                     {navLinks.map(({ href, label, icon: Icon }) => (
                         <Link
                             key={href}
                             href={href}
                             className={cn(
-                                "flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 border-l-4 border-transparent",
-                                pathname === href && "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-blue-600 dark:border-blue-400"
+                                "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-200 rounded-xl mb-1 group hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-gray-800 dark:hover:to-purple-900/20",
+                                pathname === href
+                                    ? "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-purple-900/20 text-blue-700 dark:text-blue-300 shadow-md border border-blue-200/50 dark:border-blue-700/50"
+                                    : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
                             )}
                         >
-                            <Icon className="w-4 h-4" />
+                            <Icon className={cn(
+                                "w-5 h-5 transition-colors",
+                                pathname === href ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400 group-hover:text-blue-500"
+                            )} />
                             {label}
                         </Link>
                     ))}
@@ -52,21 +57,21 @@ export default function Sidebar() {
 
                 <div className="p-4">
                     <button
-                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition-colors"
+                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                         onClick={() => setShowCreate(true)}
                     >
                         + Create New
                     </button>
                 </div>
 
-                <div className="border-t border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
+                <div className="border-t border-gray-200/50 dark:border-gray-700/50 p-4 flex items-center justify-between backdrop-blur-sm">
                     <UserChip />
                     <div className="flex items-center gap-1">
                         <ThemeSwitcher />
                         <button
                             aria-label="Settings"
                             onClick={() => router.push('/settings')}
-                            className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
                         >
                             <Settings className="w-4 h-4" />
                         </button>

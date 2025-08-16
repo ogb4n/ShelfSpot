@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { backendApi } from "@/lib/backend-api";
 
 // Types pour les projets
 export interface Project {
@@ -124,22 +125,7 @@ export function useGetProjects() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"}/projects`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: Failed to fetch projects`);
-      }
-
-      const data = await response.json();
+      const data = await backendApi.getProjects();
       setProjects(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -168,22 +154,7 @@ export function useGetProject(id: number | null) {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"}/projects/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: Failed to fetch project`);
-      }
-
-      const data = await response.json();
+      const data = await backendApi.getProject(id);
       setProject(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -210,24 +181,7 @@ export function useGetScoringStatistics() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"}/projects/scoring/statistics`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Error ${response.status}: Failed to fetch scoring statistics`
-        );
-      }
-
-      const data = await response.json();
+      const data = await backendApi.getScoringStatistics();
       setStatistics(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -254,22 +208,7 @@ export function useGetTopItems() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"}/projects/scoring/top-items`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: Failed to fetch top items`);
-      }
-
-      const data = await response.json();
+      const data = await backendApi.getTopItems();
       setTopItems(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -296,24 +235,7 @@ export function useGetCriticalItems() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"}/projects/scoring/critical-items`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Error ${response.status}: Failed to fetch critical items`
-        );
-      }
-
-      const data = await response.json();
+      const data = await backendApi.getCriticalItems();
       setCriticalItems(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
