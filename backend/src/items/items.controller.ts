@@ -57,6 +57,36 @@ export class ItemsController {
     return this.itemsService.findAll();
   }
 
+  @Get('inventory-value')
+  @ApiOperation({
+    summary: 'Get total inventory value based on selling prices',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Inventory value calculated successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        totalValue: {
+          type: 'number',
+          description: 'Total inventory value',
+        },
+        itemsWithValue: {
+          type: 'number',
+          description: 'Number of items with sellprice',
+        },
+        totalItems: {
+          type: 'number',
+          description: 'Total number of items',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  getInventoryValue() {
+    return this.itemsService.getInventoryValue();
+  }
+
   @Get('search')
   @ApiOperation({ summary: 'Search items' })
   @ApiQuery({ name: 'q', description: 'Search term', required: false })
