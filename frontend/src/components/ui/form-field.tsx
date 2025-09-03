@@ -51,6 +51,28 @@ export function FormField({
         );
     }
 
+    // Use controlled or uncontrolled input pattern
+    const inputProps: React.InputHTMLAttributes<HTMLInputElement> = {
+        name,
+        type,
+        placeholder,
+        required,
+        disabled,
+        min,
+        max,
+        step,
+        className: COMMON_INPUT_CLASSES,
+        onChange,
+    };
+
+    // If value is provided, use controlled input
+    if (value !== undefined) {
+        inputProps.value = value;
+    } else if (defaultValue !== undefined) {
+        // If only defaultValue is provided, use uncontrolled input
+        inputProps.defaultValue = defaultValue;
+    }
+
     return (
         <div className={className}>
             <label className="block text-gray-900 dark:text-white">
@@ -58,20 +80,7 @@ export function FormField({
                 {children ? (
                     children
                 ) : (
-                    <input
-                        name={name}
-                        type={type}
-                        value={value}
-                        defaultValue={defaultValue}
-                        placeholder={placeholder}
-                        required={required}
-                        disabled={disabled}
-                        min={min}
-                        max={max}
-                        step={step}
-                        className={COMMON_INPUT_CLASSES}
-                        onChange={onChange}
-                    />
+                    <input {...inputProps} />
                 )}
             </label>
         </div>

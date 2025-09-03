@@ -139,6 +139,14 @@ class BackendApiService {
     });
   }
 
+  async getInventoryValue() {
+    return this.request<{
+      totalValue: number;
+      itemsWithValue: number;
+      totalItems: number;
+    }>("/items/inventory-value");
+  }
+
   async deleteItem(id: number) {
     return this.request<{ message: string }>(`/items/${id}`, {
       method: "DELETE",

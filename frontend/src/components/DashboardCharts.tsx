@@ -12,6 +12,7 @@ import {
     Legend,
 } from "chart.js";
 import useGetRooms from "@/app/hooks/useGetRooms";
+import { useInventoryValue } from "@/app/hooks/useInventoryValue";
 import { Room } from "@/app/types";
 
 // Type étendu pour inclure _count
@@ -41,6 +42,7 @@ const backgroundColors = [
 
 export default function DashboardCharts() {
     const { data: rooms, loading, error } = useGetRooms();
+    const { data: inventoryValueData, loading: inventoryLoading } = useInventoryValue();
 
     // Cast en RoomWithCount pour avoir accès à _count
     const roomsWithCount = rooms as RoomWithCount[];
@@ -82,12 +84,14 @@ export default function DashboardCharts() {
         ],
     };
 
+    const currentValue = inventoryValueData?.totalValue || 0;
+
     const inventoryValue = {
         labels: ["Jan", "Feb", "Mar", "Apr", "May"],
         datasets: [
             {
                 label: "Value (€)",
-                data: [1200, 1300, 1250, 1400, 1500],
+                data: [currentValue, currentValue, currentValue, currentValue, currentValue],
                 fill: true,
                 backgroundColor: "#3b82f6",
                 borderColor: "#1e3a8a",
@@ -179,9 +183,37 @@ export default function DashboardCharts() {
                     <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-teal-500 rounded-full"></div>
                     <h2 className="text-gray-900 dark:text-white text-xl font-bold">Inventory value</h2>
                 </div>
-                <div className="w-full h-64">
-                    <Line data={inventoryValue} options={{ maintainAspectRatio: false }} />
-                </div>
+                {inventoryLoading ? (
+                    <div className="flex flex-col items-center justify-center h-64">
+                        <div className="relative mb-6">
+                            <div className="w-16 h-16 border-4 border-green-100 dark:border-green-900/30 rounded-full"></div>
+                            <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-400 font-medium">Calculating inventory value...</p>
+                    </div>
+                ) : inventoryValueData ? (
+                    <>
+                        <div className="mb-4 text-center">
+                            <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                                €{inventoryValueData.totalValue.toLocaleString()}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                Based on {inventoryValueData.itemsWithValue} items with selling prices
+                            </div>
+                        </div>
+                        <div className="w-full h-48">
+                            <Line data={inventoryValue} options={{ maintainAspectRatio: false }} />
+                        </div>
+                    </>
+                ) : (
+                    <div className="text-center py-16">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                            <span className="text-gray-400 text-2xl">💰</span>
+                        </div>
+                        <div className="text-gray-600 dark:text-gray-400 text-lg font-semibold mb-2">No inventory value data</div>
+                        <div className="text-gray-500 dark:text-gray-500 text-sm">Add selling prices to items to see inventory value</div>
+                    </div>
+                )}
             </div>
 
             {/* Modern Card 4: Status distribution */}

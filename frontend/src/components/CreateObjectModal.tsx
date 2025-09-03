@@ -82,7 +82,12 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
     const handleTypeSelect = (type: string) => {
         setSelectedType(type);
         setStep("form");
-        setForm({}); // Reset form
+        // Initialize form with default values based on type
+        if (type === "item") {
+            setForm({ quantity: 1 }); // Set default quantity for items
+        } else {
+            setForm({}); // Reset form for other types
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,6 +119,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
 
             // Convert numeric values
             if (payload.quantity) payload.quantity = parseInt(String(payload.quantity));
+            else if (selectedType === "item") payload.quantity = 1; // Default quantity for items
             if (payload.price) payload.price = parseFloat(String(payload.price));
             if (payload.sellprice) payload.sellprice = parseFloat(String(payload.sellprice));
             if (payload.roomId) payload.roomId = parseInt(String(payload.roomId));
@@ -448,7 +454,7 @@ export default function CreateObjectModal({ open, onClose }: CreateObjectModalPr
                                                     min="1"
                                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                     onChange={handleChange}
-                                                    defaultValue={1}
+                                                    value={String(form.quantity || 1)}
                                                     placeholder="1"
                                                 />
                                             </label>

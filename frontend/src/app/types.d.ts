@@ -26,13 +26,21 @@ export interface Item {
   roomId: number;
   placeId?: number;
   containerId?: number;
-  container?: { id: number; name: string; icon: string; placeId: number; roomId: number; } | null;
+  container?: {
+    id: number;
+    name: string;
+    icon: string;
+    placeId: number;
+    roomId: number;
+  } | null;
   room: { id: number; name: string; icon: string } | null;
   place: { id: number; name: string; icon: string; roomId: number } | null;
   status: string | null;
   tags: string[];
   consumable?: boolean;
   itemLink: string | null;
+  price?: number;
+  sellprice?: number;
 }
 
 export interface Consumable extends Item {

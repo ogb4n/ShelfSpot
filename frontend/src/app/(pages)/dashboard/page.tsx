@@ -268,23 +268,22 @@ export default function Dashboard() {
           </div>
 
           {/* Recent Items - Modern Card */}
-          <div className="lg:col-span-2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-8 mt-[52px] flex flex-col h-[725px] overflow-visible shadow-xl">
+          <div className="lg:col-span-2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-8 mt-[52px] flex flex-col h-[725px] shadow-xl">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-1 h-8 bg-gradient-to-b from-green-500 to-blue-500 rounded-full"></div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 Recent Items
               </h2>
             </div>
-            <div className="flex-1 space-y-4 overflow-y-auto scrollbar-hide overflow-x-visible"
-              style={{ overflowX: 'visible' }}
-            >
+            <div className="flex-1 space-y-4 overflow-y-auto scrollbar-hide relative" style={{ zIndex: 1 }}>
               {recentItems.length > 0 ? (
-                recentItems.map((item) => (
+                recentItems.map((item, index) => (
                   <div
                     key={item.id}
                     className="group relative flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 hover:border-blue-300 dark:hover:border-blue-600 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 transform"
                     onClick={() => router.push(`/manage/${item.id}`)}
                     title={`Created: ${new Date(item.createdAt).toLocaleDateString()}${item.status ? ` • Status: ${item.status}` : ''}${item.quantity ? ` • Qty: ${item.quantity}` : ''}`}
+                    style={{ zIndex: 10 + index }}
                   >
                     <div className="flex-1">
                       <p className="font-semibold text-gray-900 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -301,7 +300,13 @@ export default function Dashboard() {
                     </div>
 
                     {/* Modern Tooltip */}
-                    <div className="absolute right-0 bottom-full mb-4 hidden group-hover:block z-50 w-72 p-4 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl shadow-2xl border border-gray-700">
+                    <div
+                      className="absolute right-0 bottom-full mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-72 p-4 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl shadow-2xl border border-gray-700 pointer-events-none"
+                      style={{
+                        zIndex: 9999,
+                        transform: 'translateX(-20px)'
+                      }}
+                    >
                       <div className="space-y-2">
                         <div><strong className="text-blue-300">Created:</strong> {new Date(item.createdAt).toLocaleDateString()}</div>
                         {item.status && <div><strong className="text-green-300">Status:</strong> {item.status}</div>}
