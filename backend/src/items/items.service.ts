@@ -4,6 +4,20 @@ import { AlertsService } from '../alerts/alerts.service';
 import { ScoringService } from '../scoring/scoring.service';
 import { Prisma } from '@prisma/client';
 
+// Interface for update data with tags support
+interface UpdateItemData {
+  name?: string;
+  quantity?: number;
+  status?: string;
+  itemLink?: string;
+  price?: number;
+  sellprice?: number;
+  roomId?: number;
+  placeId?: number;
+  containerId?: number;
+  tags?: string[];
+}
+
 // Type for item with all includes
 type ItemWithIncludes = Prisma.ItemGetPayload<{
   include: {
@@ -141,16 +155,20 @@ export class ItemsService {
 
   async update(
     id: number,
-    data: Prisma.ItemUpdateInput,
+    data: UpdateItemData,
   ): Promise<TransformedItem | null> {
     const oldItem = await this.prisma.item.findUnique({
       where: { id },
       select: { quantity: true },
     });
 
+    // Extract tags from data if present
+    const { tags, ...itemData } = data;
+
+    // Update the item first
     const item = await this.prisma.item.update({
       where: { id },
-      data,
+      data: itemData,
       include: {
         room: true,
         place: true,
@@ -163,13 +181,81 @@ export class ItemsService {
       },
     });
 
+    // Handle tags update if tags array is provided
+    if (tags !== undefined && Array.isArray(tags)) {
+      // Delete existing item-tag relationships
+      await this.prisma.itemTag.deleteMany({
+        where: { itemId: id },
+      });
+
+      // Create new item-tag relationships
+      if (tags.length > 0) {
+        for (const tagName of tags) {
+          // Find or create the tag
+          let tag = await this.prisma.tag.findUnique({
+            where: { name: tagName },
+          });
+
+          if (!tag) {
+            tag = await this.prisma.tag.create({
+              data: { name: tagName },
+            });
+          }
+
+          // Create item-tag relationship
+          await this.prisma.itemTag.create({
+            data: {
+              itemId: id,
+              tagId: tag.id,
+            },
+          });
+        }
+      }
+
+      // Fetch the updated item with new tags
+      const updatedItem = await this.prisma.item.findUnique({
+        where: { id },
+        include: {
+          room: true,
+          place: true,
+          container: true,
+          itemTags: {
+            include: {
+              tag: true,
+            },
+          },
+        },
+      });
+
+      if (updatedItem) {
+        // Vérifier les alertes si la quantité a changé
+        if (
+          itemData.quantity !== undefined &&
+          oldItem &&
+          typeof itemData.quantity === 'number'
+        ) {
+          const newQuantity = itemData.quantity;
+          if (newQuantity !== oldItem.quantity) {
+            // Vérifier les alertes de manière asynchrone sans bloquer la réponse
+            this.alertsService
+              .checkItemAlerts(id, newQuantity)
+              .catch((error) => {
+                console.error(`Error checking alerts for item ${id}:`, error);
+              });
+          }
+        }
+
+        return this.transformItem(updatedItem);
+      }
+    }
+
     // Vérifier les alertes si la quantité a changé
     if (
-      data.quantity !== undefined &&
+      itemData.quantity !== undefined &&
       oldItem &&
-      typeof data.quantity === 'number'
+      typeof itemData.quantity === 'number'
     ) {
-      const newQuantity = data.quantity;
+      const newQuantity = itemData.quantity;
       if (newQuantity !== oldItem.quantity) {
         // Vérifier les alertes de manière asynchrone sans bloquer la réponse
         this.alertsService.checkItemAlerts(id, newQuantity).catch((error) => {

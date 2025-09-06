@@ -16,6 +16,7 @@ import { EmailModule } from './email/email.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { ProjectsModule } from './projects/projects.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { PreferencesModule } from './preferences/preferences.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ScoringModule,
     ProjectsModule,
     NotificationsModule,
+    PreferencesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

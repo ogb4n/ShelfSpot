@@ -155,4 +155,14 @@ export class UpdateItemDto {
   @IsOptional()
   @IsNumber()
   containerId?: number;
+
+  @ApiProperty({
+    example: ['electronics', 'work'],
+    description: 'Array of tag names',
+    required: false,
+    type: [String],
+  })
+  @IsOptional()
+  @IsString({ each: true })
+  tags?: string[];
 }

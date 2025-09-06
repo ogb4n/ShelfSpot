@@ -2783,6 +2783,32 @@
           "Projects"
         ]
       }
+    },
+    "/preferences": {
+      "get": {
+        "operationId": "PreferencesController_getUserPreferences",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Preferences"
+        ]
+      },
+      "put": {
+        "operationId": "PreferencesController_updateUserPreferences",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Preferences"
+        ]
+      }
     }
   },
   "info": {
@@ -3139,6 +3165,17 @@
             "type": "number",
             "example": 1,
             "description": "Container ID"
+          },
+          "tags": {
+            "example": [
+              "electronics",
+              "work"
+            ],
+            "description": "Array of tag names",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

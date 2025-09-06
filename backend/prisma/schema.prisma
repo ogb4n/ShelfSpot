@@ -16,8 +16,24 @@ model User {
   notificationToken String?
   createdAt         DateTime    @default(now())
   favourites        Favourite[]
+  preferences       UserPreferences?
 
   @@index([email])
+}
+
+model UserPreferences {
+  id                     Int     @id @default(autoincrement())
+  userId                 Int     @unique
+  showWelcomeHeader      Boolean @default(true)
+  showStatsCards         Boolean @default(true)
+  showRecentItems        Boolean @default(true)
+  showRoomDistribution   Boolean @default(true)
+  showAlertsPerMonth     Boolean @default(true)
+  showInventoryValue     Boolean @default(true)
+  showStatusDistribution Boolean @default(true)
+  user                   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Item {
