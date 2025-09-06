@@ -148,21 +148,35 @@ function ItemsTable({ search, items: itemsProp, columns = [
     };
 
     const handleSave = async () => {
+        // Now backend supports tag updates!
+        const { tags, ...otherFields } = editValues;
+
         const allowedFields = {
-            name: editValues.name,
-            quantity: editValues.quantity,
-            status: editValues.status,
+            name: otherFields.name,
+            quantity: otherFields.quantity,
+            status: otherFields.status,
+            tags: tags, // Include tags in the request
         };
 
         const filteredData = Object.fromEntries(
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            Object.entries(allowedFields).filter(([_, value]) => value !== undefined && value !== "")
+            Object.entries(allowedFields).filter(([_, value]) => {
+                if (Array.isArray(value)) return true; // Always include arrays (even empty ones)
+                return value !== undefined && value !== "";
+            })
         );
 
-        await backendApi.updateItem(editId!, filteredData);
-        setItems((prev: Item[]) => prev.map((it: Item) => (it.id === editId ? { ...it, ...filteredData } : it)));
-        setEditId(null);
-        setEditValues({});
+        try {
+            await backendApi.updateItem(editId!, filteredData);
+
+            // Update local state with all changes including tags
+            setItems((prev: Item[]) => prev.map((it: Item) => (it.id === editId ? { ...it, ...filteredData, tags: tags || [] } : it)));
+            setEditId(null);
+            setEditValues({});
+        } catch (error) {
+            console.error("Error saving item:", error);
+            alert("Erreur lors de la sauvegarde de l'objet");
+        }
     };
 
     const handleCancel = () => {

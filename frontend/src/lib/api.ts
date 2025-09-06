@@ -1,6 +1,5 @@
-// Centralized API utilities
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
 
 export interface ApiResponse<T> {
   data: T;
@@ -8,7 +7,10 @@ export interface ApiResponse<T> {
 }
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) {
+  constructor(
+    public status: number,
+    message: string
+  ) {
     super(message);
     this.name = "ApiError";
   }
@@ -16,10 +18,10 @@ export class ApiError extends Error {
 
 function getAuthHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   };
 
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem("access_token");
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -28,7 +30,7 @@ function getAuthHeaders(): Record<string, string> {
 }
 
 export async function apiRequest<T>(
-  endpoint: string, 
+  endpoint: string,
   options?: RequestInit
 ): Promise<T> {
   const url = `${BACKEND_URL}${endpoint}`;
@@ -58,16 +60,15 @@ export async function apiRequest<T>(
 
 export const api = {
   get: <T>(url: string) => apiRequest<T>(url),
-  post: <T>(url: string, data: unknown) => 
+  post: <T>(url: string, data: unknown) =>
     apiRequest<T>(url, {
       method: "POST",
       body: JSON.stringify(data),
     }),
-  put: <T>(url: string, data: unknown) => 
+  put: <T>(url: string, data: unknown) =>
     apiRequest<T>(url, {
-      method: "PUT", 
+      method: "PUT",
       body: JSON.stringify(data),
     }),
-  delete: <T>(url: string) => 
-    apiRequest<T>(url, { method: "DELETE" }),
+  delete: <T>(url: string) => apiRequest<T>(url, { method: "DELETE" }),
 };

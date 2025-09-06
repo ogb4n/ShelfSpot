@@ -302,15 +302,15 @@ const ManagePage = () => {
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {places.length > 0 ? (
                 places.map((place) => (
-                  <div key={place.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700">
+                  <div key={place.id} className="flex items-center justify-between p-4 border border-gray-200/50 dark:border-gray-700/50 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 hover:shadow-md">
                     {editingPlace === place.id ? (
                       <>
-                        <div className="flex-1 mr-2">
+                        <div className="flex-1 mr-3">
                           <input
                             type="text"
                             value={editValues.name || ''}
                             onChange={(e) => handleEditValueChange(e.target.value)}
-                            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white mb-1"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white mb-1"
                             autoFocus
                           />
                           <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -320,13 +320,13 @@ const ManagePage = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleSavePlace(place.id)}
-                            className="text-green-600 hover:text-green-700 text-sm font-medium"
+                            className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                           >
                             Save
                           </button>
                           <button
                             onClick={handleCancelEdit}
-                            className="text-gray-600 hover:text-gray-700 text-sm font-medium"
+                            className="text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                           >
                             Cancel
                           </button>
@@ -335,7 +335,7 @@ const ManagePage = () => {
                     ) : (
                       <>
                         <div>
-                          <span className="font-medium text-gray-900 dark:text-white">{place.name}</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">{place.name}</span>
                           <div className="text-xs text-gray-500 dark:text-gray-400">
                             {rooms.find(r => r.id === place.roomId)?.name || "Unknown room"}
                           </div>
@@ -343,13 +343,13 @@ const ManagePage = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleEditPlace(place)}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeletePlace(place.id)}
-                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                            className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                           >
                             Delete
                           </button>
@@ -365,32 +365,35 @@ const ManagePage = () => {
           </div>
         </div>
 
-        {/* Containers Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Containers</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage existing containers within places</p>
+        {/* Modern Containers Section */}
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+          <div className="p-8 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Containers</h2>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Manage existing containers within places</p>
           </div>
-          <div className="p-6">
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+          <div className="p-8">
+            <div className="space-y-3 max-h-64 overflow-y-auto">
               {containers.length > 0 ? (
                 containers.map((container) => (
-                  <div key={container.id} className="flex items-start justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700">
+                  <div key={container.id} className="flex items-start justify-between p-4 border border-gray-200/50 dark:border-gray-700/50 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 hover:shadow-md">
                     {editingContainer === container.id ? (
                       <>
-                        <div className="flex-1 mr-2 space-y-2">
+                        <div className="flex-1 mr-3 space-y-2">
                           <input
                             type="text"
                             value={editValues.name || ''}
                             onChange={(e) => handleEditValueChange(e.target.value)}
-                            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                             placeholder="Container name"
                             autoFocus
                           />
                           <select
                             value={editValues.roomId || ''}
                             onChange={(e) => handleContainerRoomChange(Number(e.target.value))}
-                            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                           >
                             <option value="">Select a room</option>
                             {rooms.map(room => (
@@ -400,7 +403,7 @@ const ManagePage = () => {
                           <select
                             value={editValues.placeId || ''}
                             onChange={(e) => handleContainerPlaceChange(Number(e.target.value))}
-                            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                             disabled={!editValues.roomId}
                           >
                             <option value="">Select a place</option>
@@ -414,13 +417,13 @@ const ManagePage = () => {
                         <div className="flex gap-2 mt-1">
                           <button
                             onClick={() => handleSaveContainer(container.id)}
-                            className="text-green-600 hover:text-green-700 text-sm font-medium"
+                            className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                           >
                             Save
                           </button>
                           <button
                             onClick={handleCancelEdit}
-                            className="text-gray-600 hover:text-gray-700 text-sm font-medium"
+                            className="text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                           >
                             Cancel
                           </button>
@@ -429,7 +432,7 @@ const ManagePage = () => {
                     ) : (
                       <>
                         <div>
-                          <span className="font-medium text-gray-900 dark:text-white">{container.name}</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">{container.name}</span>
                           <div className="text-xs text-gray-500 dark:text-gray-400">
                             {places.find(p => p.id === container.placeId)?.name} • {rooms.find(r => r.id === container.roomId)?.name}
                           </div>
@@ -437,13 +440,13 @@ const ManagePage = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleEditContainer(container)}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteContainer(container.id)}
-                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                            className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium px-3 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                           >
                             Delete
                           </button>
@@ -459,34 +462,37 @@ const ManagePage = () => {
           </div>
         </div>
 
-        {/* Tags Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Tags</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Create and manage tags for items</p>
+        {/* Modern Tags Section */}
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+          <div className="p-8 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-6 bg-gradient-to-b from-violet-500 to-purple-500 rounded-full"></div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Tags</h2>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Create and manage tags for items</p>
           </div>
-          <div className="p-6">
-            <form onSubmit={handleAddTag} className="mb-4">
-              <div className="flex gap-2">
+          <div className="p-8">
+            <form onSubmit={handleAddTag} className="mb-6">
+              <div className="flex gap-3">
                 <input
                   type="text"
                   value={tagName}
                   onChange={e => setTagName(e.target.value)}
                   placeholder="Tag name"
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   required
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
+                  className="px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   Add
                 </button>
               </div>
             </form>
-            <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+            <div className="flex flex-wrap gap-3 max-h-48 overflow-y-auto">
               {tags.map((tag) => (
-                <div key={tag.id} className="inline-flex items-center gap-2 px-3 py-1 border border-gray-200 dark:border-gray-700 rounded-full bg-gray-50 dark:bg-gray-700">
+                <div key={tag.id} className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 hover:shadow-md">
                   {editingTag === tag.id ? (
                     <>
                       <input
@@ -498,29 +504,29 @@ const ManagePage = () => {
                       />
                       <button
                         onClick={() => handleSaveTag(tag.id)}
-                        className="text-green-600 hover:text-green-700 text-xs"
+                        className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-sm font-medium px-2 py-1 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                       >
                         ✓
                       </button>
                       <button
                         onClick={handleCancelEdit}
-                        className="text-gray-400 hover:text-red-700 text-xs"
+                        className="text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm font-medium px-2 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                       >
                         ×
                       </button>
                     </>
                   ) : (
                     <>
-                      <span className="text-sm font-medium text-red-900 dark:text-white">{tag.name}</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{tag.name}</span>
                       <button
                         onClick={() => handleEditTag(tag)}
-                        className="text-blue-600 hover:text-blue-700 text-xs"
+                        className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium px-2 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                       >
                         ✎
                       </button>
                       <button
                         onClick={() => handleDeleteTag(tag.id)}
-                        className="text-gray-400 hover:text-red-700 text-xs"
+                        className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                       >
                         ×
                       </button>
