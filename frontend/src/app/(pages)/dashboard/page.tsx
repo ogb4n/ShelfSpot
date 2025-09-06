@@ -6,6 +6,7 @@ import { MapPin, Search, Package } from "lucide-react";
 import DashboardCharts from "@/components/DashboardCharts";
 import { backendApi } from "@/lib/backend-api";
 import { useAuth } from "@/lib/auth-context";
+import { useUserPreferences } from "@/app/hooks/useUserPreferences";
 
 // Types
 interface Stats {
@@ -38,6 +39,7 @@ interface SearchItem {
 
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
+  const { preferences } = useUserPreferences();
   const [stats] = useState<Stats | null>(null);
   const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -123,38 +125,56 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Modern Header with gradient background */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-purple-900/20 border border-gray-200/50 dark:border-gray-700/50 p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5" />
-        <div className="relative text-center space-y-6">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-purple-400 dark:to-blue-400">
-              Welcome back{user?.name ? `, ${user.name}` : ''}!
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mt-3 leading-relaxed">
-              Find your items quickly and manage your inventory efficiently
-            </p>
+      {/* Always show search bar, either in header or standalone */}
+      {preferences?.showWelcomeHeader === false && (
+        <div className="max-w-2xl mx-auto">
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search for any item in your inventory..."
+              className="w-full pl-12 pr-6 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 shadow-sm transition-all duration-200"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
           </div>
+        </div>
+      )}
 
-          {/* Enhanced Search Bar */}
-          <div className="max-w-2xl mx-auto relative">
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-              <input
-                type="text"
-                placeholder="Search for any item in your inventory..."
-                className="w-full pl-12 pr-6 py-4 text-lg border border-gray-200 dark:border-gray-600 rounded-xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 shadow-lg transition-all duration-200 hover:shadow-xl"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
+      {/* Modern Header with gradient background */}
+      {preferences?.showWelcomeHeader !== false && (
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-purple-900/20 border border-gray-200/50 dark:border-gray-700/50 p-8">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5" />
+          <div className="relative text-center space-y-6">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-purple-400 dark:to-blue-400">
+                Welcome back{user?.name ? `, ${user.name}` : ''}!
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-300 mt-3 leading-relaxed">
+                Find your items quickly and manage your inventory efficiently
+              </p>
+            </div>
+
+            {/* Enhanced Search Bar */}
+            <div className="max-w-2xl mx-auto relative">
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Search for any item in your inventory..."
+                  className="w-full pl-12 pr-6 py-4 text-lg border border-gray-200 dark:border-gray-600 rounded-xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 shadow-lg transition-all duration-200 hover:shadow-xl"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Modern Stats Grid */}
-      {stats && (
+      {stats && preferences?.showStatsCards !== false && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <StatCard
             title="Total Items"
@@ -255,90 +275,102 @@ export default function Dashboard() {
         /* Modern Dashboard Layout */
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Charts Section */}
-          <div className="lg:col-span-3">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Analytics
-              </h2>
-            </div>
-            <div className="h-[690px]">
-              <DashboardCharts />
-            </div>
-          </div>
+          {(preferences?.showRoomDistribution !== false ||
+            preferences?.showAlertsPerMonth !== false ||
+            preferences?.showInventoryValue !== false ||
+            preferences?.showStatusDistribution !== false) && (
+              <div className={preferences?.showRecentItems !== false ? "lg:col-span-3" : "lg:col-span-5"}>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    Analytics
+                  </h2>
+                </div>
+                <div className="h-[690px]">
+                  <DashboardCharts preferences={{
+                    showRoomDistribution: preferences?.showRoomDistribution !== false,
+                    showAlertsPerMonth: preferences?.showAlertsPerMonth !== false,
+                    showInventoryValue: preferences?.showInventoryValue !== false,
+                    showStatusDistribution: preferences?.showStatusDistribution !== false,
+                  }} />
+                </div>
+              </div>
+            )}
 
           {/* Recent Items - Modern Card */}
-          <div className="lg:col-span-2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-8 mt-[52px] flex flex-col h-[725px] shadow-xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-1 h-8 bg-gradient-to-b from-green-500 to-blue-500 rounded-full"></div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Recent Items
-              </h2>
-            </div>
-            <div className="flex-1 space-y-4 overflow-y-auto scrollbar-hide relative" style={{ zIndex: 1 }}>
-              {recentItems.length > 0 ? (
-                recentItems.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="group relative flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 hover:border-blue-300 dark:hover:border-blue-600 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 transform"
-                    onClick={() => router.push(`/manage/${item.id}`)}
-                    title={`Created: ${new Date(item.createdAt).toLocaleDateString()}${item.status ? ` • Status: ${item.status}` : ''}${item.quantity ? ` • Qty: ${item.quantity}` : ''}`}
-                    style={{ zIndex: 10 + index }}
-                  >
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {item.name}
-                      </p>
-                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-                        <span>
-                          {item.room?.name || 'Unknown room'}
-                          {item.place && ` • ${item.place.name}`}
-                          {item.container && ` • ${item.container.name}`}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Modern Tooltip */}
+          {preferences?.showRecentItems !== false && (
+            <div className="lg:col-span-2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-8 mt-[52px] flex flex-col h-[725px] shadow-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-1 h-8 bg-gradient-to-b from-green-500 to-blue-500 rounded-full"></div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Recent Items
+                </h2>
+              </div>
+              <div className="flex-1 space-y-4 overflow-y-auto scrollbar-hide relative" style={{ zIndex: 1 }}>
+                {recentItems.length > 0 ? (
+                  recentItems.map((item, index) => (
                     <div
-                      className="absolute right-0 bottom-full mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-72 p-4 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl shadow-2xl border border-gray-700 pointer-events-none"
-                      style={{
-                        zIndex: 9999,
-                        transform: 'translateX(-20px)'
-                      }}
+                      key={item.id}
+                      className="group relative flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 hover:border-blue-300 dark:hover:border-blue-600 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 transform"
+                      onClick={() => router.push(`/manage/${item.id}`)}
+                      title={`Created: ${new Date(item.createdAt).toLocaleDateString()}${item.status ? ` • Status: ${item.status}` : ''}${item.quantity ? ` • Qty: ${item.quantity}` : ''}`}
+                      style={{ zIndex: 10 + index }}
                     >
-                      <div className="space-y-2">
-                        <div><strong className="text-blue-300">Created:</strong> {new Date(item.createdAt).toLocaleDateString()}</div>
-                        {item.status && <div><strong className="text-green-300">Status:</strong> {item.status}</div>}
-                        {item.quantity && <div><strong className="text-yellow-300">Quantity:</strong> {item.quantity}</div>}
-                        <div><strong className="text-purple-300">Location:</strong></div>
-                        <div className="ml-3 text-gray-300">
-                          🏠 Room: {item.room?.name || 'Unknown'}
-                          {item.place && <><br />📍 Place: {item.place.name}</>}
-                          {item.container && <><br />📦 Container: {item.container.name}</>}
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          {item.name}
+                        </p>
+                        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+                          <MapPin className="w-4 h-4 mr-2 text-blue-500" />
+                          <span>
+                            {item.room?.name || 'Unknown room'}
+                            {item.place && ` • ${item.place.name}`}
+                            {item.container && ` • ${item.container.name}`}
+                          </span>
                         </div>
-                        <div className="text-blue-300 mt-3 font-medium">✨ Click to view details</div>
                       </div>
-                      {/* Modern Arrow */}
-                      <div className="absolute top-full left-6 w-3 h-3 bg-gray-900/95 transform rotate-45 border-r border-b border-gray-700"></div>
+
+                      {/* Modern Tooltip */}
+                      <div
+                        className="absolute right-0 bottom-full mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-72 p-4 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl shadow-2xl border border-gray-700 pointer-events-none"
+                        style={{
+                          zIndex: 9999,
+                          transform: 'translateX(-20px)'
+                        }}
+                      >
+                        <div className="space-y-2">
+                          <div><strong className="text-blue-300">Created:</strong> {new Date(item.createdAt).toLocaleDateString()}</div>
+                          {item.status && <div><strong className="text-green-300">Status:</strong> {item.status}</div>}
+                          {item.quantity && <div><strong className="text-yellow-300">Quantity:</strong> {item.quantity}</div>}
+                          <div><strong className="text-purple-300">Location:</strong></div>
+                          <div className="ml-3 text-gray-300">
+                            🏠 Room: {item.room?.name || 'Unknown'}
+                            {item.place && <><br />📍 Place: {item.place.name}</>}
+                            {item.container && <><br />📦 Container: {item.container.name}</>}
+                          </div>
+                          <div className="text-blue-300 mt-3 font-medium">✨ Click to view details</div>
+                        </div>
+                        {/* Modern Arrow */}
+                        <div className="absolute top-full left-6 w-3 h-3 bg-gray-900/95 transform rotate-45 border-r border-b border-gray-700"></div>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-2xl flex items-center justify-center">
+                      <Package className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium">
+                      No recent items
+                    </p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                      Items you add will appear here
+                    </p>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-2xl flex items-center justify-center">
-                    <Package className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium">
-                    No recent items
-                  </p>
-                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                    Items you add will appear here
-                  </p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>

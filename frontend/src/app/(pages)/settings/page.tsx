@@ -5,6 +5,7 @@ import { ChangeEvent, FormEvent } from "react";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "@/lib/auth-context";
 import { backendApi, BackendApiError } from "@/lib/backend-api";
+import { useUserPreferences } from "@/app/hooks/useUserPreferences";
 
 // Types pour les utilisateurs
 interface User {
@@ -16,6 +17,7 @@ interface User {
 
 export default function Settings() {
   const { user, logout, refreshUser, updateProfileEmail } = useAuth();
+  const { preferences, updatePreferences, loading: preferencesLoading } = useUserPreferences();
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [userForm, setUserForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
@@ -25,7 +27,8 @@ export default function Settings() {
   const [expandedSections, setExpandedSections] = useState({
     users: false,
     personalInfo: false,
-    signOut: false
+    signOut: false,
+    features: false
   });
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -390,6 +393,240 @@ export default function Settings() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Features Section */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <button
+          onClick={() => toggleSection('features')}
+          className="w-full p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors rounded-lg"
+        >
+          <div className="text-left">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Dashboard Features</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+              Customize which elements appear on your home screen
+            </p>
+          </div>
+          {expandedSections.features ? (
+            <ChevronUpIcon className="w-5 h-5 text-gray-500" />
+          ) : (
+            <ChevronDownIcon className="w-5 h-5 text-gray-500" />
+          )}
+        </button>
+
+        {expandedSections.features && (
+          <div className="px-6 pb-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="pt-4">
+              {preferencesLoading ? (
+                <div className="text-gray-500 dark:text-gray-400">Loading preferences...</div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Welcome Header Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                        <span className="text-blue-600 dark:text-blue-400 text-sm">👋</span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Welcome Header</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Show the welcome banner with search bar</div>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preferences?.showWelcomeHeader !== false}
+                        onChange={async (e) => {
+                          try {
+                            await updatePreferences({ showWelcomeHeader: e.target.checked });
+                          } catch (error) {
+                            console.error('Failed to update preference:', error);
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  {/* Stats Cards Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                        <span className="text-green-600 dark:text-green-400 text-sm">📊</span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Statistics Cards</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Show quick stats (items, rooms, etc.)</div>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preferences?.showStatsCards !== false}
+                        onChange={async (e) => {
+                          try {
+                            await updatePreferences({ showStatsCards: e.target.checked });
+                          } catch (error) {
+                            console.error('Failed to update preference:', error);
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  {/* Recent Items Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                        <span className="text-purple-600 dark:text-purple-400 text-sm">🕒</span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Recent Items</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Show recently added items panel</div>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preferences?.showRecentItems !== false}
+                        onChange={async (e) => {
+                          try {
+                            await updatePreferences({ showRecentItems: e.target.checked });
+                          } catch (error) {
+                            console.error('Failed to update preference:', error);
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  {/* Chart Preferences Header */}
+                  <div className="pt-4 pb-2">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Analytics Charts</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Choose which charts to display</p>
+                  </div>
+
+                  {/* Room Distribution Chart Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                        <span className="text-blue-600 dark:text-blue-400 text-sm">🏠</span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Room Distribution</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Pie chart showing items per room</div>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preferences?.showRoomDistribution !== false}
+                        onChange={async (e) => {
+                          try {
+                            await updatePreferences({ showRoomDistribution: e.target.checked });
+                          } catch (error) {
+                            console.error('Failed to update preference:', error);
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  {/* Alerts Per Month Chart Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center">
+                        <span className="text-orange-600 dark:text-orange-400 text-sm">🚨</span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Alerts Per Month</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Bar chart showing monthly alerts</div>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preferences?.showAlertsPerMonth !== false}
+                        onChange={async (e) => {
+                          try {
+                            await updatePreferences({ showAlertsPerMonth: e.target.checked });
+                          } catch (error) {
+                            console.error('Failed to update preference:', error);
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  {/* Inventory Value Chart Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                        <span className="text-green-600 dark:text-green-400 text-sm">💰</span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Inventory Value</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Line chart showing inventory value over time</div>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preferences?.showInventoryValue !== false}
+                        onChange={async (e) => {
+                          try {
+                            await updatePreferences({ showInventoryValue: e.target.checked });
+                          } catch (error) {
+                            console.error('Failed to update preference:', error);
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  {/* Status Distribution Chart Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                        <span className="text-purple-600 dark:text-purple-400 text-sm">📋</span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Status Distribution</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Bar chart showing item status distribution</div>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preferences?.showStatusDistribution !== false}
+                        onChange={async (e) => {
+                          try {
+                            await updatePreferences({ showStatusDistribution: e.target.checked });
+                          } catch (error) {
+                            console.error('Failed to update preference:', error);
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

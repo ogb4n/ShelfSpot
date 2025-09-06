@@ -442,6 +442,46 @@ class BackendApiService {
   async getProjectScoringBreakdown(id: number) {
     return this.request<any>(`/projects/${id}/scoring/breakdown`);
   }
+
+  // Preferences methods
+  async getUserPreferences() {
+    return this.request<{
+      id: number;
+      userId: number;
+      showWelcomeHeader: boolean;
+      showStatsCards: boolean;
+      showRecentItems: boolean;
+      showRoomDistribution: boolean;
+      showAlertsPerMonth: boolean;
+      showInventoryValue: boolean;
+      showStatusDistribution: boolean;
+    }>("/preferences");
+  }
+
+  async updateUserPreferences(preferences: {
+    showWelcomeHeader?: boolean;
+    showStatsCards?: boolean;
+    showRecentItems?: boolean;
+    showRoomDistribution?: boolean;
+    showAlertsPerMonth?: boolean;
+    showInventoryValue?: boolean;
+    showStatusDistribution?: boolean;
+  }) {
+    return this.request<{
+      id: number;
+      userId: number;
+      showWelcomeHeader: boolean;
+      showStatsCards: boolean;
+      showRecentItems: boolean;
+      showRoomDistribution: boolean;
+      showAlertsPerMonth: boolean;
+      showInventoryValue: boolean;
+      showStatusDistribution: boolean;
+    }>("/preferences", {
+      method: "PUT",
+      body: JSON.stringify(preferences),
+    });
+  }
 }
 
 export const backendApi = new BackendApiService();
