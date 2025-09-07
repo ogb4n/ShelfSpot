@@ -47,6 +47,34 @@ export class AlertsController {
     return this.alertsService.create(createAlertDto);
   }
 
+  @Get('statistics/monthly')
+  @ApiOperation({ summary: 'Get monthly alerts statistics' })
+  @ApiResponse({
+    status: 200,
+    description: 'Monthly alerts statistics retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              month: { type: 'string', example: 'Jan' },
+              year: { type: 'number', example: 2025 },
+              count: { type: 'number', example: 5 },
+            },
+          },
+        },
+        total: { type: 'number', example: 45 },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  getMonthlyStatistics() {
+    return this.alertsService.getMonthlyStatistics();
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get alerts' })
   @ApiQuery({

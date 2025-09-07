@@ -318,28 +318,101 @@ export class ItemsService {
   }
 
   async getInventoryValue(): Promise<InventoryValueResponse> {
+    const allItemsCount = await this.prisma.item.count();
+
     const items = await this.prisma.item.findMany({
+      where: {
+        sellprice: {
+          not: null,
+        },
+      },
       select: {
         sellprice: true,
         quantity: true,
       },
     });
 
-    let totalValue = 0;
-    let itemsWithValue = 0;
-    const totalItems = items.length;
-
-    items.forEach((item) => {
-      if (item.sellprice && item.sellprice > 0) {
-        totalValue += item.sellprice * item.quantity;
-        itemsWithValue++;
-      }
-    });
+    const totalValue = items.reduce((sum, item) => {
+      return sum + (item.sellprice || 0) * item.quantity;
+    }, 0);
 
     return {
-      totalValue: Number(totalValue.toFixed(2)),
-      itemsWithValue,
-      totalItems,
+      totalValue,
+      itemsWithValue: items.length,
+      totalItems: allItemsCount,
+    };
+  }
+
+  async getStatusStatistics() {
+    // Get all items with their status
+    const items = await this.prisma.item.findMany({
+      select: {
+        status: true,
+      },
+    });
+
+    // Group items by status and normalize the data
+    const statusCounts = new Map<string, number>();
+
+    items.forEach((item) => {
+      let status = item.status;
+
+      // Normalize status values
+      if (!status || status.trim() === '') {
+        status = 'No Status';
+      } else {
+        // Normalize case and common variations
+        status = status.trim().toLowerCase();
+        switch (status) {
+          case 'good':
+          case 'bon':
+          case 'available':
+          case 'disponible':
+          case 'ok':
+            status = 'Good';
+            break;
+          case 'damaged':
+          case 'endommagé':
+          case 'endommage':
+          case 'broken':
+          case 'cassé':
+          case 'casse':
+            status = 'Damaged';
+            break;
+          case 'missing':
+          case 'manquant':
+          case 'lost':
+          case 'perdu':
+            status = 'Missing';
+            break;
+          case 'expired':
+          case 'expiré':
+          case 'expire':
+          case 'old':
+          case 'ancien':
+            status = 'Expired';
+            break;
+          default:
+            // Keep the original status but capitalize first letter
+            status = status.charAt(0).toUpperCase() + status.slice(1);
+        }
+      }
+
+      statusCounts.set(status, (statusCounts.get(status) || 0) + 1);
+    });
+
+    // Convert to array format
+    const data = Array.from(statusCounts.entries()).map(([status, count]) => ({
+      status,
+      count,
+    }));
+
+    // Sort by count descending
+    data.sort((a, b) => b.count - a.count);
+
+    return {
+      data,
+      total: items.length,
     };
   }
 }

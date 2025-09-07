@@ -8,6 +8,20 @@ import { EmailService } from '../email/email.service';
 import { PushNotificationService } from '../notifications/push-notification.service';
 import { CreateAlertDto, UpdateAlertDto } from './dto/alert.dto';
 
+interface PrismaError {
+  code: string;
+  message: string;
+}
+
+function isPrismaError(error: unknown): error is PrismaError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as Record<string, unknown>).code === 'string'
+  );
+}
+
 @Injectable()
 export class AlertsService {
   constructor(
@@ -42,8 +56,8 @@ export class AlertsService {
           },
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (isPrismaError(error) && error.code === 'P2002') {
         throw new ConflictException(
           'An alert with this threshold already exists for this item',
         );
@@ -125,11 +139,11 @@ export class AlertsService {
           },
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2025') {
+    } catch (error) {
+      if (isPrismaError(error) && error.code === 'P2025') {
         throw new NotFoundException(`Alert with ID ${id} not found`);
       }
-      if (error?.code === 'P2002') {
+      if (isPrismaError(error) && error.code === 'P2002') {
         throw new ConflictException(
           'An alert with this threshold already exists for this item',
         );
@@ -143,12 +157,68 @@ export class AlertsService {
       await this.prisma.alert.delete({
         where: { id },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2025') {
+    } catch (error) {
+      if (isPrismaError(error) && error.code === 'P2025') {
         throw new NotFoundException(`Alert with ID ${id} not found`);
       }
       throw error;
     }
+  }
+
+  async getMonthlyStatistics() {
+    const currentDate = new Date();
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(currentDate.getMonth() - 11);
+    twelveMonthsAgo.setDate(1);
+    twelveMonthsAgo.setHours(0, 0, 0, 0);
+
+    // Get alerts created in the last 12 months
+    const alerts = await this.prisma.alert.findMany({
+      where: {
+        createdAt: {
+          gte: twelveMonthsAgo,
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+    });
+
+    // Group alerts by month
+    const monthlyData = new Map<string, number>();
+
+    // Initialize all 12 months with 0
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(currentDate.getMonth() - i);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      monthlyData.set(key, 0);
+    }
+
+    // Count alerts per month
+    alerts.forEach((alert) => {
+      const date = new Date(alert.createdAt);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      if (monthlyData.has(key)) {
+        monthlyData.set(key, (monthlyData.get(key) || 0) + 1);
+      }
+    });
+
+    // Convert to array format
+    const result = Array.from(monthlyData.entries()).map(([key, count]) => {
+      const [year, month] = key.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+      return {
+        month: date.toLocaleDateString('en-US', { month: 'short' }),
+        year: parseInt(year),
+        count,
+      };
+    });
+
+    return {
+      data: result,
+      total: alerts.length,
+    };
   }
 
   async checkAlerts() {

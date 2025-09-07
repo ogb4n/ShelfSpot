@@ -588,6 +588,58 @@
         ]
       }
     },
+    "/items/statistics/status": {
+      "get": {
+        "operationId": "ItemsController_getStatusStatistics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Status distribution statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "example": "Good"
+                          },
+                          "count": {
+                            "type": "number",
+                            "example": 15
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "number",
+                      "example": 50
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get items status distribution statistics",
+        "tags": [
+          "Items"
+        ]
+      }
+    },
     "/items/search": {
       "get": {
         "operationId": "ItemsController_search",
@@ -823,6 +875,62 @@
           }
         ],
         "summary": "Get alerts",
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/alerts/statistics/monthly": {
+      "get": {
+        "operationId": "AlertsController_getMonthlyStatistics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Monthly alerts statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "month": {
+                            "type": "string",
+                            "example": "Jan"
+                          },
+                          "year": {
+                            "type": "number",
+                            "example": 2025
+                          },
+                          "count": {
+                            "type": "number",
+                            "example": 5
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "number",
+                      "example": 45
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get monthly alerts statistics",
         "tags": [
           "Alerts"
         ]

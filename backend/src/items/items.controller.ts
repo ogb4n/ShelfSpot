@@ -87,6 +87,33 @@ export class ItemsController {
     return this.itemsService.getInventoryValue();
   }
 
+  @Get('statistics/status')
+  @ApiOperation({ summary: 'Get items status distribution statistics' })
+  @ApiResponse({
+    status: 200,
+    description: 'Status distribution statistics retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              status: { type: 'string', example: 'Good' },
+              count: { type: 'number', example: 15 },
+            },
+          },
+        },
+        total: { type: 'number', example: 50 },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  getStatusStatistics() {
+    return this.itemsService.getStatusStatistics();
+  }
+
   @Get('search')
   @ApiOperation({ summary: 'Search items' })
   @ApiQuery({ name: 'q', description: 'Search term', required: false })
