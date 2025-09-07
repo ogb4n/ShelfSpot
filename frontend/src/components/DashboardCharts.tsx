@@ -13,6 +13,8 @@ import {
 } from "chart.js";
 import useGetRooms from "@/app/hooks/useGetRooms";
 import { useInventoryValue } from "@/app/hooks/useInventoryValue";
+import { useAlertsStatistics } from "@/app/hooks/useAlertsStatistics";
+import { useStatusStatistics } from "@/app/hooks/useStatusStatistics";
 import { Room } from "@/app/types";
 
 // Type étendu pour inclure _count
@@ -52,6 +54,8 @@ const backgroundColors = [
 export default function DashboardCharts({ preferences }: DashboardChartsProps) {
     const { data: rooms, loading, error } = useGetRooms();
     const { data: inventoryValueData, loading: inventoryLoading } = useInventoryValue();
+    const { data: alertsData, loading: alertsLoading, error: alertsError } = useAlertsStatistics();
+    const { data: statusData, loading: statusLoading, error: statusError } = useStatusStatistics();
 
     // Cast en RoomWithCount pour avoir accès à _count
     const roomsWithCount = rooms as RoomWithCount[];
@@ -69,24 +73,45 @@ export default function DashboardCharts({ preferences }: DashboardChartsProps) {
         }],
     };
 
-    const alertsPerMonth = {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+    // Generate alerts per month chart data
+    const alertsPerMonth = alertsData ? {
+        labels: alertsData.data.map(item => item.month),
         datasets: [
             {
                 label: "Alerts",
-                data: [12, 8, 15, 6, 10],
+                data: alertsData.data.map(item => item.count),
+                backgroundColor: "#3b82f6",
+                borderColor: "#1e3a8a",
+            },
+        ],
+    } : {
+        labels: [],
+        datasets: [
+            {
+                label: "Alerts",
+                data: [],
                 backgroundColor: "#3b82f6",
                 borderColor: "#1e3a8a",
             },
         ],
     };
 
-    const statusDistribution = {
-        labels: ["Good", "Damaged", "Missing", "Expired"],
+    const statusDistribution = statusData ? {
+        labels: statusData.data.map(item => item.status),
         datasets: [
             {
                 label: "Items by status",
-                data: [45, 12, 5, 8],
+                data: statusData.data.map(item => item.count),
+                backgroundColor: backgroundColors,
+                borderWidth: 1,
+            },
+        ],
+    } : {
+        labels: [],
+        datasets: [
+            {
+                label: "Items by status",
+                data: [],
                 backgroundColor: backgroundColors,
                 borderWidth: 1,
             },
@@ -230,9 +255,45 @@ export default function DashboardCharts({ preferences }: DashboardChartsProps) {
                         <div className="w-1 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></div>
                         <h2 className="text-gray-900 dark:text-white text-xl font-bold">Alerts per month</h2>
                     </div>
-                    <div className="w-full h-64">
-                        <Bar data={alertsPerMonth} options={{ maintainAspectRatio: false }} />
-                    </div>
+                    {alertsLoading ? (
+                        <div className="flex flex-col items-center justify-center h-64">
+                            <div className="relative mb-6">
+                                <div className="w-16 h-16 border-4 border-orange-100 dark:border-orange-900/30 rounded-full"></div>
+                                <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+                            </div>
+                            <p className="text-gray-600 dark:text-gray-400 font-medium">Loading alerts data...</p>
+                        </div>
+                    ) : alertsError ? (
+                        <div className="text-center py-16">
+                            <div className="w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+                                <span className="text-red-500 text-2xl">⚠️</span>
+                            </div>
+                            <div className="text-red-600 dark:text-red-400 text-lg font-semibold mb-2">Error loading alerts</div>
+                            <div className="text-gray-500 dark:text-gray-400 text-sm">{alertsError}</div>
+                        </div>
+                    ) : !alertsData || alertsData.data.length === 0 ? (
+                        <div className="text-center py-16">
+                            <div className="w-16 h-16 mx-auto mb-4 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center">
+                                <span className="text-orange-500 text-2xl">🚨</span>
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-400 text-lg font-semibold mb-2">No alerts data</div>
+                            <div className="text-gray-500 dark:text-gray-500 text-sm">No alerts have been created yet</div>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="mb-4 text-center">
+                                <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                                    {alertsData.total}
+                                </div>
+                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    Total alerts in the last 12 months
+                                </div>
+                            </div>
+                            <div className="w-full h-48">
+                                <Bar data={alertsPerMonth} options={{ maintainAspectRatio: false }} />
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -284,9 +345,35 @@ export default function DashboardCharts({ preferences }: DashboardChartsProps) {
                         <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
                         <h2 className="text-gray-900 dark:text-white text-xl font-bold">Status distribution</h2>
                     </div>
-                    <div className="w-full h-64">
-                        <Bar data={statusDistribution} options={{ maintainAspectRatio: false }} />
-                    </div>
+                    {statusLoading ? (
+                        <div className="flex flex-col items-center justify-center h-64">
+                            <div className="relative mb-6">
+                                <div className="w-16 h-16 border-4 border-purple-100 dark:border-purple-900/30 rounded-full"></div>
+                                <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+                            </div>
+                            <p className="text-gray-600 dark:text-gray-400 font-medium">Loading status data...</p>
+                        </div>
+                    ) : statusError ? (
+                        <div className="text-center py-16">
+                            <div className="w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+                                <span className="text-red-500 text-2xl">⚠️</span>
+                            </div>
+                            <div className="text-red-600 dark:text-red-400 text-lg font-semibold mb-2">Error loading status data</div>
+                            <div className="text-gray-500 dark:text-gray-400 text-sm">{statusError}</div>
+                        </div>
+                    ) : statusData && statusData.data.length > 0 ? (
+                        <div className="w-full h-64">
+                            <Bar data={statusDistribution} options={{ maintainAspectRatio: false }} />
+                        </div>
+                    ) : (
+                        <div className="text-center py-16">
+                            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                                <span className="text-gray-400 text-2xl">📊</span>
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-400 text-lg font-semibold mb-2">No status data</div>
+                            <div className="text-gray-500 dark:text-gray-500 text-sm">Add status information to items to see distribution</div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

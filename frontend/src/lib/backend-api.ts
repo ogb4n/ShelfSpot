@@ -321,6 +321,27 @@ class BackendApiService {
     });
   }
 
+  async getAlertsStatistics() {
+    return this.request<{
+      data: Array<{
+        month: string;
+        year: number;
+        count: number;
+      }>;
+      total: number;
+    }>("/alerts/statistics/monthly");
+  }
+
+  async getStatusStatistics() {
+    return this.request<{
+      data: Array<{
+        status: string;
+        count: number;
+      }>;
+      total: number;
+    }>("/items/statistics/status");
+  }
+
   // Admin methods
   async getAllUsers() {
     return this.request<any[]>("/admin/users");
