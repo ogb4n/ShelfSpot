@@ -518,7 +518,7 @@ export class AlertsService {
         }
       } catch (error) {
         console.error(
-          `Error sending push notifications for item ${itemId}:`,
+          'Error sending push notifications for item %s:', itemId,
           error,
         );
         // Ne pas faire échouer la fonction si les notifications échouent
