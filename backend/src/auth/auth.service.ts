@@ -199,7 +199,7 @@ export class AuthService {
   }
 
   async updateUserName(userId: string, newName: string): Promise<UserPayload> {
-    if (newName.length < 5) {
+    if (typeof newName === 'string' && newName.length < 5) {
       throw new BadRequestException('Name must be at least 5 characters long');
     }
 
@@ -451,6 +451,7 @@ export class AuthService {
         where: { id: numericUserId },
       });
     } catch (error: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error?.code === 'P2025') {
         throw new NotFoundException('User not found');
       }
