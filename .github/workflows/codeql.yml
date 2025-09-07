@@ -1,0 +1,21 @@
+name: "CodeQL"
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          # Mettre 'javascript' pour analyser JS/TS, ou enlever la clé 'languages' pour autodétection
+          languages: javascript
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
