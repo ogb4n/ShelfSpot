@@ -471,7 +471,7 @@ export class AlertsService {
           subject: `🚨 Alerte stock faible - ${alertsToSend[0].item.name} (quantité: ${newQuantity})`,
         });
       } catch (error) {
-        console.error(`Error sending alert emails for item ${itemId}:`, error);
+        console.error('Error sending alert emails for item %s:', itemId, error);
         // Ne pas faire échouer la fonction si l'email échoue
       }
     }
