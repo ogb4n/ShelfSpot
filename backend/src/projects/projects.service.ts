@@ -11,7 +11,6 @@ import {
   AddItemToProjectDto,
   UpdateProjectItemDto,
 } from './dto/project.dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProjectsService {
@@ -295,60 +294,51 @@ export class ProjectsService {
     itemId: number,
     updateDto: UpdateProjectItemDto,
   ) {
-    try {
-      const projectItem = await this.prisma.projectItem.update({
-        where: {
-          projectId_itemId: {
-            projectId,
-            itemId,
+    const projectItem = await this.prisma.projectItem.update({
+      where: {
+        projectId_itemId: {
+          projectId,
+          itemId,
+        },
+      },
+      data: updateDto,
+      include: {
+        item: {
+          select: {
+            id: true,
+            name: true,
+            quantity: true,
+            status: true,
+            importanceScore: true,
           },
         },
-        data: updateDto,
-        include: {
-          item: {
-            select: {
-              id: true,
-              name: true,
-              quantity: true,
-              status: true,
-              importanceScore: true,
-            },
-          },
-          project: {
-            select: {
-              id: true,
-              name: true,
-              status: true,
-              priority: true,
-            },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+            priority: true,
           },
         },
-      });
+      },
+    });
 
-      // Recalculer le score d'importance de l'item
-      this.scoringService
-        .calculateItemScore(itemId)
-        .then((scoreBreakdown) => {
-          if (scoreBreakdown) {
-            this.prisma.item
-              .update({
-                where: { id: itemId },
-                data: { importanceScore: scoreBreakdown.totalScore },
-              })
-              .catch(console.error);
-          }
-        })
-        .catch(console.error);
+    // Recalculer le score d'importance de l'item
+    this.scoringService
+      .calculateItemScore(itemId)
+      .then((scoreBreakdown) => {
+        if (scoreBreakdown) {
+          this.prisma.item
+            .update({
+              where: { id: itemId },
+              data: { importanceScore: scoreBreakdown.totalScore },
+            })
+            .catch(console.error);
+        }
+      })
+      .catch(console.error);
 
-      return projectItem;
-    } catch (error: any) {
-      if (error?.code === 'P2025') {
-        throw new NotFoundException(
-          `Item ${itemId} non trouvé dans le projet ${projectId}`,
-        );
-      }
-      throw error;
-    }
+    return projectItem;
   }
 
   /**

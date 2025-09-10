@@ -52,11 +52,24 @@ export class EmailService {
 
     try {
       // Use a proper format for the from email address
-      const defaultFromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@resend.dev';
-      const defaultFrom = defaultFromEmail.includes('@') && !defaultFromEmail.includes('<') 
-        ? `ShelfSpot <${defaultFromEmail}>`
-        : defaultFromEmail;
-      
+      const fromEmailConfig =
+        process.env.RESEND_FROM_EMAIL || 'noreply@resend.dev';
+      let defaultFrom: string;
+
+      // If fromEmailConfig is just a domain, create a proper email address
+      if (fromEmailConfig && !fromEmailConfig.includes('@')) {
+        defaultFrom = `ShelfSpot <noreply@${fromEmailConfig}>`;
+      } else if (
+        fromEmailConfig.includes('@') &&
+        !fromEmailConfig.includes('<')
+      ) {
+        // If it's just an email address, wrap it with app name
+        defaultFrom = `ShelfSpot <${fromEmailConfig}>`;
+      } else {
+        // If it's already properly formatted or default
+        defaultFrom = fromEmailConfig;
+      }
+
       const from = options?.from || defaultFrom;
       const subject =
         options?.subject ||
@@ -233,9 +246,10 @@ Pour configurer vos alertes, connectez-vous à votre tableau de bord.
     try {
       // Use a proper format for the from email address
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@resend.dev';
-      const fromAddress = fromEmail.includes('@') && !fromEmail.includes('<') 
-        ? `ShelfSpot <${fromEmail}>`
-        : fromEmail;
+      const fromAddress =
+        fromEmail.includes('@') && !fromEmail.includes('<')
+          ? `ShelfSpot <${fromEmail}>`
+          : fromEmail;
 
       const { data, error } = await this.resend.emails.send({
         from: fromAddress,
@@ -271,7 +285,7 @@ Pour configurer vos alertes, connectez-vous à votre tableau de bord.
   async sendPasswordResetEmail(
     to: string,
     tempPassword: string,
-    userName: string = 'User'
+    userName: string = 'User',
   ): Promise<{ success: boolean; messageId?: string; error?: string }> {
     if (!this.resend) {
       return { success: false, error: 'Email service not configured' };
@@ -280,9 +294,10 @@ Pour configurer vos alertes, connectez-vous à votre tableau de bord.
     try {
       // Use a proper format for the from email address
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@resend.dev';
-      const fromAddress = fromEmail.includes('@') && !fromEmail.includes('<') 
-        ? `ShelfSpot <${fromEmail}>`
-        : fromEmail;
+      const fromAddress =
+        fromEmail.includes('@') && !fromEmail.includes('<')
+          ? `ShelfSpot <${fromEmail}>`
+          : fromEmail;
 
       const { data, error } = await this.resend.emails.send({
         from: fromAddress,
@@ -297,7 +312,9 @@ Pour configurer vos alertes, connectez-vous à votre tableau de bord.
         return { success: false, error: error.message };
       }
 
-      this.logger.log(`Password reset email sent successfully. Message ID: ${data?.id}`);
+      this.logger.log(
+        `Password reset email sent successfully. Message ID: ${data?.id}`,
+      );
       return { success: true, messageId: data?.id };
     } catch (error) {
       this.logger.error('Error sending password reset email:', error);
@@ -311,7 +328,10 @@ Pour configurer vos alertes, connectez-vous à votre tableau de bord.
   /**
    * Generate HTML content for password reset email
    */
-  private generatePasswordResetEmailHtml(tempPassword: string, userName: string): string {
+  private generatePasswordResetEmailHtml(
+    tempPassword: string,
+    userName: string,
+  ): string {
     return `
       <!DOCTYPE html>
       <html>
@@ -377,7 +397,10 @@ Pour configurer vos alertes, connectez-vous à votre tableau de bord.
   /**
    * Generate text content for password reset email
    */
-  private generatePasswordResetEmailText(tempPassword: string, userName: string): string {
+  private generatePasswordResetEmailText(
+    tempPassword: string,
+    userName: string,
+  ): string {
     return `
 🔐 PASSWORD RESET - ShelfSpot
 

@@ -88,14 +88,9 @@ export default function ProjectDetailsModal({ open, onClose, project, onUpdate }
 
     // Supprimer un article du projet
     const handleRemoveItem = async (itemId: number) => {
-        try {
-            await backendApi.removeItemFromProject(project.id, itemId);
-            refetch();
-            onUpdate();
-        } catch (error) {
-            console.error('Error removing item:', error);
-            alert('Error removing item');
-        }
+        await backendApi.removeItemFromProject(project.id, itemId);
+        refetch();
+        onUpdate();
     };
 
     const formatDate = (dateString: string) => {

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -6,18 +8,20 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(context: ExecutionContext) {
     console.log('JwtAuthGuard: canActivate called');
     const request = context.switchToHttp().getRequest();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const authHeader = request.headers.authorization;
     console.log('JwtAuthGuard: Authorization header:', authHeader);
-    
+
     return super.canActivate(context);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handleRequest(err, user, info) {
-    console.log('JwtAuthGuard: handleRequest called');
-    console.log('JwtAuthGuard: err:', err);
-    console.log('JwtAuthGuard: user:', user);
-    console.log('JwtAuthGuard: info:', info);
-    
+    // console.log('JwtAuthGuard: handleRequest called');
+    // console.log('JwtAuthGuard: err:', err);
+    // console.log('JwtAuthGuard: user:', user);
+    // console.log('JwtAuthGuard: info:', info);
+
     if (err || !user) {
       console.log('JwtAuthGuard: Throwing UnauthorizedException');
       throw err || new Error('Unauthorized');

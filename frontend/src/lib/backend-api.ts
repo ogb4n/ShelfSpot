@@ -65,6 +65,11 @@ class BackendApiService {
       throw new BackendApiError(response.status, errorMessage);
     }
 
+    // Fix: Don't parse JSON if status is 204 No Content
+    if (response.status === 204) {
+      return {} as T;
+    }
+
     return response.json();
   }
 
@@ -415,9 +420,9 @@ class BackendApiService {
 
   // Project items methods
   async addItemToProject(projectId: number, itemId: number, quantity: number) {
-    return this.request<any>(`/projects/${projectId}/items/${itemId}`, {
+    return this.request<any>(`/projects/${projectId}/items`, {
       method: "POST",
-      body: JSON.stringify({ quantity }),
+      body: JSON.stringify({ itemId, quantity }),
     });
   }
 
