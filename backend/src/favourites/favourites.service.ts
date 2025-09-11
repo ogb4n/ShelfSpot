@@ -12,7 +12,7 @@ export class FavouritesService {
     });
   }
 
-  // Créer un favori avec l'ID utilisateur (string converti en number pour la DB)
+  // Create a favourite with user ID (string converted to number for the DB)
   async createWithUserId(itemId: number, userId: string | number) {
     const numericUserId =
       typeof userId === 'string' ? parseInt(userId, 10) : userId;
@@ -110,7 +110,7 @@ export class FavouritesService {
     });
   }
 
-  // Supprimer un favori en vérifiant l'utilisateur
+  // Remove a favourite while checking the user
   removeWithUserId(id: number, userId: string | number) {
     const numericUserId =
       typeof userId === 'string' ? parseInt(userId, 10) : userId;
@@ -140,7 +140,7 @@ export class FavouritesService {
     });
   }
 
-  // Supprimer un favori par item et user ID
+  // Remove a favourite by item and user ID
   removeByItemAndUserId(itemId: number, userId: string | number) {
     const numericUserId =
       typeof userId === 'string' ? parseInt(userId, 10) : userId;

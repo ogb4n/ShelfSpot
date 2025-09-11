@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AlertsService } from '../alerts/alerts.service';
@@ -15,6 +18,7 @@ export class ConsumablesService {
       return null;
     }
     const { itemTags, ...rest } = item;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const tags = itemTags ? itemTags.map((it: any) => it.tag.name) : [];
     return {
       ...rest,
@@ -79,9 +83,9 @@ export class ConsumablesService {
       },
     });
 
-    // Vérifier les alertes pour le nouveau consommable
+    // Check alerts for the new consumable
     if (typeof data.quantity === 'number') {
-      // Vérifier les alertes de manière asynchrone sans bloquer la réponse
+      // Check alerts asynchronously without blocking the response
       this.alertsService
         .checkItemAlerts(item.id, data.quantity)
         .catch((error) => {
@@ -96,7 +100,7 @@ export class ConsumablesService {
   }
 
   async update(id: number, data: Prisma.ItemUpdateInput) {
-    // Récupérer l'ancienne quantité avant la mise à jour
+    // Retrieve the previous quantity before the update
     const oldItem = await this.prisma.item.findUnique({
       where: { id, consumable: true },
       select: { quantity: true },
@@ -123,7 +127,7 @@ export class ConsumablesService {
       },
     });
 
-    // Vérifier les alertes si la quantité a changé
+    // Check alerts if the quantity has changed
     if (
       data.quantity !== undefined &&
       oldItem &&
@@ -131,7 +135,7 @@ export class ConsumablesService {
     ) {
       const newQuantity = data.quantity;
       if (newQuantity !== oldItem.quantity) {
-        // Vérifier les alertes de manière asynchrone sans bloquer la réponse
+        // Check alerts asynchronously without blocking the response
         this.alertsService.checkItemAlerts(id, newQuantity).catch((error) => {
           console.error(`Error checking alerts for consumable ${id}:`, error);
         });
@@ -150,7 +154,7 @@ export class ConsumablesService {
     });
   }
 
-  // Méthode pour obtenir les consommables avec un stock faible
+  // Method to get consumables with low stock
   async findLowStock(threshold: number = 5) {
     const items = await this.prisma.item.findMany({
       where: {

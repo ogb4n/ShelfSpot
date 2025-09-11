@@ -58,7 +58,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedSearch(searchInput);
-        }, 300); // 300ms de délai
+        }, 300); // 300ms delay
         return () => clearTimeout(handler);
     }, [searchInput]);
 
@@ -100,7 +100,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
     }, [itemsProp]);
 
     useEffect(() => {
-        // Récupère les favoris de l'utilisateur au chargement
+        // Fetch user's favourites on mount
         async function fetchFavourites() {
             try {
                 const data = await backendApi.getFavourites();
@@ -112,7 +112,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
         fetchFavourites();
     }, []);
 
-    // Handler pour supprimer plusieurs objets
+    // Handler to delete multiple items
     const handleDeleteSelected = async () => {
         if (selectedIds.length === 0) return;
         if (!window.confirm(`Supprimer ${selectedIds.length} objet(s) sélectionné(s) ?`)) return;
@@ -184,7 +184,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
         setEditValues({});
     };
 
-    // Handler pour supprimer un objet
+    // Handler to delete a single item
     const handleDelete = async (id: number) => {
         if (!window.confirm("Supprimer cet objet ?")) return;
         try {

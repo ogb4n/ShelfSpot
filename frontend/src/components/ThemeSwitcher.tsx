@@ -8,7 +8,7 @@ export default function ThemeSwitcher() {
 
     useEffect(() => {
         setMounted(true);
-        // Récupère le thème depuis localStorage ou media query
+        // Get theme from localStorage or media query
         let t = localStorage.theme;
         if (!t) {
             t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -16,7 +16,7 @@ export default function ThemeSwitcher() {
         setTheme(t);
     }, []);
 
-    if (!mounted) return null; // Ne rien afficher tant que le thème n'est pas déterminé
+    if (!mounted) return null; // Do not render until theme is determined
 
     return (
         <button

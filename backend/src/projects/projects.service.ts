@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Injectable,
   NotFoundException,
@@ -148,7 +149,7 @@ export class ProjectsService {
         },
       });
 
-      // Recalculer les scores d'importance des items du projet si le statut ou la priorité a changé
+      // Recalculate importance scores of project items if status or priority changed
       if (
         updateProjectDto.status !== undefined ||
         updateProjectDto.priority !== undefined
@@ -172,7 +173,7 @@ export class ProjectsService {
 
   async remove(id: number) {
     try {
-      // Récupérer les IDs des items du projet avant suppression
+      // Retrieve project item IDs before deletion
       const projectItems = await this.prisma.projectItem.findMany({
         where: { projectId: id },
         select: { itemId: true },
@@ -182,7 +183,7 @@ export class ProjectsService {
         where: { id },
       });
 
-      // Recalculer les scores des items qui étaient dans ce projet
+      // Recalculate scores of items that were in this project
       const itemIds = projectItems.map((pi) => pi.itemId);
       for (const itemId of itemIds) {
         this.scoringService
@@ -208,10 +209,10 @@ export class ProjectsService {
   }
 
   /**
-   * Ajouter un item à un projet
+   * Add an item to a project
    */
   async addItemToProject(projectId: number, addItemDto: AddItemToProjectDto) {
-    // Vérifier que le projet existe
+    // Verify that the project exists
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
     });
@@ -220,7 +221,7 @@ export class ProjectsService {
       throw new NotFoundException(`Projet avec l'ID ${projectId} non trouvé`);
     }
 
-    // Vérifier que l'item existe
+    // Verify that the item exists
     const item = await this.prisma.item.findUnique({
       where: { id: addItemDto.itemId },
     });
@@ -260,7 +261,7 @@ export class ProjectsService {
         },
       });
 
-      // Recalculer le score d'importance de l'item
+      // Recalculate the importance score of the item
       this.scoringService
         .calculateItemScore(addItemDto.itemId)
         .then((scoreBreakdown) => {
@@ -287,7 +288,7 @@ export class ProjectsService {
   }
 
   /**
-   * Modifier un item dans un projet
+   * Modify an item in a project
    */
   async updateProjectItem(
     projectId: number,
@@ -323,7 +324,7 @@ export class ProjectsService {
       },
     });
 
-    // Recalculer le score d'importance de l'item
+    // Recalculate the importance score of the item
     this.scoringService
       .calculateItemScore(itemId)
       .then((scoreBreakdown) => {
@@ -342,7 +343,7 @@ export class ProjectsService {
   }
 
   /**
-   * Retirer un item d'un projet
+   * Remove an item from a project
    */
   async removeItemFromProject(projectId: number, itemId: number) {
     try {
@@ -355,7 +356,7 @@ export class ProjectsService {
         },
       });
 
-      // Recalculer le score d'importance de l'item
+      // Recalculate the importance score of the item
       this.scoringService
         .calculateItemScore(itemId)
         .then((scoreBreakdown) => {
@@ -380,7 +381,7 @@ export class ProjectsService {
   }
 
   /**
-   * Obtenir les statistiques d'un projet
+   * Get statistics for a project
    */
   async getProjectStatistics(projectId: number) {
     const project = await this.prisma.project.findUnique({
@@ -422,7 +423,7 @@ export class ProjectsService {
           ) / totalItems
         : 0;
 
-    // Items critiques (stock faible + utilisés dans ce projet)
+    // Critical items (low stock + used in this project)
     const criticalItems = project.projectItems.filter(
       (pi) => pi.item.quantity <= 5 && pi.isActive,
     );

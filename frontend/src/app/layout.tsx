@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/app-ico.svg" />
-        {/* Script pour appliquer le thème dès le chargement */}
+        {/* Script to apply the theme on load */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

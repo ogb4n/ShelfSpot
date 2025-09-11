@@ -31,7 +31,6 @@ export class AlertsService {
   ) {}
 
   async create(createAlertDto: CreateAlertDto) {
-    // Vérifier que l'item existe
     const item = await this.prisma.item.findUnique({
       where: { id: createAlertDto.itemId },
     });
@@ -172,7 +171,6 @@ export class AlertsService {
     twelveMonthsAgo.setDate(1);
     twelveMonthsAgo.setHours(0, 0, 0, 0);
 
-    // Get alerts created in the last 12 months
     const alerts = await this.prisma.alert.findMany({
       where: {
         createdAt: {
@@ -184,10 +182,8 @@ export class AlertsService {
       },
     });
 
-    // Group alerts by month
     const monthlyData = new Map<string, number>();
 
-    // Initialize all 12 months with 0
     for (let i = 11; i >= 0; i--) {
       const date = new Date();
       date.setMonth(currentDate.getMonth() - i);
@@ -195,7 +191,6 @@ export class AlertsService {
       monthlyData.set(key, 0);
     }
 
-    // Count alerts per month
     alerts.forEach((alert) => {
       const date = new Date(alert.createdAt);
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -204,7 +199,6 @@ export class AlertsService {
       }
     });
 
-    // Convert to array format
     const result = Array.from(monthlyData.entries()).map(([key, count]) => {
       const [year, month] = key.split('-');
       const date = new Date(parseInt(year), parseInt(month) - 1, 1);
@@ -222,7 +216,6 @@ export class AlertsService {
   }
 
   async checkAlerts() {
-    // Récupérer toutes les alertes actives avec leurs items
     const alerts = await this.prisma.alert.findMany({
       where: { isActive: true },
       include: {
@@ -241,7 +234,6 @@ export class AlertsService {
       },
     });
 
-    // Filtrer les alertes déclenchées (quantity <= threshold)
     const triggeredAlerts = alerts.filter(
       (alert) => alert.item.quantity <= alert.threshold,
     );
@@ -255,7 +247,6 @@ export class AlertsService {
       };
     }
 
-    // Filtrer les alertes qui n'ont pas été envoyées récemment (moins de 24h)
     const now = new Date();
     const alertsToSend = triggeredAlerts.filter((alert) => {
       if (!alert.lastSent) return true;
@@ -276,7 +267,6 @@ export class AlertsService {
       };
     }
 
-    // Envoyer les emails d'alerte
     const emailRecipient = process.env.ALERT_EMAIL_RECIPIENT;
     if (emailRecipient && alertsToSend.length > 0) {
       try {
@@ -290,14 +280,11 @@ export class AlertsService {
         await this.emailService.sendAlertEmail(emailRecipient, emailData);
       } catch (error) {
         console.error('Error sending alert emails:', error);
-        // Ne pas faire échouer la fonction si l'email échoue
       }
     }
 
-    // Envoyer les notifications push à tous les utilisateurs avec un token
     if (alertsToSend.length > 0) {
       try {
-        // Récupérer tous les utilisateurs avec un notification token
         const usersWithTokens = await this.prisma.user.findMany({
           where: {
             notificationToken: {
@@ -314,7 +301,6 @@ export class AlertsService {
           .filter((token): token is string => token !== null);
 
         if (pushTokens.length > 0) {
-          // Créer le message de notification
           const alertNames = alertsToSend.map((alert) => alert.item.name);
           const title = 'Alerte Stock';
           const body =
@@ -343,11 +329,9 @@ export class AlertsService {
         }
       } catch (error) {
         console.error('Error sending push notifications:', error);
-        // Ne pas faire échouer la fonction si les notifications échouent
       }
     }
 
-    // Mettre à jour la date du dernier envoi
     await this.prisma.alert.updateMany({
       where: {
         id: {
@@ -368,12 +352,11 @@ export class AlertsService {
   }
 
   /**
-   * Vérifie les alertes pour un item spécifique après modification de sa quantité
+   * Check alerts for a specific item after its quantity has been modified
    * @param itemId ID de l'item modifié
    * @param newQuantity Nouvelle quantité de l'item
    */
   async checkItemAlerts(itemId: number, newQuantity: number) {
-    // Récupérer toutes les alertes actives pour cet item
     const alerts = await this.prisma.alert.findMany({
       where: {
         itemId,
@@ -399,8 +382,6 @@ export class AlertsService {
       };
     }
 
-    // Réinitialiser les alertes qui sont maintenant au-dessus du seuil
-    // (quantité remontée au-dessus du seuil = alerte résolue)
     const alertsToReset = alerts.filter(
       (alert) => newQuantity > alert.threshold && alert.lastSent !== null,
     );
@@ -413,7 +394,7 @@ export class AlertsService {
           },
         },
         data: {
-          lastSent: null, // Réinitialiser pour permettre un nouveau déclenchement
+          lastSent: null,
         },
       });
 
@@ -422,7 +403,6 @@ export class AlertsService {
       );
     }
 
-    // Filtrer les alertes déclenchées (newQuantity <= threshold)
     const triggeredAlerts = alerts.filter(
       (alert) => newQuantity <= alert.threshold,
     );
@@ -436,7 +416,6 @@ export class AlertsService {
       };
     }
 
-    // Filtrer les alertes qui n'ont pas été envoyées récemment (moins de 24h)
     const now = new Date();
     const alertsToSend = triggeredAlerts.filter((alert) => {
       if (!alert.lastSent) return true;
@@ -456,7 +435,6 @@ export class AlertsService {
       };
     }
 
-    // Envoyer les emails d'alerte pour cet item spécifique
     const emailRecipient = process.env.ALERT_EMAIL_RECIPIENT;
     if (emailRecipient && alertsToSend.length > 0) {
       try {
@@ -472,14 +450,11 @@ export class AlertsService {
         });
       } catch (error) {
         console.error('Error sending alert emails for item %s:', itemId, error);
-        // Ne pas faire échouer la fonction si l'email échoue
       }
     }
 
-    // Envoyer les notifications push pour cet item spécifique
     if (alertsToSend.length > 0) {
       try {
-        // Récupérer tous les utilisateurs avec un notification token
         const usersWithTokens = await this.prisma.user.findMany({
           where: {
             notificationToken: {
@@ -522,11 +497,9 @@ export class AlertsService {
           itemId,
           error,
         );
-        // Ne pas faire échouer la fonction si les notifications échouent
       }
     }
 
-    // Log des alertes déclenchées
     console.log(`🚨 ALERT TRIGGERED for item ${itemId}:`);
     console.log(`   - New quantity: ${newQuantity}`);
     console.log(`   - Alerts triggered: ${alertsToSend.length}`);
@@ -536,7 +509,6 @@ export class AlertsService {
       );
     });
 
-    // Mettre à jour la date du dernier envoi
     await this.prisma.alert.updateMany({
       where: {
         id: {
@@ -560,9 +532,6 @@ export class AlertsService {
     };
   }
 
-  /**
-   * Envoie un email de test pour vérifier la configuration
-   */
   async sendTestEmail(email?: string): Promise<{
     success: boolean;
     messageId?: string;

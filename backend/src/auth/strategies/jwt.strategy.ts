@@ -23,14 +23,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<UserPayload> {
-    // console.log(
-    //   'JWT Strategy: Validating payload:',
-    //   JSON.stringify(payload, null, 2),
-    // );
-
-    // Vérifier que l'utilisateur existe toujours dans la base de données
+    // Check that the user still exists in the database
     const userId = parseInt(payload.sub);
-    // console.log('JWT Strategy: Looking for user with ID:', userId);
 
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -47,16 +41,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found');
     }
 
-    // console.log('JWT Strategy: User found:', user);
-
     const userPayload = {
-      id: String(user.id), // Conversion number -> string pour compatibilité frontend
+      id: String(user.id),
       email: user.email,
       name: user.name || undefined,
       admin: user.admin,
     };
 
-    // console.log('JWT Strategy: Returning user payload:', userPayload);
     return userPayload;
   }
 }

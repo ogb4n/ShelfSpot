@@ -19,10 +19,10 @@ export class AuthResponseDto {
     },
   })
   user: {
-    id: string; // Changé de number à string pour compatibilité frontend
-    email?: string; // Rendu optionnel pour compatibilité frontend
-    name?: string; // Rendu optionnel et retiré null pour compatibilité frontend
-    admin?: boolean; // Rendu optionnel pour compatibilité frontend
+    id: string;
+    email?: string;
+    name?: string;
+    admin?: boolean;
   };
 }
 

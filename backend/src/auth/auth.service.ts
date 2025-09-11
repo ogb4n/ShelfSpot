@@ -23,10 +23,10 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private emailService: EmailService, // Inject EmailService
+    private emailService: EmailService,
   ) {}
 
-  // Fonction utilitaire pour convertir les types Prisma vers les types frontend
+  // Utility function to convert Prisma types to frontend types
   private convertPrismaUser(user: {
     id: number;
     email: string;
@@ -37,9 +37,9 @@ export class AuthService {
     return {
       id: String(user.id), // number -> string
       email: user.email,
-      name: user.name || undefined, // null -> undefined
+      name: user.name || undefined,
       admin: user.admin,
-      notificationToken: user.notificationToken || undefined, // null -> undefined
+      notificationToken: user.notificationToken || undefined,
     };
   }
 
@@ -63,11 +63,11 @@ export class AuthService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: _, ...result } = user;
       return {
-        id: String(result.id), // Conversion number -> string
+        id: String(result.id),
         email: result.email,
-        name: result.name || undefined, // null -> undefined
+        name: result.name || undefined,
         admin: result.admin,
-        notificationToken: result.notificationToken || undefined, // null -> undefined
+        notificationToken: result.notificationToken || undefined,
       };
     }
     return null;
@@ -83,7 +83,7 @@ export class AuthService {
     console.log('AuthService: User authenticated:', user);
 
     const payload: JwtPayload = {
-      sub: user.id, // Déjà string depuis validateUser
+      sub: user.id,
       email: user.email,
       name: user.name,
       admin: user.admin,
@@ -101,7 +101,7 @@ export class AuthService {
     return {
       access_token,
       token_type: 'bearer',
-      expires_in: 3600, // 1 heure en secondes
+      expires_in: 3600, // 1 hour in seconds
       user: {
         id: user.id,
         email: user.email,
@@ -112,7 +112,7 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResult> {
-    // Vérifier si l'email existe déjà
+    // Check if email already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email: registerDto.email },
     });
@@ -121,22 +121,22 @@ export class AuthService {
       throw new ConflictException('Email already exists');
     }
 
-    // Valider le nom si fourni
+    // Validate name if provided
     if (registerDto.name && registerDto.name.length < 5) {
       throw new BadRequestException('Name must be at least 5 characters long');
     }
 
-    // Hacher le mot de passe
+    // Hash password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
 
-    // Créer l'utilisateur
+    // Create user
     const user = await this.prisma.user.create({
       data: {
         email: registerDto.email,
         password: hashedPassword,
         name: registerDto.name || null,
-        admin: false, // Par défaut, les nouveaux utilisateurs ne sont pas admin
+        admin: false,
         notificationToken: registerDto.notificationToken || null,
       },
       select: {
@@ -148,7 +148,7 @@ export class AuthService {
       },
     });
 
-    // Générer le token JWT
+    // Generate JWT token
     const payload: JwtPayload = {
       sub: String(user.id), // Conversion number -> string
       email: user.email,
@@ -177,7 +177,7 @@ export class AuthService {
     console.log('AuthService: getUserProfile called with userId:', userId);
 
     const user = await this.prisma.user.findUnique({
-      where: { id: parseInt(userId, 10) }, // Convert string -> number for database
+      where: { id: parseInt(userId, 10) },
       select: {
         id: true,
         email: true,
@@ -204,7 +204,7 @@ export class AuthService {
     }
 
     const user = await this.prisma.user.update({
-      where: { id: parseInt(userId, 10) }, // Convert string -> number for database
+      where: { id: parseInt(userId, 10) },
       data: { name: newName },
       select: {
         id: true,
@@ -300,8 +300,6 @@ export class AuthService {
     }
   }
 
-  // ========== ADMIN METHODS ==========
-
   async getAllUsers(): Promise<UserPayload[]> {
     const users = await this.prisma.user.findMany({
       select: {
@@ -320,7 +318,7 @@ export class AuthService {
   }
 
   async createUserByAdmin(createUserDto: CreateUserDto): Promise<UserPayload> {
-    // Vérifier si l'email existe déjà
+    // Check if the email already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
     });
@@ -329,19 +327,19 @@ export class AuthService {
       throw new ConflictException('Email already exists');
     }
 
-    // Valider le nom si fourni
+    // Validate name if provided
     if (createUserDto.name && createUserDto.name.length < 5) {
       throw new BadRequestException('Name must be at least 5 characters long');
     }
 
-    // Hacher le mot de passe
+    // Hash the password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(
       createUserDto.password,
       saltRounds,
     );
 
-    // Créer l'utilisateur
+    // Create the user
     const user = await this.prisma.user.create({
       data: {
         email: createUserDto.email,
@@ -367,7 +365,7 @@ export class AuthService {
     const numericUserId =
       typeof userId === 'string' ? parseInt(userId, 10) : userId;
 
-    // Vérifier que l'utilisateur existe
+    // Check that the user exists
     const existingUser = await this.prisma.user.findUnique({
       where: { id: numericUserId },
     });
@@ -376,7 +374,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    // Préparer les données à mettre à jour
+    // Prepare the data to update
     const updateData: {
       email?: string;
       name?: string | null;
@@ -386,7 +384,7 @@ export class AuthService {
     } = {};
 
     if (updateUserDto.email) {
-      // Vérifier que le nouvel email n'est pas déjà utilisé
+      // Check that the new email is not already in use
       const emailExists = await this.prisma.user.findFirst({
         where: {
           email: updateUserDto.email,
@@ -426,7 +424,7 @@ export class AuthService {
       updateData.notificationToken = updateUserDto.notificationToken || null;
     }
 
-    // Mettre à jour l'utilisateur
+    // Update the user
     const updatedUser = await this.prisma.user.update({
       where: { id: numericUserId },
       data: updateData,
@@ -464,7 +462,7 @@ export class AuthService {
     notificationToken: string | null,
   ): Promise<UserPayload> {
     const user = await this.prisma.user.update({
-      where: { id: parseInt(userId, 10) }, // Convert string -> number for database
+      where: { id: parseInt(userId, 10) },
       data: { notificationToken },
       select: {
         id: true,

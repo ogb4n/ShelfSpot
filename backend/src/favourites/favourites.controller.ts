@@ -82,10 +82,10 @@ export class FavouritesController {
   })
   findAll(@CurrentUser() user: UserPayload, @Query('userId') userId?: string) {
     if (userId && user.admin) {
-      // Si admin et userId spécifié, retourner les favoris de cet utilisateur
+      // If admin and userId specified, return that user's favourites
       return this.favouritesService.findByUser(userId);
     } else {
-      // Retourner les favoris de l'utilisateur connecté
+      // Return the connected user's favourites
       return this.favouritesService.findByUser(user.id);
     }
   }
@@ -105,10 +105,10 @@ export class FavouritesController {
     @CurrentUser() user: UserPayload,
   ) {
     if (user.admin) {
-      // Admin peut supprimer n'importe quel favori
+      // Admin can delete any favourite
       return this.favouritesService.remove(id);
     } else {
-      // Utilisateur normal peut seulement supprimer ses propres favoris
+      // Regular user can only delete their own favourites
       return this.favouritesService.removeWithUserId(id, user.id);
     }
   }

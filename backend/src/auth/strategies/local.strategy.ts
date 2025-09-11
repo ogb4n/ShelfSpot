@@ -8,7 +8,7 @@ import { UserPayload } from '../interfaces/auth.interface';
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService) {
     super({
-      usernameField: 'email', // Utilise email au lieu de username
+      usernameField: 'email',
     });
   }
 

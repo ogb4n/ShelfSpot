@@ -22,6 +22,20 @@ export interface ItemScoreBreakdown {
   }>;
 }
 
+interface ItemWithProjects {
+  id: number;
+  name: string;
+  projectItems: Array<{
+    quantity: number;
+    project: {
+      id: number;
+      name: string;
+      status: ProjectStatus;
+      priority: ProjectPriority;
+    };
+  }>;
+}
+
 @Injectable()
 export class ScoringService {
   private readonly logger = new Logger(ScoringService.name);
@@ -29,7 +43,7 @@ export class ScoringService {
   constructor(private prisma: PrismaService) {}
 
   /**
-   * Calcule le score d'importance pour un item spécifique
+   * Calculate the importance score for a specific item
    */
   async calculateItemScore(itemId: number): Promise<ItemScoreBreakdown | null> {
     const item = await this.prisma.item.findUnique({
@@ -52,7 +66,7 @@ export class ScoringService {
   }
 
   /**
-   * Calcule et met à jour le score d'importance pour tous les items
+   * Calculate and update the importance score for all items
    */
   async calculateAllItemsScores(): Promise<{
     updated: number;
@@ -83,7 +97,7 @@ export class ScoringService {
         const scoreBreakdown = this.computeScore(item);
         allScores.push(scoreBreakdown);
 
-        // Mettre à jour le score dans la base de données
+        // Update the score in the database
         await this.prisma.item.update({
           where: { id: item.id },
           data: { importanceScore: scoreBreakdown.totalScore },
@@ -99,7 +113,7 @@ export class ScoringService {
       }
     }
 
-    // Trier par score décroissant et prendre le top 10
+    // Sort by descending score and take the top 10
     const topItems = allScores
       .sort((a, b) => b.totalScore - a.totalScore)
       .slice(0, 10);
@@ -112,7 +126,7 @@ export class ScoringService {
   }
 
   /**
-   * Recalcule le score d'importance pour tous les items d'un projet
+   * Recalculate the importance score for all items of a project
    */
   async recalculateProjectItemsScores(projectId: number): Promise<{
     updated: number;
@@ -162,7 +176,7 @@ export class ScoringService {
   }
 
   /**
-   * Obtient les items avec les scores d'importance les plus élevés
+   * Get items with the highest importance scores
    */
   async getTopImportanceItems(limit: number = 20) {
     const items = await this.prisma.item.findMany({
@@ -188,7 +202,7 @@ export class ScoringService {
   }
 
   /**
-   * Obtient les items critiques (score élevé + stock faible)
+   * Get critical items (high score + low stock)
    */
   async getCriticalItems(maxQuantity: number = 5) {
     const items = await this.prisma.item.findMany({
@@ -205,7 +219,7 @@ export class ScoringService {
       take: 50,
     });
 
-    // Calculer le ratio de criticité (score / quantité)
+    // Calculate the criticality ratio (score / quantity)
     return items
       .map((item) => ({
         id: item.id,
@@ -223,9 +237,9 @@ export class ScoringService {
   }
 
   /**
-   * Calcule le score d'importance d'un item en fonction de ses projets
+   * Calculate the importance score of an item based on its projects
    */
-  private computeScore(item: any): ItemScoreBreakdown {
+  private computeScore(item: ItemWithProjects): ItemScoreBreakdown {
     let activeProjectsScore = 0;
     let pausedProjectsScore = 0;
     let projectCountBonus = 0;
@@ -237,19 +251,19 @@ export class ScoringService {
       const project = projectItem.project;
       const quantityUsed = projectItem.quantity;
 
-      // Multiplicateur de priorité
+      // Priority multiplier
       const priorityMultiplier = this.getPriorityMultiplier(project.priority);
 
-      // Score de base selon le statut du projet
+      // Base score according to project status
       let baseScore = 0;
       if (project.status === ProjectStatus.ACTIVE) {
         baseScore = quantityUsed * priorityMultiplier;
         activeProjectsScore += baseScore;
       } else if (project.status === ProjectStatus.PAUSED) {
-        baseScore = quantityUsed * priorityMultiplier * 0.3; // 30% pour les projets en pause
+        baseScore = quantityUsed * priorityMultiplier * 0.3; // 30% for paused projects
         pausedProjectsScore += baseScore;
       }
-      // COMPLETED et CANCELLED ne contribuent pas au score
+      // COMPLETED and CANCELLED do not contribute to the score
 
       totalPriorityMultiplier += priorityMultiplier;
 
@@ -263,13 +277,13 @@ export class ScoringService {
       });
     }
 
-    // Bonus pour être utilisé dans plusieurs projets (diversification)
+    // Bonus for being used in multiple projects (diversification)
     const activeProjectsCount = item.projectItems.filter(
-      (pi: any) => pi.project.status === ProjectStatus.ACTIVE,
+      (pi) => pi.project.status === ProjectStatus.ACTIVE,
     ).length;
     projectCountBonus = activeProjectsCount > 1 ? activeProjectsCount * 0.5 : 0;
 
-    // Score total
+    // Total score
     const totalScore = Number(
       (activeProjectsScore + pausedProjectsScore + projectCountBonus).toFixed(
         2,
@@ -295,7 +309,7 @@ export class ScoringService {
   }
 
   /**
-   * Retourne le multiplicateur selon la priorité du projet
+   * Returns the multiplier according to project priority
    */
   private getPriorityMultiplier(priority: ProjectPriority): number {
     switch (priority) {
@@ -313,7 +327,7 @@ export class ScoringService {
   }
 
   /**
-   * Obtient des statistiques globales sur les scores d'importance
+   * Get global statistics about importance scores
    */
   async getScorignStatistics(): Promise<{
     totalItems: number;

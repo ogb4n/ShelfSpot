@@ -228,7 +228,6 @@ export class ItemsService {
       });
 
       if (updatedItem) {
-        // Vérifier les alertes si la quantité a changé
         if (
           itemData.quantity !== undefined &&
           oldItem &&
@@ -236,7 +235,7 @@ export class ItemsService {
         ) {
           const newQuantity = itemData.quantity;
           if (newQuantity !== oldItem.quantity) {
-            // Vérifier les alertes de manière asynchrone sans bloquer la réponse
+            // Check alerts asynchronously without blocking the response
             this.alertsService
               .checkItemAlerts(id, newQuantity)
               .catch((error) => {
@@ -249,7 +248,7 @@ export class ItemsService {
       }
     }
 
-    // Vérifier les alertes si la quantité a changé
+    // Check alerts if quantity has changed
     if (
       itemData.quantity !== undefined &&
       oldItem &&
@@ -257,7 +256,7 @@ export class ItemsService {
     ) {
       const newQuantity = itemData.quantity;
       if (newQuantity !== oldItem.quantity) {
-        // Vérifier les alertes de manière asynchrone sans bloquer la réponse
+        // Check alerts asynchronously without blocking the response
         this.alertsService.checkItemAlerts(id, newQuantity).catch((error) => {
           console.error(`Error checking alerts for item ${id}:`, error);
         });

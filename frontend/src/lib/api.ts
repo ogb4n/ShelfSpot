@@ -50,7 +50,7 @@ export async function apiRequest<T>(
       const errorData = await response.json();
       errorMessage = errorData.message || errorData.error || errorMessage;
     } catch {
-      // Si on ne peut pas parser la réponse d'erreur, on garde le message par défaut
+      // If we cannot parse the error response, keep the default message
     }
     throw new ApiError(response.status, errorMessage);
   }

@@ -1,4 +1,4 @@
-// Nouveau système d'authentification utilisant le backend NestJS
+// New authentication system using the NestJS backend
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Éviter les double-initialisations
+    // Avoid double initializations
     if (isInitialized) {
       console.log("AuthContext: Already initialized, skipping");
       return;
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(profile);
         } catch (error) {
           console.log("AuthContext: Profile fetch failed, removing tokens:", error);
-          // Token invalide, le supprimer complètement
+          // Invalid token, remove it completely
           localStorage.removeItem('access_token');
           document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         }
@@ -69,10 +69,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await backendApi.login(email, password);
 
-      // Stocker le token dans localStorage et cookies
+      // Store the token in localStorage and cookies
       localStorage.setItem('access_token', response.access_token);
 
-      // Stocker aussi dans les cookies pour le middleware
+      // Also store in cookies for the middleware
       document.cookie = `access_token=${response.access_token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 jours
 
       setUser(response.user);
@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     localStorage.removeItem('access_token');
 
-    // Supprimer aussi le cookie
+    // Also remove the cookie
     document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
     setUser(null);
@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const profile = await backendApi.getProfile();
       setUser(profile);
     } catch (error) {
-      // Si l'erreur est due à un token invalide, déconnecter l'utilisateur
+      // If the error is due to an invalid token, log out the user
       localStorage.removeItem('access_token');
       setUser(null);
       throw error;

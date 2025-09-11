@@ -8,7 +8,7 @@ import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Validation pipe globale
+  // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -17,7 +17,7 @@ async function bootstrap() {
     }),
   );
 
-  // Configuration CORS pour le frontend
+  // CORS configuration for the frontend
   app.enableCors({
     origin: [
       'http://localhost:3000',

@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { UserPayload } from '../interfaces/auth.interface';
 
-// Interface pour typer la requête avec user - compatible frontend
+// Interface to type the request with user - compatible with frontend
 interface RequestWithUser extends Request {
   user: UserPayload;
 }
@@ -20,7 +20,7 @@ export const CurrentUser = createParamDecorator(
 
 export const AdminRequired = () => {
   return () => {
-    // Ce décorateur peut être utilisé avec le AdminGuard
-    // pour documenter les endpoints qui nécessitent des droits admin
+    // This decorator can be used with the AdminGuard
+    // to document endpoints that require admin rights
   };
 };

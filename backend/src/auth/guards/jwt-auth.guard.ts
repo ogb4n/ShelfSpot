@@ -17,11 +17,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handleRequest(err, user, info) {
-    // console.log('JwtAuthGuard: handleRequest called');
-    // console.log('JwtAuthGuard: err:', err);
-    // console.log('JwtAuthGuard: user:', user);
-    // console.log('JwtAuthGuard: info:', info);
-
     if (err || !user) {
       console.log('JwtAuthGuard: Throwing UnauthorizedException');
       throw err || new Error('Unauthorized');

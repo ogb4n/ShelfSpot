@@ -66,7 +66,6 @@ export class EmailService {
         // If it's just an email address, wrap it with app name
         defaultFrom = `ShelfSpot <${fromEmailConfig}>`;
       } else {
-        // If it's already properly formatted or default
         defaultFrom = fromEmailConfig;
       }
 

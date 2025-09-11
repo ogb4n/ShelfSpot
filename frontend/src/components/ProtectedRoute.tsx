@@ -22,7 +22,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     }
 
     if (!user) {
-        return null; // Redirection en cours
+        return null;
     }
 
     return <>{children}</>;
@@ -51,7 +51,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
     }
 
     if (!user || !user.admin) {
-        return null; // Redirection en cours
+        return null;
     }
 
     return <>{children}</>;

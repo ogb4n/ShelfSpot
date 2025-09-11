@@ -1,61 +1,55 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-// Routes qui nécessitent une authentification
+// Routes that require authentication
 const protectedRoutes = [
-  '/dashboard',
-  '/inventory',
-  '/manage',
-  '/settings',
-  '/favourites',
-  '/consumables',
-]
+  "/dashboard",
+  "/inventory",
+  "/manage",
+  "/settings",
+  "/favourites",
+  "/consumables",
+];
 
-// Routes accessibles uniquement aux utilisateurs non authentifiés
-const authRoutes = [
-  '/login',
-  '/register',
-  '/sign-in',
-]
+// Routes accessible only to unauthenticated users
+const authRoutes = ["/login", "/register", "/sign-in"];
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  
-  // Récupérer le token depuis les cookies ou headers
-  const token = request.cookies.get('access_token')?.value
-  
-  // Vérifier si la route nécessite une authentification
-  const isProtectedRoute = protectedRoutes.some(route => 
+  const { pathname } = request.nextUrl;
+
+  // Retrieve the token from cookies or headers
+  const token = request.cookies.get("access_token")?.value;
+
+  // Check if the route requires authentication
+  const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
-  )
-  
-  // Vérifier si c'est une route d'authentification
-  const isAuthRoute = authRoutes.some(route => 
-    pathname.startsWith(route)
-  )
-  
-  // Si c'est une route protégée et qu'il n'y a pas de token
+  );
+
+  // Check if this is an auth route
+  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+
+  // If it's a protected route and there is no token
   if (isProtectedRoute && !token) {
-    const url = new URL('/login', request.url)
-    url.searchParams.set('callbackUrl', pathname)
-    return NextResponse.redirect(url)
+    const url = new URL("/login", request.url);
+    url.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(url);
   }
-  
-  // Si l'utilisateur est authentifié et essaie d'accéder aux routes d'auth
+
+  // If the user is authenticated and tries to access auth routes
   if (isAuthRoute && token) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
-  
-  // Rediriger la racine vers le dashboard si authentifié, sinon vers login
-  if (pathname === '/') {
+
+  // Redirect root to dashboard if authenticated, otherwise to login
+  if (pathname === "/") {
     if (token) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     } else {
-      return NextResponse.redirect(new URL('/login', request.url))
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
-  
-  return NextResponse.next()
+
+  return NextResponse.next();
 }
 
 export const config = {
@@ -67,6 +61,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|app-ico.svg).*)',
+    "/((?!api|_next/static|_next/image|favicon.ico|app-ico.svg).*)",
   ],
-}
+};

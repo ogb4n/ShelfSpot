@@ -7,7 +7,7 @@ export class ContainersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createContainerDto: CreateContainerDto) {
-    // Vérifier que la place existe si fournie
+    // Check that the place exists if provided
     if (createContainerDto.placeId) {
       const place = await this.prisma.place.findUnique({
         where: { id: createContainerDto.placeId },
@@ -19,7 +19,7 @@ export class ContainersService {
       }
     }
 
-    // Vérifier que la room existe si fournie
+    // Check that the room exists if provided
     if (createContainerDto.roomId) {
       const room = await this.prisma.room.findUnique({
         where: { id: createContainerDto.roomId },
@@ -77,7 +77,7 @@ export class ContainersService {
   }
 
   async update(id: number, updateContainerDto: UpdateContainerDto) {
-    // Vérifier que le container existe
+    // Check that the container exists
     const existingContainer = await this.prisma.container.findUnique({
       where: { id },
     });
@@ -86,7 +86,7 @@ export class ContainersService {
       throw new NotFoundException(`Container with ID ${id} not found`);
     }
 
-    // Vérifier que la place existe si fournie
+    // Check that the place exists if provided
     if (updateContainerDto.placeId) {
       const place = await this.prisma.place.findUnique({
         where: { id: updateContainerDto.placeId },
@@ -98,7 +98,7 @@ export class ContainersService {
       }
     }
 
-    // Vérifier que la room existe si fournie
+    // Check that the room exists if provided
     if (updateContainerDto.roomId) {
       const room = await this.prisma.room.findUnique({
         where: { id: updateContainerDto.roomId },
@@ -122,7 +122,6 @@ export class ContainersService {
   }
 
   async remove(id: number) {
-    // Vérifier que le container existe
     const existingContainer = await this.prisma.container.findUnique({
       where: { id },
     });

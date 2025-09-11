@@ -121,7 +121,7 @@ export default function EditProjectModal({ open, onClose, project, onSuccess }: 
                         )}
 
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Nom du projet */}
+                            {/* Project Name */}
                             <div>
                                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                     Project Name *
@@ -263,7 +263,7 @@ export default function EditProjectModal({ open, onClose, project, onSuccess }: 
                                 </div>
                             </div>
 
-                            {/* Information sur le recalcul */}
+                            {/* Recalculation information */}
                             {(form.status !== project.status || form.priority !== project.priority) && (
                                 <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
                                     <div className="flex">

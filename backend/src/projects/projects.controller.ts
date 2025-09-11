@@ -40,38 +40,38 @@ export class ProjectsController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Créer un nouveau projet' })
+  @ApiOperation({ summary: 'Create a new project' })
   @ApiBody({ type: CreateProjectDto })
-  @ApiResponse({ status: 201, description: 'Projet créé avec succès' })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
+  @ApiResponse({ status: 201, description: 'Project created successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 409,
-    description: 'Un projet avec ce nom existe déjà',
+    description: 'A project with this name already exists',
   })
   create(@Body() createProjectDto: CreateProjectDto) {
     return this.projectsService.create(createProjectDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Lister tous les projets' })
+  @ApiOperation({ summary: 'List all projects' })
   @ApiResponse({
     status: 200,
-    description: 'Liste des projets récupérée avec succès',
+    description: 'Projects list retrieved successfully',
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   findAll() {
     return this.projectsService.findAll();
   }
 
   @Get('scoring/statistics')
   @ApiOperation({
-    summary: "Obtenir les statistiques globales des scores d'importance",
+    summary: 'Get overall importance scoring statistics',
     description:
-      "Retourne des statistiques sur la distribution des scores d'importance de tous les items",
+      'Returns statistics on the distribution of importance scores for all items',
   })
   @ApiResponse({
     status: 200,
-    description: "Statistiques des scores d'importance récupérées avec succès",
+    description: 'Importance scoring statistics retrieved successfully',
     schema: {
       type: 'object',
       properties: {
@@ -92,37 +92,37 @@ export class ProjectsController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getScoringStatistics() {
     return this.scoringService.getScorignStatistics();
   }
 
   @Get('scoring/top-items')
   @ApiOperation({
-    summary: "Obtenir les items avec les scores d'importance les plus élevés",
+    summary: 'Get items with the highest importance scores',
     description:
-      "Retourne la liste des items triés par score d'importance décroissant",
+      'Returns the list of items sorted by descending importance score',
   })
   @ApiResponse({
     status: 200,
-    description: 'Top des items par importance récupéré avec succès',
+    description: 'Top items by importance retrieved successfully',
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getTopImportanceItems() {
     return this.scoringService.getTopImportanceItems(20);
   }
 
   @Get('scoring/critical-items')
   @ApiOperation({
-    summary: 'Obtenir les items critiques (score élevé + stock faible)',
+    summary: 'Get critical items (high score + low stock)',
     description:
-      "Retourne les items qui ont un score d'importance élevé mais un stock faible, triés par criticité",
+      'Returns items that have a high importance score but low stock, sorted by criticality',
   })
   @ApiResponse({
     status: 200,
-    description: 'Items critiques récupérés avec succès',
+    description: 'Critical items retrieved successfully',
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getCriticalItems() {
     return this.scoringService.getCriticalItems(5);
   }
@@ -130,13 +130,13 @@ export class ProjectsController {
   @Post('scoring/recalculate')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: "Recalculer tous les scores d'importance",
+    summary: 'Recalculate all importance scores',
     description:
-      "Lance le recalcul des scores d'importance pour tous les items de l'inventaire",
+      'Triggers recalculation of importance scores for all inventory items',
   })
   @ApiResponse({
     status: 200,
-    description: 'Recalcul des scores terminé avec succès',
+    description: 'Score recalculation completed successfully',
     schema: {
       type: 'object',
       properties: {
@@ -146,55 +146,53 @@ export class ProjectsController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   recalculateAllScores() {
     return this.scoringService.calculateAllItemsScores();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: "Obtenir les détails d'un projet" })
-  @ApiParam({ name: 'id', description: 'ID du projet' })
+  @ApiOperation({ summary: 'Get project details' })
+  @ApiParam({ name: 'id', description: 'Project ID' })
   @ApiResponse({
     status: 200,
-    description: 'Détails du projet récupérés avec succès',
+    description: 'Project details retrieved successfully',
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
-  @ApiResponse({ status: 404, description: 'Projet non trouvé' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.projectsService.findOne(id);
   }
 
   @Get(':id/statistics')
   @ApiOperation({
-    summary: "Obtenir les statistiques d'un projet",
-    description:
-      'Retourne des statistiques détaillées sur un projet spécifique',
+    summary: 'Get project statistics',
+    description: 'Returns detailed statistics about a specific project',
   })
-  @ApiParam({ name: 'id', description: 'ID du projet' })
+  @ApiParam({ name: 'id', description: 'Project ID' })
   @ApiResponse({
     status: 200,
-    description: 'Statistiques du projet récupérées avec succès',
+    description: 'Project statistics retrieved successfully',
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
-  @ApiResponse({ status: 404, description: 'Projet non trouvé' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   getProjectStatistics(@Param('id', ParseIntPipe) id: number) {
     return this.projectsService.getProjectStatistics(id);
   }
 
   @Get(':id/scoring/breakdown')
   @ApiOperation({
-    summary:
-      "Obtenir le détail des scores d'importance pour les items d'un projet",
+    summary: "Get importance score breakdown for a project's items",
     description:
-      "Retourne le détail du calcul des scores d'importance pour tous les items utilisés dans un projet",
+      'Returns the detailed calculation of importance scores for all items used in a project',
   })
   @ApiParam({ name: 'id', description: 'ID du projet' })
   @ApiResponse({
     status: 200,
-    description: 'Détail des scores récupéré avec succès',
+    description: 'Score breakdown retrieved successfully',
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
-  @ApiResponse({ status: 404, description: 'Projet non trouvé' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   async getProjectScoringBreakdown(
     @Param('id', ParseIntPipe) projectId: number,
   ) {
@@ -219,20 +217,22 @@ export class ProjectsController {
       projectName: project.name,
       projectStatus: project.status,
       projectPriority: project.priority,
-      itemsScores: scores.sort((a: any, b: any) => b.totalScore - a.totalScore),
+      itemsScores: (scores as Array<{ totalScore: number }>).sort(
+        (a, b) => b.totalScore - a.totalScore,
+      ),
     };
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Mettre à jour un projet' })
-  @ApiParam({ name: 'id', description: 'ID du projet' })
+  @ApiOperation({ summary: 'Update a project' })
+  @ApiParam({ name: 'id', description: 'Project ID' })
   @ApiBody({ type: UpdateProjectDto })
-  @ApiResponse({ status: 200, description: 'Projet mis à jour avec succès' })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
-  @ApiResponse({ status: 404, description: 'Projet non trouvé' })
+  @ApiResponse({ status: 200, description: 'Project updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   @ApiResponse({
     status: 409,
-    description: 'Un projet avec ce nom existe déjà',
+    description: 'A project with this name already exists',
   })
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -243,32 +243,34 @@ export class ProjectsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Supprimer un projet' })
-  @ApiParam({ name: 'id', description: 'ID du projet' })
-  @ApiResponse({ status: 204, description: 'Projet supprimé avec succès' })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
-  @ApiResponse({ status: 404, description: 'Projet non trouvé' })
+  @ApiOperation({ summary: 'Delete a project' })
+  @ApiParam({ name: 'id', description: 'Project ID' })
+  @ApiResponse({ status: 204, description: 'Project deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.projectsService.remove(id);
   }
 
-  // --- Gestion des items dans les projets ---
+  // --- Project items management ---
 
   @Post(':id/items')
   @ApiOperation({
-    summary: 'Ajouter un item à un projet',
-    description:
-      'Ajoute un item existant à un projet avec une quantité spécifique',
+    summary: 'Add an item to a project',
+    description: 'Adds an existing item to a project with a specific quantity',
   })
-  @ApiParam({ name: 'id', description: 'ID du projet' })
+  @ApiParam({ name: 'id', description: 'Project ID' })
   @ApiBody({ type: AddItemToProjectDto })
   @ApiResponse({
     status: 201,
-    description: 'Item ajouté au projet avec succès',
+    description: 'Item added to project successfully',
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
-  @ApiResponse({ status: 404, description: 'Projet ou item non trouvé' })
-  @ApiResponse({ status: 409, description: 'Item déjà présent dans le projet' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Project or item not found' })
+  @ApiResponse({
+    status: 409,
+    description: 'Item already present in the project',
+  })
   addItemToProject(
     @Param('id', ParseIntPipe) projectId: number,
     @Body() addItemDto: AddItemToProjectDto,
@@ -278,20 +280,21 @@ export class ProjectsController {
 
   @Patch(':id/items/:itemId')
   @ApiOperation({
-    summary: 'Modifier un item dans un projet',
-    description: "Modifie la quantité ou l'état actif d'un item dans un projet",
+    summary: 'Modify an item in a project',
+    description:
+      'Modifies the quantity or active state of an item in a project',
   })
-  @ApiParam({ name: 'id', description: 'ID du projet' })
-  @ApiParam({ name: 'itemId', description: "ID de l'item" })
+  @ApiParam({ name: 'id', description: 'Project ID' })
+  @ApiParam({ name: 'itemId', description: 'Item ID' })
   @ApiBody({ type: UpdateProjectItemDto })
   @ApiResponse({
     status: 200,
-    description: 'Item du projet mis à jour avec succès',
+    description: 'Project item updated successfully',
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 404,
-    description: 'Projet ou item non trouvé dans le projet',
+    description: 'Project or item not found in the project',
   })
   updateProjectItem(
     @Param('id', ParseIntPipe) projectId: number,
@@ -304,19 +307,19 @@ export class ProjectsController {
   @Delete(':id/items/:itemId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: "Retirer un item d'un projet",
-    description: "Retire complètement un item d'un projet",
+    summary: 'Remove an item from a project',
+    description: 'Removes an item completely from a project',
   })
-  @ApiParam({ name: 'id', description: 'ID du projet' })
-  @ApiParam({ name: 'itemId', description: "ID de l'item" })
+  @ApiParam({ name: 'id', description: 'Project ID' })
+  @ApiParam({ name: 'itemId', description: 'Item ID' })
   @ApiResponse({
     status: 204,
-    description: 'Item retiré du projet avec succès',
+    description: 'Item removed from project successfully',
   })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 404,
-    description: 'Projet ou item non trouvé dans le projet',
+    description: 'Project or item not found in the project',
   })
   removeItemFromProject(
     @Param('id', ParseIntPipe) projectId: number,

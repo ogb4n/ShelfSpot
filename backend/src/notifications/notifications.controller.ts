@@ -96,7 +96,6 @@ export class NotificationsController {
   })
   async testAlertReset(@Body() data: { itemId: number; quantity: number }) {
     try {
-      // Tester directement la vérification d'alerte
       const result = await this.alertsService.checkItemAlerts(
         data.itemId,
         data.quantity,

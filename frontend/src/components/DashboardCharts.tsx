@@ -17,7 +17,7 @@ import { useAlertsStatistics } from "@/app/hooks/useAlertsStatistics";
 import { useStatusStatistics } from "@/app/hooks/useStatusStatistics";
 import { Room } from "@/app/types";
 
-// Type étendu pour inclure _count
+// Extended type to include _count
 type RoomWithCount = Room & {
     _count?: {
         items?: number;
@@ -57,10 +57,10 @@ export default function DashboardCharts({ preferences }: DashboardChartsProps) {
     const { data: alertsData, loading: alertsLoading, error: alertsError } = useAlertsStatistics();
     const { data: statusData, loading: statusLoading, error: statusError } = useStatusStatistics();
 
-    // Cast en RoomWithCount pour avoir accès à _count
+    // Cast to RoomWithCount to access _count
     const roomsWithCount = rooms as RoomWithCount[];
 
-    // Filtrer les rooms qui ont des items pour le chart
+    // Filter rooms that have items for the chart
     const roomsWithItems = roomsWithCount?.filter((room) =>
         room._count?.items && room._count.items > 0) || [];
 

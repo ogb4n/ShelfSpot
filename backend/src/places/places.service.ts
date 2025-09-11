@@ -13,7 +13,7 @@ export class PlacesService {
   }
 
   async createWithValidation(data: Prisma.PlaceCreateInput) {
-    // Vérifier que la room existe si roomId est fourni
+    // Check that the room exists if roomId is provided
     if (data.room && typeof data.room === 'object' && 'connect' in data.room) {
       const roomId = data.room.connect?.id;
       if (roomId) {

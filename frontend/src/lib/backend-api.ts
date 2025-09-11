@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// Service API pour communiquer avec le backend NestJS
+// API service to communicate with the NestJS backend
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
@@ -60,7 +60,7 @@ class BackendApiService {
         const errorData = await response.json();
         errorMessage = errorData.message || errorData.error || errorMessage;
       } catch {
-        // Si on ne peut pas parser la réponse d'erreur, on garde le message par défaut
+        // If we cannot parse the error response, keep the default message
       }
       throw new BackendApiError(response.status, errorMessage);
     }

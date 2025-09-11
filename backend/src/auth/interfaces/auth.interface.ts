@@ -1,19 +1,19 @@
 export interface JwtPayload {
-  sub: string; // user id - STRING pour compatibilité frontend
-  email?: string; // Optionnel pour compatibilité frontend
-  name?: string; // Optionnel et undefined au lieu de null
-  admin?: boolean; // Optionnel pour compatibilité frontend
-  notificationToken?: string; // Token for push notifications
+  sub: string;
+  email?: string;
+  name?: string;
+  admin?: boolean;
+  notificationToken?: string;
   iat?: number;
   exp?: number;
 }
 
 export interface UserPayload {
-  id: string; // STRING pour compatibilité frontend
-  email?: string; // Optionnel pour compatibilité frontend
-  name?: string; // Optionnel et undefined au lieu de null
-  admin?: boolean; // Optionnel pour compatibilité frontend
-  notificationToken?: string; // Token for push notifications
+  id: string;
+  email?: string;
+  name?: string;
+  admin?: boolean;
+  notificationToken?: string;
 }
 
 export interface AuthResult {

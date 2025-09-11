@@ -27,7 +27,7 @@ export default function ProjectDetailsModal({ open, onClose, project, onUpdate }
     const [searchLoading, setSearchLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('items');
 
-    // Recherche d'articles
+    // Search items
     const searchItems = async (query: string) => {
         if (!query.trim()) {
             setSearchResults([]);
@@ -46,7 +46,7 @@ export default function ProjectDetailsModal({ open, onClose, project, onUpdate }
         }
     };
 
-    // Debounce pour la recherche
+    // Debounce for search
     useEffect(() => {
         const timer = setTimeout(() => {
             searchItems(searchQuery);
@@ -55,7 +55,7 @@ export default function ProjectDetailsModal({ open, onClose, project, onUpdate }
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
-    // Ajouter un article au projet
+    // Add an item to the project
     const handleAddItem = async (item: Item) => {
         try {
             await backendApi.addItemToProject(project.id, item.id, 1);
@@ -69,7 +69,7 @@ export default function ProjectDetailsModal({ open, onClose, project, onUpdate }
         }
     };
 
-    // Modifier la quantité d'un article
+    // Update an item's quantity
     const handleUpdateQuantity = async (itemId: number, newQuantity: number) => {
         if (newQuantity <= 0) {
             await handleRemoveItem(itemId);
@@ -86,7 +86,7 @@ export default function ProjectDetailsModal({ open, onClose, project, onUpdate }
         }
     };
 
-    // Supprimer un article du projet
+    // Remove an item from the project
     const handleRemoveItem = async (itemId: number) => {
         await backendApi.removeItemFromProject(project.id, itemId);
         refetch();

@@ -85,10 +85,6 @@ export const sendTriggeredAlerts = async (triggeredAlerts: Array<{
   try {
     const subject = `🚨 ${triggeredAlerts.length} stock alert${triggeredAlerts.length > 1 ? 's' : ''} triggered`;
     
-    // console.log(`📧 [EMAIL] Attempting to send to: ${emailTo}`);
-    // console.log('📧 [EMAIL] Subject:', subject);
-    // console.log('📧 [EMAIL] HTML content size:', htmlContent.length, 'characters');
-    
     const result = await resend.emails.send({
       from: emailFrom,
       to: [emailTo],
