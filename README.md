@@ -1,6 +1,30 @@
-# ShelfSpot - Complete Documentation
+# ShelfSpot – *Your Perfect Inventory*
 
-**ShelfSpot** is an open-source, self-hosted inventory management application designed to provide complete organization and traceability of items in your home or small warehouse. This documentation covers the complete architecture, features, deployment, and development guidelines.
+**ShelfSpot** is an open-source, self-hosted application designed to provide complete organization and traceability of items in your home or small warehouse. With its modern backend and web interface, plus a dedicated mobile app for iPhone, ShelfSpot ensures you always know where your belongings are and when you need to take action.
+
+
+## Why Choose ShelfSpot?
+
+- **Open Source**: Free to use, modify, and contribute.
+- **Privacy First**: All data stays on your own server.
+- **Adaptable**: Suitable for homes, garages, workshops, or small warehouses.
+- **Community-Driven**: Contributions and feature suggestions are welcome.
+
+---
+
+## Getting Started
+
+1. **Clone the repository** and set up your server (Docker support included).
+2. **Configure your environment** and launch the backend and web interface.
+3. **Install the mobile app** on your iPhone and connect to your server.
+4. **Start organizing** your inventory and enjoy peace of mind!
+
+---
+
+> *ShelfSpot – Your Perfect Inventory. Organize, track, and never lose sight of what matters most.*
+
+---
+
 
 ## Table of Contents
 
