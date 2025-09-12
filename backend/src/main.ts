@@ -48,7 +48,7 @@ async function bootstrap() {
   );
   SwaggerModule.setup('api/swagger', app, document);
 
-  await app.listen(process.env.PORT ?? 3001);
+  await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
   console.log(
     `🚀 ShelfSpot API is running on: http://localhost:${process.env.PORT ?? 3001}`,
   );

@@ -2355,13 +2355,13 @@
         },
         "responses": {
           "201": {
-            "description": "Projet créé avec succès"
+            "description": "Project created successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           },
           "409": {
-            "description": "Un projet avec ce nom existe déjà"
+            "description": "A project with this name already exists"
           }
         },
         "security": [
@@ -2369,7 +2369,7 @@
             "bearer": []
           }
         ],
-        "summary": "Créer un nouveau projet",
+        "summary": "Create a new project",
         "tags": [
           "Projects"
         ]
@@ -2379,10 +2379,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Liste des projets récupérée avec succès"
+            "description": "Projects list retrieved successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2390,7 +2390,7 @@
             "bearer": []
           }
         ],
-        "summary": "Lister tous les projets",
+        "summary": "List all projects",
         "tags": [
           "Projects"
         ]
@@ -2398,12 +2398,12 @@
     },
     "/projects/scoring/statistics": {
       "get": {
-        "description": "Retourne des statistiques sur la distribution des scores d'importance de tous les items",
+        "description": "Returns statistics on the distribution of importance scores for all items",
         "operationId": "ProjectsController_getScoringStatistics",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Statistiques des scores d'importance récupérées avec succès",
+            "description": "Importance scoring statistics retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -2447,7 +2447,7 @@
             }
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2455,7 +2455,7 @@
             "bearer": []
           }
         ],
-        "summary": "Obtenir les statistiques globales des scores d'importance",
+        "summary": "Get overall importance scoring statistics",
         "tags": [
           "Projects"
         ]
@@ -2463,15 +2463,15 @@
     },
     "/projects/scoring/top-items": {
       "get": {
-        "description": "Retourne la liste des items triés par score d'importance décroissant",
+        "description": "Returns the list of items sorted by descending importance score",
         "operationId": "ProjectsController_getTopImportanceItems",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Top des items par importance récupéré avec succès"
+            "description": "Top items by importance retrieved successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2479,7 +2479,7 @@
             "bearer": []
           }
         ],
-        "summary": "Obtenir les items avec les scores d'importance les plus élevés",
+        "summary": "Get items with the highest importance scores",
         "tags": [
           "Projects"
         ]
@@ -2487,15 +2487,15 @@
     },
     "/projects/scoring/critical-items": {
       "get": {
-        "description": "Retourne les items qui ont un score d'importance élevé mais un stock faible, triés par criticité",
+        "description": "Returns items that have a high importance score but low stock, sorted by criticality",
         "operationId": "ProjectsController_getCriticalItems",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Items critiques récupérés avec succès"
+            "description": "Critical items retrieved successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2503,7 +2503,7 @@
             "bearer": []
           }
         ],
-        "summary": "Obtenir les items critiques (score élevé + stock faible)",
+        "summary": "Get critical items (high score + low stock)",
         "tags": [
           "Projects"
         ]
@@ -2511,12 +2511,12 @@
     },
     "/projects/scoring/recalculate": {
       "post": {
-        "description": "Lance le recalcul des scores d'importance pour tous les items de l'inventaire",
+        "description": "Triggers recalculation of importance scores for all inventory items",
         "operationId": "ProjectsController_recalculateAllScores",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Recalcul des scores terminé avec succès",
+            "description": "Score recalculation completed successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -2537,7 +2537,7 @@
             }
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2545,7 +2545,7 @@
             "bearer": []
           }
         ],
-        "summary": "Recalculer tous les scores d'importance",
+        "summary": "Recalculate all importance scores",
         "tags": [
           "Projects"
         ]
@@ -2559,7 +2559,7 @@
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "ID du projet",
+            "description": "Project ID",
             "schema": {
               "type": "number"
             }
@@ -2567,13 +2567,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Détails du projet récupérés avec succès"
+            "description": "Project details retrieved successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Projet non trouvé"
+            "description": "Project not found"
           }
         },
         "security": [
@@ -2581,7 +2581,7 @@
             "bearer": []
           }
         ],
-        "summary": "Obtenir les détails d'un projet",
+        "summary": "Get project details",
         "tags": [
           "Projects"
         ]
@@ -2593,7 +2593,7 @@
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "ID du projet",
+            "description": "Project ID",
             "schema": {
               "type": "number"
             }
@@ -2611,16 +2611,16 @@
         },
         "responses": {
           "200": {
-            "description": "Projet mis à jour avec succès"
+            "description": "Project updated successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Projet non trouvé"
+            "description": "Project not found"
           },
           "409": {
-            "description": "Un projet avec ce nom existe déjà"
+            "description": "A project with this name already exists"
           }
         },
         "security": [
@@ -2628,7 +2628,7 @@
             "bearer": []
           }
         ],
-        "summary": "Mettre à jour un projet",
+        "summary": "Update a project",
         "tags": [
           "Projects"
         ]
@@ -2640,7 +2640,7 @@
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "ID du projet",
+            "description": "Project ID",
             "schema": {
               "type": "number"
             }
@@ -2648,13 +2648,13 @@
         ],
         "responses": {
           "204": {
-            "description": "Projet supprimé avec succès"
+            "description": "Project deleted successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Projet non trouvé"
+            "description": "Project not found"
           }
         },
         "security": [
@@ -2662,7 +2662,7 @@
             "bearer": []
           }
         ],
-        "summary": "Supprimer un projet",
+        "summary": "Delete a project",
         "tags": [
           "Projects"
         ]
@@ -2670,14 +2670,14 @@
     },
     "/projects/{id}/statistics": {
       "get": {
-        "description": "Retourne des statistiques détaillées sur un projet spécifique",
+        "description": "Returns detailed statistics about a specific project",
         "operationId": "ProjectsController_getProjectStatistics",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "ID du projet",
+            "description": "Project ID",
             "schema": {
               "type": "number"
             }
@@ -2685,13 +2685,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Statistiques du projet récupérées avec succès"
+            "description": "Project statistics retrieved successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Projet non trouvé"
+            "description": "Project not found"
           }
         },
         "security": [
@@ -2699,7 +2699,7 @@
             "bearer": []
           }
         ],
-        "summary": "Obtenir les statistiques d'un projet",
+        "summary": "Get project statistics",
         "tags": [
           "Projects"
         ]
@@ -2707,7 +2707,7 @@
     },
     "/projects/{id}/scoring/breakdown": {
       "get": {
-        "description": "Retourne le détail du calcul des scores d'importance pour tous les items utilisés dans un projet",
+        "description": "Returns the detailed calculation of importance scores for all items used in a project",
         "operationId": "ProjectsController_getProjectScoringBreakdown",
         "parameters": [
           {
@@ -2722,13 +2722,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Détail des scores récupéré avec succès"
+            "description": "Score breakdown retrieved successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Projet non trouvé"
+            "description": "Project not found"
           }
         },
         "security": [
@@ -2736,7 +2736,7 @@
             "bearer": []
           }
         ],
-        "summary": "Obtenir le détail des scores d'importance pour les items d'un projet",
+        "summary": "Get importance score breakdown for a project's items",
         "tags": [
           "Projects"
         ]
@@ -2744,14 +2744,14 @@
     },
     "/projects/{id}/items": {
       "post": {
-        "description": "Ajoute un item existant à un projet avec une quantité spécifique",
+        "description": "Adds an existing item to a project with a specific quantity",
         "operationId": "ProjectsController_addItemToProject",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "ID du projet",
+            "description": "Project ID",
             "schema": {
               "type": "number"
             }
@@ -2769,16 +2769,16 @@
         },
         "responses": {
           "201": {
-            "description": "Item ajouté au projet avec succès"
+            "description": "Item added to project successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Projet ou item non trouvé"
+            "description": "Project or item not found"
           },
           "409": {
-            "description": "Item déjà présent dans le projet"
+            "description": "Item already present in the project"
           }
         },
         "security": [
@@ -2786,7 +2786,7 @@
             "bearer": []
           }
         ],
-        "summary": "Ajouter un item à un projet",
+        "summary": "Add an item to a project",
         "tags": [
           "Projects"
         ]
@@ -2794,14 +2794,14 @@
     },
     "/projects/{id}/items/{itemId}": {
       "patch": {
-        "description": "Modifie la quantité ou l'état actif d'un item dans un projet",
+        "description": "Modifies the quantity or active state of an item in a project",
         "operationId": "ProjectsController_updateProjectItem",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "ID du projet",
+            "description": "Project ID",
             "schema": {
               "type": "number"
             }
@@ -2810,7 +2810,7 @@
             "name": "itemId",
             "required": true,
             "in": "path",
-            "description": "ID de l'item",
+            "description": "Item ID",
             "schema": {
               "type": "number"
             }
@@ -2828,13 +2828,13 @@
         },
         "responses": {
           "200": {
-            "description": "Item du projet mis à jour avec succès"
+            "description": "Project item updated successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Projet ou item non trouvé dans le projet"
+            "description": "Project or item not found in the project"
           }
         },
         "security": [
@@ -2842,20 +2842,20 @@
             "bearer": []
           }
         ],
-        "summary": "Modifier un item dans un projet",
+        "summary": "Modify an item in a project",
         "tags": [
           "Projects"
         ]
       },
       "delete": {
-        "description": "Retire complètement un item d'un projet",
+        "description": "Removes an item completely from a project",
         "operationId": "ProjectsController_removeItemFromProject",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "ID du projet",
+            "description": "Project ID",
             "schema": {
               "type": "number"
             }
@@ -2864,7 +2864,7 @@
             "name": "itemId",
             "required": true,
             "in": "path",
-            "description": "ID de l'item",
+            "description": "Item ID",
             "schema": {
               "type": "number"
             }
@@ -2872,13 +2872,13 @@
         ],
         "responses": {
           "204": {
-            "description": "Item retiré du projet avec succès"
+            "description": "Item removed from project successfully"
           },
           "401": {
-            "description": "Non autorisé"
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Projet ou item non trouvé dans le projet"
+            "description": "Project or item not found in the project"
           }
         },
         "security": [
@@ -2886,7 +2886,7 @@
             "bearer": []
           }
         ],
-        "summary": "Retirer un item d'un projet",
+        "summary": "Remove an item from a project",
         "tags": [
           "Projects"
         ]
@@ -3565,13 +3565,13 @@
         "properties": {
           "name": {
             "type": "string",
-            "example": "Renovation Bureau",
-            "description": "Nom du projet"
+            "example": "Office Renovation",
+            "description": "Project name"
           },
           "description": {
             "type": "string",
-            "example": "Rénovation complète du bureau principal",
-            "description": "Description détaillée du projet"
+            "example": "Complete renovation of the main office",
+            "description": "Detailed description of the project"
           },
           "status": {
             "type": "string",
@@ -3582,7 +3582,7 @@
               "CANCELLED"
             ],
             "example": "ACTIVE",
-            "description": "Statut du projet"
+            "description": "Project status"
           },
           "priority": {
             "type": "string",
@@ -3593,17 +3593,17 @@
               "CRITICAL"
             ],
             "example": "HIGH",
-            "description": "Priorité du projet"
+            "description": "Project priority"
           },
           "startDate": {
             "type": "string",
             "example": "2025-07-01T00:00:00Z",
-            "description": "Date de début du projet"
+            "description": "Project start date"
           },
           "endDate": {
             "type": "string",
             "example": "2025-12-31T23:59:59Z",
-            "description": "Date de fin prévue du projet"
+            "description": "Planned project end date"
           }
         },
         "required": [
@@ -3615,13 +3615,13 @@
         "properties": {
           "name": {
             "type": "string",
-            "example": "Renovation Bureau - Phase 2",
-            "description": "Nom du projet"
+            "example": "Office Renovation - Phase 2",
+            "description": "Project name"
           },
           "description": {
             "type": "string",
-            "example": "Rénovation complète du bureau principal - Phase 2",
-            "description": "Description détaillée du projet"
+            "example": "Complete renovation of the main office - Phase 2",
+            "description": "Detailed description of the project"
           },
           "status": {
             "type": "string",
@@ -3632,7 +3632,7 @@
               "CANCELLED"
             ],
             "example": "COMPLETED",
-            "description": "Statut du projet"
+            "description": "Project status"
           },
           "priority": {
             "type": "string",
@@ -3643,17 +3643,17 @@
               "CRITICAL"
             ],
             "example": "MEDIUM",
-            "description": "Priorité du projet"
+            "description": "Project priority"
           },
           "startDate": {
             "type": "string",
             "example": "2025-07-01T00:00:00Z",
-            "description": "Date de début du projet"
+            "description": "Project start date"
           },
           "endDate": {
             "type": "string",
             "example": "2025-12-31T23:59:59Z",
-            "description": "Date de fin prévue du projet"
+            "description": "Planned project end date"
           }
         }
       },
@@ -3663,18 +3663,18 @@
           "itemId": {
             "type": "number",
             "example": 1,
-            "description": "ID de l'item à ajouter au projet"
+            "description": "ID of the item to add to the project"
           },
           "quantity": {
             "type": "number",
             "example": 3,
-            "description": "Quantité de cet item utilisée dans le projet",
+            "description": "Quantity of this item used in the project",
             "minimum": 1
           },
           "isActive": {
             "type": "boolean",
             "example": true,
-            "description": "Si l'utilisation de cet item est active dans le projet"
+            "description": "Whether the usage of this item is active in the project"
           }
         },
         "required": [
@@ -3688,13 +3688,13 @@
           "quantity": {
             "type": "number",
             "example": 5,
-            "description": "Nouvelle quantité de cet item utilisée dans le projet",
+            "description": "New quantity of this item used in the project",
             "minimum": 1
           },
           "isActive": {
             "type": "boolean",
             "example": false,
-            "description": "Si l'utilisation de cet item est active dans le projet"
+            "description": "Whether the usage of this item is active in the project"
           }
         }
       }
