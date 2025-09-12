@@ -42,7 +42,7 @@ services:
       - NODE_ENV=production
       - PORT=3000
       # Add your API URL pointing to the backend service
-      - NEXT_PUBLIC_API_URL=http://backend:3001
+      - NEXT_PUBLIC_BACKEND_URL=http://backend:3001
     env_file:
       - ../../frontend/.env
     depends_on:
