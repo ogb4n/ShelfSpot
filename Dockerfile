@@ -57,7 +57,7 @@ COPY --from=backend-builder --chown=shelfspot:shelfspot /app/backend/dist ./back
 COPY --from=backend-prod-deps --chown=shelfspot:shelfspot /app/backend/node_modules ./backend/node_modules
 COPY --from=backend-builder --chown=shelfspot:shelfspot /app/backend/prisma ./backend/prisma
 COPY --from=backend-builder --chown=shelfspot:shelfspot /app/backend/package.json ./backend/
-COPY --from=backend-builder --chown=shelfspot:shelfspot /app/backend/docker-entrypoint.sh ./backend/
+COPY --from=backend-builder /app/backend/docker-entrypoint.sh ./backend/
 
 # Copy frontend built files
 COPY --from=frontend-builder --chown=shelfspot:shelfspot /app/frontend/.next/standalone ./frontend/
@@ -141,6 +141,12 @@ RUN chmod +x ./start.sh ./backend/docker-entrypoint.sh
 
 # Set ownership
 RUN chown -R shelfspot:shelfspot /app
+
+# Backend startup script stays root-owned and read-only for the runtime
+# user: it runs migrations before the app starts, so shelfspot must not
+# be able to rewrite it.
+RUN chown root:root ./backend/docker-entrypoint.sh && \
+    chmod 555 ./backend/docker-entrypoint.sh
 
 USER shelfspot
 
