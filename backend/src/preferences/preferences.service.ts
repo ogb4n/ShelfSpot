@@ -17,7 +17,7 @@ export class PreferencesService {
   constructor(private prisma: PrismaService) {}
 
   async getUserPreferences(userId: string): Promise<UserPreferences> {
-    const numericUserId = parseInt(userId, 10);
+    const numericUserId = Number.parseInt(userId, 10);
     // Try to get existing preferences
     let preferences = await this.prisma.userPreferences.findUnique({
       where: { userId: numericUserId },
@@ -45,7 +45,7 @@ export class PreferencesService {
     userId: string,
     updates: UpdatePreferencesDto
   ): Promise<UserPreferences> {
-    const numericUserId = parseInt(userId, 10);
+    const numericUserId = Number.parseInt(userId, 10);
 
     // First ensure preferences exist
     await this.getUserPreferences(userId);

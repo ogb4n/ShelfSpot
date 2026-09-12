@@ -58,13 +58,13 @@ function normalizeNumericFields(
     payload: Record<string, unknown>,
     selectedType: string | null
 ): void {
-    if (payload.quantity) payload.quantity = parseInt(String(payload.quantity));
+    if (payload.quantity) payload.quantity = Number.parseInt(String(payload.quantity));
     else if (selectedType === "item") payload.quantity = 1; // Default quantity for items
-    if (payload.price) payload.price = parseFloat(String(payload.price));
-    if (payload.sellprice) payload.sellprice = parseFloat(String(payload.sellprice));
-    if (payload.roomId) payload.roomId = parseInt(String(payload.roomId));
-    if (payload.placeId) payload.placeId = parseInt(String(payload.placeId));
-    if (payload.containerId) payload.containerId = parseInt(String(payload.containerId));
+    if (payload.price) payload.price = Number.parseFloat(String(payload.price));
+    if (payload.sellprice) payload.sellprice = Number.parseFloat(String(payload.sellprice));
+    if (payload.roomId) payload.roomId = Number.parseInt(String(payload.roomId));
+    if (payload.placeId) payload.placeId = Number.parseInt(String(payload.placeId));
+    if (payload.containerId) payload.containerId = Number.parseInt(String(payload.containerId));
 }
 
 // Use the appropriate backend API method based on the selected type

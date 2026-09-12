@@ -65,7 +65,7 @@ export class ConsumablesController {
   })
   @ApiResponse({ status: 401, description: "Unauthorized" })
   findLowStock(@Query("threshold") threshold?: string) {
-    const thresholdValue = threshold ? parseInt(threshold, 10) : 5;
+    const thresholdValue = threshold ? Number.parseInt(threshold, 10) : 5;
     return this.consumablesService.findLowStock(thresholdValue);
   }
 

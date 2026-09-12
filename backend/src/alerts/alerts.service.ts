@@ -218,10 +218,10 @@ export class AlertsService {
 
     const result = Array.from(monthlyData.entries()).map(([key, count]) => {
       const [year, month] = key.split("-");
-      const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+      const date = new Date(Number.parseInt(year), Number.parseInt(month) - 1, 1);
       return {
         month: date.toLocaleDateString("en-US", { month: "short" }),
-        year: parseInt(year),
+        year: Number.parseInt(year),
         count,
       };
     });

@@ -15,7 +15,7 @@ export class FavouritesService {
   // Create a favourite with user ID (string converted to number for the DB)
   async createWithUserId(itemId: number, userId: string | number) {
     const numericUserId =
-      typeof userId === "string" ? parseInt(userId, 10) : userId;
+      typeof userId === "string" ? Number.parseInt(userId, 10) : userId;
 
     const existingFavourite = await this.prisma.favourite.findUnique({
       where: {
@@ -72,7 +72,7 @@ export class FavouritesService {
 
   findByUser(userId: string | number) {
     const numericUserId =
-      typeof userId === "string" ? parseInt(userId, 10) : userId;
+      typeof userId === "string" ? Number.parseInt(userId, 10) : userId;
 
     return this.prisma.favourite.findMany({
       where: { userId: numericUserId },
@@ -113,7 +113,7 @@ export class FavouritesService {
   // Remove a favourite while checking the user
   removeWithUserId(id: number, userId: string | number) {
     const numericUserId =
-      typeof userId === "string" ? parseInt(userId, 10) : userId;
+      typeof userId === "string" ? Number.parseInt(userId, 10) : userId;
 
     return this.prisma.favourite.deleteMany({
       where: {
@@ -143,7 +143,7 @@ export class FavouritesService {
   // Remove a favourite by item and user ID
   removeByItemAndUserId(itemId: number, userId: string | number) {
     const numericUserId =
-      typeof userId === "string" ? parseInt(userId, 10) : userId;
+      typeof userId === "string" ? Number.parseInt(userId, 10) : userId;
 
     return this.prisma.favourite.deleteMany({
       where: {

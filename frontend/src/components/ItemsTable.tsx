@@ -270,7 +270,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
         let processedValue: any = value;
 
         if (name === 'quantity') {
-            processedValue = parseInt(value, 10) || 0;
+            processedValue = Number.parseInt(value, 10) || 0;
         }
 
         setEditValues({ ...editValues, [name]: processedValue });

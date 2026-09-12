@@ -86,13 +86,13 @@ items
   .command("create")
   .description("Create a new item")
   .requiredOption("--name <name>", "Item name")
-  .requiredOption("--quantity <n>", "Quantity", parseInt)
-  .requiredOption("--room-id <id>", "Room ID", parseInt)
-  .option("--place-id <id>", "Place ID", parseInt)
-  .option("--container-id <id>", "Container ID", parseInt)
+  .requiredOption("--quantity <n>", "Quantity", Number.parseInt)
+  .requiredOption("--room-id <id>", "Room ID", Number.parseInt)
+  .option("--place-id <id>", "Place ID", Number.parseInt)
+  .option("--container-id <id>", "Container ID", Number.parseInt)
   .option("--status <status>", "Status (e.g. Available, In use, Broken)")
-  .option("--price <n>", "Purchase price", parseFloat)
-  .option("--sellprice <n>", "Selling price", parseFloat)
+  .option("--price <n>", "Purchase price", Number.parseFloat)
+  .option("--sellprice <n>", "Selling price", Number.parseFloat)
   .option("--consumable <bool>", "Mark as consumable: true or false (default: false)")
   .option("--item-link <url>", "URL link to item")
   .action(async (opts) => {
@@ -120,13 +120,13 @@ items
   .command("update <id>")
   .description("Update an item")
   .option("--name <name>")
-  .option("--quantity <n>", "Quantity", parseInt)
-  .option("--room-id <id>", "Room ID", parseInt)
-  .option("--place-id <id>", "Place ID", parseInt)
-  .option("--container-id <id>", "Container ID", parseInt)
+  .option("--quantity <n>", "Quantity", Number.parseInt)
+  .option("--room-id <id>", "Room ID", Number.parseInt)
+  .option("--place-id <id>", "Place ID", Number.parseInt)
+  .option("--container-id <id>", "Container ID", Number.parseInt)
   .option("--status <status>")
-  .option("--price <n>", "Purchase price", parseFloat)
-  .option("--sellprice <n>", "Selling price", parseFloat)
+  .option("--price <n>", "Purchase price", Number.parseFloat)
+  .option("--sellprice <n>", "Selling price", Number.parseFloat)
   .option("--item-link <url>")
   .option("--tags <tags>", "Comma-separated tag names")
   .action(async (id: string, opts) => {
@@ -270,7 +270,7 @@ places
 places
   .command("create")
   .requiredOption("--name <name>")
-  .requiredOption("--room-id <id>", "Room ID", parseInt)
+  .requiredOption("--room-id <id>", "Room ID", Number.parseInt)
   .action(async (opts) => {
     try {
       const token = await requireToken();
@@ -321,8 +321,8 @@ containers
   .command("create")
   .requiredOption("--name <name>")
   .option("--icon <icon>")
-  .option("--room-id <id>", "Room ID", parseInt)
-  .option("--place-id <id>", "Place ID", parseInt)
+  .option("--room-id <id>", "Room ID", Number.parseInt)
+  .option("--place-id <id>", "Place ID", Number.parseInt)
   .action(async (opts) => {
     try {
       const token = await requireToken();
@@ -339,8 +339,8 @@ containers
   .command("update <id>")
   .option("--name <name>")
   .option("--icon <icon>")
-  .option("--room-id <id>", "Room ID", parseInt)
-  .option("--place-id <id>", "Place ID", parseInt)
+  .option("--room-id <id>", "Room ID", Number.parseInt)
+  .option("--place-id <id>", "Place ID", Number.parseInt)
   .action(async (id: string, opts) => {
     try {
       const token = await requireToken();
@@ -411,7 +411,7 @@ const alerts = program.command("alerts").description("Stock alerts");
 
 alerts
   .command("list")
-  .option("--item-id <id>", "Filter by item ID", parseInt)
+  .option("--item-id <id>", "Filter by item ID", Number.parseInt)
   .action(async (opts) => {
     try {
       const token = await requireToken();
@@ -422,8 +422,8 @@ alerts
 
 alerts
   .command("create")
-  .requiredOption("--item-id <id>", "Item ID", parseInt)
-  .requiredOption("--threshold <n>", "Quantity threshold", parseInt)
+  .requiredOption("--item-id <id>", "Item ID", Number.parseInt)
+  .requiredOption("--threshold <n>", "Quantity threshold", Number.parseInt)
   .option("--name <name>", "Alert name")
   .action(async (opts) => {
     try {
@@ -437,7 +437,7 @@ alerts
 
 alerts
   .command("update <id>")
-  .option("--threshold <n>", "Quantity threshold", parseInt)
+  .option("--threshold <n>", "Quantity threshold", Number.parseInt)
   .option("--name <name>")
   .option("--active <bool>", "true or false")
   .action(async (id: string, opts) => {

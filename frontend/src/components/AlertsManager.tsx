@@ -42,7 +42,7 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
         try {
             const createdAlert = await backendApi.createAlert({
                 itemId,
-                threshold: parseInt(newAlert.threshold),
+                threshold: Number.parseInt(newAlert.threshold),
                 name: newAlert.name || undefined,
             });
             setAlerts([...alerts, createdAlert]);

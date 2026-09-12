@@ -16,7 +16,7 @@ function useGetItems(id?: string) {
       setError(null);
       try {
         if (id) {
-          const result = await backendApi.getItem(parseInt(id));
+          const result = await backendApi.getItem(Number.parseInt(id));
           setData(result);
         } else {
           const result = await backendApi.getItems();

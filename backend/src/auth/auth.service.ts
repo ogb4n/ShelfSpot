@@ -112,7 +112,7 @@ export class AuthService {
 
     const access_token = this.jwtService.sign(payload);
     const refresh_token = this.generateRefreshToken();
-    await this.storeRefreshToken(parseInt(user.id, 10), refresh_token);
+    await this.storeRefreshToken(Number.parseInt(user.id, 10), refresh_token);
 
     return {
       access_token,
@@ -244,7 +244,7 @@ export class AuthService {
     console.log("AuthService: getUserProfile called with userId:", userId);
 
     const user = await this.prisma.user.findUnique({
-      where: { id: parseInt(userId, 10) },
+      where: { id: Number.parseInt(userId, 10) },
       select: {
         id: true,
         email: true,
@@ -271,7 +271,7 @@ export class AuthService {
     }
 
     const user = await this.prisma.user.update({
-      where: { id: parseInt(userId, 10) },
+      where: { id: Number.parseInt(userId, 10) },
       data: { name: newName },
       select: {
         id: true,
@@ -295,12 +295,12 @@ export class AuthService {
       where: { email: newEmail },
     });
 
-    if (existingUser && existingUser.id !== parseInt(userId, 10)) {
+    if (existingUser && existingUser.id !== Number.parseInt(userId, 10)) {
       throw new ConflictException("Email already exists");
     }
 
     const user = await this.prisma.user.update({
-      where: { id: parseInt(userId, 10) }, // Convert string -> number for database
+      where: { id: Number.parseInt(userId, 10) }, // Convert string -> number for database
       data: { email: newEmail },
       select: {
         id: true,
@@ -430,7 +430,7 @@ export class AuthService {
     updateUserDto: UpdateUserDto
   ): Promise<UserPayload> {
     const numericUserId =
-      typeof userId === "string" ? parseInt(userId, 10) : userId;
+      typeof userId === "string" ? Number.parseInt(userId, 10) : userId;
 
     // Check that the user exists
     const existingUser = await this.prisma.user.findUnique({
@@ -509,7 +509,7 @@ export class AuthService {
 
   async deleteUserByAdmin(userId: number | string): Promise<void> {
     const numericUserId =
-      typeof userId === "string" ? parseInt(userId, 10) : userId;
+      typeof userId === "string" ? Number.parseInt(userId, 10) : userId;
 
     try {
       await this.prisma.user.delete({
@@ -529,7 +529,7 @@ export class AuthService {
     notificationToken: string | null
   ): Promise<UserPayload> {
     const user = await this.prisma.user.update({
-      where: { id: parseInt(userId, 10) },
+      where: { id: Number.parseInt(userId, 10) },
       data: { notificationToken },
       select: {
         id: true,

@@ -88,7 +88,7 @@ export class AlertsController {
   @ApiResponse({ status: 401, description: "Unauthorized" })
   findAll(@Query("itemId") itemId?: string) {
     if (itemId) {
-      return this.alertsService.findAllByItem(parseInt(itemId, 10));
+      return this.alertsService.findAllByItem(Number.parseInt(itemId, 10));
     }
     return this.alertsService.findAll();
   }
