@@ -66,7 +66,9 @@ prompt_default() {
   local question="$1" default="$2"
   ask "${question} [${default}]:"
   read -r REPLY
-  [[ -z "$REPLY" ]] && REPLY="$default"
+  if [[ -z "$REPLY" ]]; then
+    REPLY="$default"
+  fi
 }
 
 prompt_required() {
