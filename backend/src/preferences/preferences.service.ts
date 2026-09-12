@@ -14,7 +14,7 @@ export interface UpdatePreferencesDto {
 
 @Injectable()
 export class PreferencesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getUserPreferences(userId: string): Promise<UserPreferences> {
     const numericUserId = Number.parseInt(userId, 10);

@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class ContainersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createContainerDto: CreateContainerDto) {
     // Check that the place exists if provided

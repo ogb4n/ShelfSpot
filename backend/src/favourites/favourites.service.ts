@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class FavouritesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   create(data: Prisma.FavouriteCreateInput) {
     return this.prisma.favourite.create({

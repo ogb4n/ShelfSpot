@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class RoomsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   create(data: Prisma.RoomCreateInput) {
     return this.prisma.room.create({

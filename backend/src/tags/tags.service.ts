@@ -4,7 +4,7 @@ import { CreateTagDto, UpdateTagDto } from "./dto/tag.dto";
 
 @Injectable()
 export class TagsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createTagDto: CreateTagDto) {
     return this.prisma.tag.create({

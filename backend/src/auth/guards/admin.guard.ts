@@ -9,7 +9,7 @@ import { UserPayload } from "../interfaces/auth.interface";
 
 @Injectable()
 export class AdminGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

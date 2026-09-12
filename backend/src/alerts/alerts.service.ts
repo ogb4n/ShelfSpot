@@ -42,9 +42,9 @@ type AlertWithItem = Prisma.AlertGetPayload<{
 @Injectable()
 export class AlertsService {
   constructor(
-    private prisma: PrismaService,
-    private emailService: EmailService,
-    private pushNotificationService: PushNotificationService
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+    private readonly pushNotificationService: PushNotificationService
   ) {}
 
   async create(createAlertDto: CreateAlertDto) {
@@ -349,10 +349,11 @@ export class AlertsService {
 
       const alertNames = alertsToSend.map((alert) => alert.item.name);
       const title = "Alerte Stock";
+      const truncationSuffix = alertsToSend.length > 3 ? "..." : "";
       const body =
         alertsToSend.length === 1
           ? `Stock faible: ${alertNames[0]} (${alertsToSend[0].item.quantity} restant)`
-          : `${alertsToSend.length} items en stock faible: ${alertNames.slice(0, 3).join(", ")}${alertsToSend.length > 3 ? "..." : ""}`;
+          : `${alertsToSend.length} items en stock faible: ${alertNames.slice(0, 3).join(", ")}${truncationSuffix}`;
 
       await this.pushNotificationService.sendPushNotifications(pushTokens, {
         title,

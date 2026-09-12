@@ -11,7 +11,7 @@ export interface PushNotificationData {
 @Injectable()
 export class PushNotificationService {
   private readonly logger = new Logger(PushNotificationService.name);
-  private expo: Expo;
+  private readonly expo: Expo;
 
   constructor() {
     this.expo = new Expo();

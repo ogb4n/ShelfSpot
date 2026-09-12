@@ -10,8 +10,8 @@ import { Prisma } from "@prisma/client";
 @Injectable()
 export class ConsumablesService {
   constructor(
-    private prisma: PrismaService,
-    private alertsService: AlertsService
+    private readonly prisma: PrismaService,
+    private readonly alertsService: AlertsService
   ) {}
 
   private transformItem(item: any) {

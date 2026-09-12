@@ -23,9 +23,9 @@ import {
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
-    private emailService: EmailService
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+    private readonly emailService: EmailService
   ) {}
 
   private static readonly REFRESH_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days

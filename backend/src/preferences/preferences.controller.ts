@@ -19,7 +19,7 @@ interface AuthenticatedRequest extends Request {
 @Controller("preferences")
 @UseGuards(JwtAuthGuard)
 export class PreferencesController {
-  constructor(private preferencesService: PreferencesService) {}
+  constructor(private readonly preferencesService: PreferencesService) {}
 
   @Get()
   async getUserPreferences(

@@ -9,8 +9,8 @@ import { ConfigService } from "@nestjs/config";
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private prisma: PrismaService,
-    private configService: ConfigService
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService
   ) {
     const jwtSecret = configService.get<string>("JWT_SECRET");
     if (!jwtSecret) {

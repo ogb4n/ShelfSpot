@@ -20,7 +20,7 @@ export interface AlertEmailData {
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private resend: Resend;
+  private readonly resend: Resend;
 
   constructor() {
     // Initialiser Resend avec la clé API depuis les variables d'environnement
