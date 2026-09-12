@@ -45,11 +45,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Install PM2 globally to manage both processes
-RUN npm install -g pm2@7.0.4
-
-# Create user
-RUN addgroup --system --gid 1001 shelfspot && \
+# Install PM2 globally to manage both processes, then create the runtime user
+RUN npm install -g pm2@7.0.4 && \
+    addgroup --system --gid 1001 shelfspot && \
     adduser --system --uid 1001 shelfspot
 
 # Copy backend built files
@@ -136,16 +134,13 @@ echo "Starting frontend and backend services..."
 exec pm2-runtime start ecosystem.config.js
 EOF
 
-# Make scripts executable
-RUN chmod +x ./start.sh ./backend/docker-entrypoint.sh
-
-# Set ownership
-RUN chown -R shelfspot:shelfspot /app
-
-# Backend startup script stays root-owned and read-only for the runtime
-# user: it runs migrations before the app starts, so shelfspot must not
-# be able to rewrite it.
-RUN chown root:root ./backend/docker-entrypoint.sh && \
+# Make scripts executable, set ownership, then lock the backend startup
+# script back to root: it runs migrations before the app starts, so
+# shelfspot must not be able to rewrite it. Order matters — the reset to
+# root must come after the recursive chown, not before.
+RUN chmod +x ./start.sh ./backend/docker-entrypoint.sh && \
+    chown -R shelfspot:shelfspot /app && \
+    chown root:root ./backend/docker-entrypoint.sh && \
     chmod 555 ./backend/docker-entrypoint.sh
 
 USER shelfspot
