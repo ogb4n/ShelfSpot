@@ -23,7 +23,7 @@ COPY prisma ./prisma
 
 # Install production dependencies and generate Prisma client
 RUN yarn install --production --frozen-lockfile && \
-    npx prisma generate && \
+    yarn prisma generate && \
     yarn cache clean
 
 FROM node:20-alpine AS runner

@@ -120,7 +120,7 @@ install_cli() {
   [ -d "$cli_dir" ] || error "cli/ directory not found."
 
   step "Building CLI…"
-  (cd "$cli_dir" && npm install --silent && npm run build --silent)
+  (cd "$cli_dir" && npm install --silent --ignore-scripts && npm run build --silent)
   success "CLI built"
 
   step "Installing shelfspot command globally…"

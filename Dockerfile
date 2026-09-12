@@ -36,7 +36,7 @@ COPY backend/package.json backend/yarn.lock ./
 COPY backend/prisma ./prisma
 
 RUN yarn install --production --frozen-lockfile && \
-    npx prisma generate && \
+    yarn prisma generate && \
     yarn cache clean
 
 # Stage 4: Final Runtime Image
@@ -46,7 +46,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Install PM2 globally to manage both processes
-RUN npm install -g pm2
+RUN npm install -g pm2@7.0.4
 
 # Create user
 RUN addgroup --system --gid 1001 shelfspot && \
