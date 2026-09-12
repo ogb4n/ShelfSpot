@@ -5,7 +5,7 @@
 set -e
 
 # ── Colours ───────────────────────────────────────────────────────────────────
-if [ -t 1 ]; then
+if [[ -t 1 ]]; then
   BOLD="\033[1m"; DIM="\033[2m"; RESET="\033[0m"
   CYAN="\033[36m"; GREEN="\033[32m"; YELLOW="\033[33m"; RED="\033[31m"; BLUE="\033[34m"
 else
@@ -22,10 +22,17 @@ ask()     { echo -e -n "  ${BOLD}$1${RESET} "; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Default Postgres credentials, offered as the pre-filled answer in every
+# prompt_default "Postgres ..." call below.
+readonly DEFAULT_POSTGRES_USER="postgres"
+readonly DEFAULT_POSTGRES_PASSWORD="password"
+readonly DEFAULT_POSTGRES_DB="shelfspot"
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 require_cmd() {
-  if ! command -v "$1" &>/dev/null; then
-    error "$1 is not installed. $2"
+  local cmd="$1" hint="$2"
+  if ! command -v "$cmd" &>/dev/null; then
+    error "$cmd is not installed. $hint"
   fi
 }
 
@@ -33,7 +40,7 @@ require_node() {
   require_cmd node "Install Node.js v18+ from https://nodejs.org"
   local v; v=$(node -e "process.stdout.write(process.versions.node)")
   local major; major=$(echo "$v" | cut -d. -f1)
-  [ "$major" -ge 18 ] || error "Node.js v18+ required (found v$v). Please upgrade."
+  [[ "$major" -ge 18 ]] || error "Node.js v18+ required (found v$v). Please upgrade."
   success "Node.js v$v"
 }
 
@@ -59,7 +66,7 @@ prompt_default() {
   local question="$1" default="$2"
   ask "${question} [${default}]:"
   read -r REPLY
-  [ -z "$REPLY" ] && REPLY="$default"
+  [[ -z "$REPLY" ]] && REPLY="$default"
 }
 
 prompt_required() {
@@ -67,7 +74,7 @@ prompt_required() {
   while true; do
     ask "${question}:"
     read -r REPLY
-    [ -n "$REPLY" ] && return
+    [[ -n "$REPLY" ]] && return
     warn "This field is required."
   done
 }
@@ -75,7 +82,7 @@ prompt_required() {
 wait_healthy() {
   local service="$1" max="${2:-60}" i=0
   step "Waiting for $service to be healthy…"
-  while [ $i -lt $max ]; do
+  while [[ $i -lt $max ]]; do
     local status
     status=$(docker inspect --format='{{.State.Health.Status}}' "shelfspot_${service}" 2>/dev/null || echo "missing")
     case "$status" in
@@ -117,7 +124,7 @@ EOF
 install_cli() {
   local url="$1"
   local cli_dir="$SCRIPT_DIR/cli"
-  [ -d "$cli_dir" ] || error "cli/ directory not found."
+  [[ -d "$cli_dir" ]] || error "cli/ directory not found."
 
   step "Building CLI…"
   (cd "$cli_dir" && npm install --silent --ignore-scripts && npm run build --silent)
@@ -133,7 +140,7 @@ install_cli() {
   local export_line="export SHELFSPOT_URL=\"${url}\""
   local profiles=("$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile")
   for p in "${profiles[@]}"; do
-    if [ -f "$p" ]; then
+    if [[ -f "$p" ]]; then
       sed -i '/^export SHELFSPOT_URL=/d' "$p" 2>/dev/null || true
       echo "$export_line" >> "$p"
       success "SHELFSPOT_URL written to $p"
@@ -174,7 +181,7 @@ read -r CHOICE
 # ══════════════════════════════════════════════════════════════════════════════
 # OPTION 1 — FULL SUITE
 # ══════════════════════════════════════════════════════════════════════════════
-if [ "$CHOICE" = "1" ]; then
+if [[ "$CHOICE" = "1" ]]; then
   banner "Full Suite Setup"
   require_docker
   require_node
@@ -185,9 +192,9 @@ if [ "$CHOICE" = "1" ]; then
   prompt_default "Database port" "5432"; DB_PORT="$REPLY"
 
   step "Configuring database"
-  prompt_default "Postgres user"     "postgres"; POSTGRES_USER="$REPLY"
-  prompt_default "Postgres password" "password"; POSTGRES_PASSWORD="$REPLY"
-  prompt_default "Postgres database" "shelfspot"; POSTGRES_DB="$REPLY"
+  prompt_default "Postgres user"     "$DEFAULT_POSTGRES_USER"; POSTGRES_USER="$REPLY"
+  prompt_default "Postgres password" "$DEFAULT_POSTGRES_PASSWORD"; POSTGRES_PASSWORD="$REPLY"
+  prompt_default "Postgres database" "$DEFAULT_POSTGRES_DB"; POSTGRES_DB="$REPLY"
 
   DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
   JWT_SECRET=$(gen_secret)
@@ -196,7 +203,7 @@ if [ "$CHOICE" = "1" ]; then
   step "Email alerts (optional — press Enter to skip)"
   info "Used to send low-stock alert emails via Resend."
   ask "Resend API key (leave blank to skip):"; read -r RESEND_API_KEY
-  if [ -n "$RESEND_API_KEY" ]; then
+  if [[ -n "$RESEND_API_KEY" ]]; then
     prompt_required "From email (e.g. alerts@yourdomain.com)"; RESEND_FROM_EMAIL="ShelfSpot <$REPLY>"
     prompt_required "Alert recipient email"; ALERT_EMAIL_RECIPIENT="$REPLY"
   fi
@@ -233,7 +240,7 @@ if [ "$CHOICE" = "1" ]; then
 # ══════════════════════════════════════════════════════════════════════════════
 # OPTION 2 — BACKEND STACK
 # ══════════════════════════════════════════════════════════════════════════════
-elif [ "$CHOICE" = "2" ]; then
+elif [[ "$CHOICE" = "2" ]]; then
   banner "Backend Stack Setup"
   require_docker
 
@@ -242,9 +249,9 @@ elif [ "$CHOICE" = "2" ]; then
   prompt_default "Database port" "5432"; DB_PORT="$REPLY"
 
   step "Configuring database"
-  prompt_default "Postgres user"     "postgres"; POSTGRES_USER="$REPLY"
-  prompt_default "Postgres password" "password"; POSTGRES_PASSWORD="$REPLY"
-  prompt_default "Postgres database" "shelfspot"; POSTGRES_DB="$REPLY"
+  prompt_default "Postgres user"     "$DEFAULT_POSTGRES_USER"; POSTGRES_USER="$REPLY"
+  prompt_default "Postgres password" "$DEFAULT_POSTGRES_PASSWORD"; POSTGRES_PASSWORD="$REPLY"
+  prompt_default "Postgres database" "$DEFAULT_POSTGRES_DB"; POSTGRES_DB="$REPLY"
 
   DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
   JWT_SECRET=$(gen_secret)
@@ -252,7 +259,7 @@ elif [ "$CHOICE" = "2" ]; then
 
   step "Email alerts (optional — press Enter to skip)"
   ask "Resend API key (leave blank to skip):"; read -r RESEND_API_KEY
-  if [ -n "$RESEND_API_KEY" ]; then
+  if [[ -n "$RESEND_API_KEY" ]]; then
     prompt_required "From email"; RESEND_FROM_EMAIL="ShelfSpot <$REPLY>"
     prompt_required "Alert recipient email"; ALERT_EMAIL_RECIPIENT="$REPLY"
   fi
@@ -288,7 +295,7 @@ elif [ "$CHOICE" = "2" ]; then
 # ══════════════════════════════════════════════════════════════════════════════
 # OPTION 3 — FRONTEND ONLY
 # ══════════════════════════════════════════════════════════════════════════════
-elif [ "$CHOICE" = "3" ]; then
+elif [[ "$CHOICE" = "3" ]]; then
   banner "Frontend Setup"
   require_docker
 
@@ -299,8 +306,8 @@ elif [ "$CHOICE" = "3" ]; then
   step "Configuring port"
   prompt_default "Frontend port" "8083"; FRONTEND_PORT="$REPLY"
 
-  POSTGRES_USER="postgres"; POSTGRES_PASSWORD="password"
-  POSTGRES_DB="shelfspot"; DB_PORT="5432"; BACKEND_PORT="8082"
+  POSTGRES_USER="$DEFAULT_POSTGRES_USER"; POSTGRES_PASSWORD="$DEFAULT_POSTGRES_PASSWORD"
+  POSTGRES_DB="$DEFAULT_POSTGRES_DB"; DB_PORT="5432"; BACKEND_PORT="8082"
   DATABASE_URL=""; JWT_SECRET=""; RESEND_API_KEY=""
   NEXT_PUBLIC_BACKEND_URL="$BACKEND_URL"
 
@@ -323,7 +330,7 @@ elif [ "$CHOICE" = "3" ]; then
 # ══════════════════════════════════════════════════════════════════════════════
 # OPTION 4 — CLI ONLY
 # ══════════════════════════════════════════════════════════════════════════════
-elif [ "$CHOICE" = "4" ]; then
+elif [[ "$CHOICE" = "4" ]]; then
   banner "CLI Setup"
   require_node
 
@@ -355,7 +362,7 @@ elif [ "$CHOICE" = "4" ]; then
 # ══════════════════════════════════════════════════════════════════════════════
 # OPTION 5 — CUSTOM
 # ══════════════════════════════════════════════════════════════════════════════
-elif [ "$CHOICE" = "5" ]; then
+elif [[ "$CHOICE" = "5" ]]; then
   banner "Custom Setup"
   echo ""
   echo "  Select the components to install (y/n for each):"
@@ -381,8 +388,8 @@ elif [ "$CHOICE" = "5" ]; then
   $NEEDS_DOCKER && require_docker
   $WANTS_CLI    && require_node
 
-  POSTGRES_USER="postgres"; POSTGRES_PASSWORD="password"
-  POSTGRES_DB="shelfspot";  DB_PORT="5432"
+  POSTGRES_USER="$DEFAULT_POSTGRES_USER"; POSTGRES_PASSWORD="$DEFAULT_POSTGRES_PASSWORD"
+  POSTGRES_DB="$DEFAULT_POSTGRES_DB";  DB_PORT="5432"
   BACKEND_PORT="8082"; FRONTEND_PORT="8083"
   DATABASE_URL="postgresql://postgres:password@db:5432/shelfspot"
   JWT_SECRET=""; RESEND_API_KEY=""; RESEND_FROM_EMAIL=""; ALERT_EMAIL_RECIPIENT=""
@@ -390,9 +397,9 @@ elif [ "$CHOICE" = "5" ]; then
 
   if $WANTS_DB || $WANTS_BACKEND; then
     step "Configuring database"
-    prompt_default "Postgres user"     "postgres"; POSTGRES_USER="$REPLY"
-    prompt_default "Postgres password" "password"; POSTGRES_PASSWORD="$REPLY"
-    prompt_default "Postgres database" "shelfspot"; POSTGRES_DB="$REPLY"
+    prompt_default "Postgres user"     "$DEFAULT_POSTGRES_USER"; POSTGRES_USER="$REPLY"
+    prompt_default "Postgres password" "$DEFAULT_POSTGRES_PASSWORD"; POSTGRES_PASSWORD="$REPLY"
+    prompt_default "Postgres database" "$DEFAULT_POSTGRES_DB"; POSTGRES_DB="$REPLY"
     prompt_default "Database port"     "5432"; DB_PORT="$REPLY"
     DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
   fi
@@ -402,7 +409,7 @@ elif [ "$CHOICE" = "5" ]; then
     JWT_SECRET=$(gen_secret)
     success "JWT secret generated"
     ask "Resend API key (leave blank to skip):"; read -r RESEND_API_KEY
-    if [ -n "$RESEND_API_KEY" ]; then
+    if [[ -n "$RESEND_API_KEY" ]]; then
       prompt_required "From email"; RESEND_FROM_EMAIL="ShelfSpot <$REPLY>"
       prompt_required "Alert recipient email"; ALERT_EMAIL_RECIPIENT="$REPLY"
     fi
