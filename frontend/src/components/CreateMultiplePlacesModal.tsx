@@ -21,7 +21,7 @@ interface Room {
 }
 
 const createEmptyRow = (): BulkPlaceRow => ({
-    id: `${Date.now()}-${Math.random()}`,
+    id: crypto.randomUUID(),
     name: "",
     roomId: null,
 });

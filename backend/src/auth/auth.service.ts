@@ -341,8 +341,8 @@ export class AuthService {
       throw new NotFoundException("User not found");
     }
 
-    // Generate a temporary password (8 characters)
-    const tempPassword = Math.random().toString(36).slice(-8);
+    // Generate a temporary password (8 hex characters)
+    const tempPassword = randomBytes(4).toString("hex");
 
     // Hash the temporary password
     const saltRounds = 12;

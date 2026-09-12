@@ -20,7 +20,7 @@ interface BulkItemRow {
 interface Room { id: number; name: string; }
 
 const createEmptyRow = (): BulkItemRow => ({
-    id: `${Date.now()}-${Math.random()}`,
+    id: crypto.randomUUID(),
     name: "",
     quantity: 1,
     itemLink: "",

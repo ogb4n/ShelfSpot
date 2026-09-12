@@ -21,7 +21,7 @@ interface Room { id: number; name: string; }
 interface Place { id: number; name: string; roomId?: number | null }
 
 const createEmptyRow = (): BulkContainerRow => ({
-    id: `${Date.now()}-${Math.random()}`,
+    id: crypto.randomUUID(),
     name: "",
     icon: "",
     roomId: null,

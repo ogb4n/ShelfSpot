@@ -16,7 +16,7 @@ interface BulkRoomRow {
 }
 
 const createEmptyRow = (): BulkRoomRow => ({
-    id: `${Date.now()}-${Math.random()}`,
+    id: crypto.randomUUID(),
     name: "",
     description: "",
 });
