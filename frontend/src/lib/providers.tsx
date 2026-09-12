@@ -5,7 +5,7 @@ import React from 'react';
 import { AuthProvider } from './auth-context';
 
 interface AppProvidersProps {
-    children: React.ReactNode;
+    readonly children: React.ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps) {

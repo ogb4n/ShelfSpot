@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ChangeEvent, FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "@/lib/auth-context";
 import { backendApi, BackendApiError } from "@/lib/backend-api";
@@ -231,11 +230,12 @@ export default function Settings() {
               <div className="space-y-6">
                 {/* Username */}
                 <form onSubmit={handleNameChange} className="space-y-3">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label htmlFor="settings-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Username
                   </label>
                   <div className="flex gap-3">
                     <input
+                      id="settings-name"
                       name="name"
                       value={userForm.name}
                       onChange={handleChange}
@@ -253,11 +253,12 @@ export default function Settings() {
 
                 {/* Email */}
                 <form onSubmit={handleEmailChange} className="space-y-3">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label htmlFor="settings-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Email
                   </label>
                   <div className="flex gap-3">
                     <input
+                      id="settings-email"
                       name="email"
                       type="email"
                       value={userForm.email}
@@ -313,11 +314,12 @@ export default function Settings() {
               <div>
                 <h4 className="text-md font-medium text-gray-900 dark:text-white mb-3">Change Password</h4>
                 <form onSubmit={handlePasswordChange} className="space-y-3">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label htmlFor="settings-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     New password
                   </label>
                   <div className="space-y-3">
                     <input
+                      id="settings-password"
                       name="password"
                       type="password"
                       value={userForm.password}

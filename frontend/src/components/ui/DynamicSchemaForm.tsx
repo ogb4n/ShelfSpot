@@ -14,23 +14,31 @@ interface Schema {
 
 type FormRow = Record<string, string | number | boolean | null | undefined>;
 
+// Rows carry a stable id so React keys don't rely on array index — removing a
+// row in the middle would otherwise shift every later row's key and lose its
+// input state (focus, in-progress edit) to the row that inherits its index.
+type IdentifiedRow = { id: string; data: FormRow };
+
 interface DynamicSchemaFormProps {
-    schema: Schema;
-    initialRows?: FormRow[];
-    onSubmit: (rows: FormRow[]) => Promise<void> | void;
-    options?: { [key: string]: Array<{ value: string | number; label: string }> };
+    readonly schema: Schema;
+    readonly initialRows?: FormRow[];
+    readonly onSubmit: (rows: FormRow[]) => Promise<void> | void;
+    readonly options?: { [key: string]: Array<{ value: string | number; label: string }> };
 }
 
+const toIdentifiedRows = (rows: FormRow[]): IdentifiedRow[] =>
+    rows.map((data) => ({ id: crypto.randomUUID(), data }));
+
 export default function DynamicSchemaForm({ schema, initialRows = [{}], onSubmit, options = {} }: DynamicSchemaFormProps) {
-    const [rows, setRows] = useState<FormRow[]>(initialRows.length ? initialRows : [{}]);
+    const [rows, setRows] = useState<IdentifiedRow[]>(toIdentifiedRows(initialRows.length ? initialRows : [{}]));
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const addRow = () => setRows((r) => [...r, {}]);
-    const removeRow = (idx: number) => setRows((r) => (r.length === 1 ? r : r.filter((_, i) => i !== idx)));
+    const addRow = () => setRows((r) => [...r, { id: crypto.randomUUID(), data: {} }]);
+    const removeRow = (id: string) => setRows((r) => (r.length === 1 ? r : r.filter((row) => row.id !== id)));
 
-    const handleChange = (idx: number, key: string, value: string | number | boolean | null | undefined) => {
-        setRows((prev) => prev.map((row, i) => (i === idx ? { ...row, [key]: value } : row)));
+    const handleChange = (id: string, key: string, value: string | number | boolean | null | undefined) => {
+        setRows((prev) => prev.map((row) => (row.id === id ? { ...row, data: { ...row.data, [key]: value } } : row)));
     };
 
     const validateRow = (row: FormRow) => {
@@ -46,14 +54,14 @@ export default function DynamicSchemaForm({ schema, initialRows = [{}], onSubmit
     const handleSubmit = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         setError(null);
-        const invalidIndex = rows.findIndex((row) => !validateRow(row));
+        const invalidIndex = rows.findIndex((row) => !validateRow(row.data));
         if (invalidIndex !== -1) {
             setError(`Line ${invalidIndex + 1} is missing required fields`);
             return;
         }
         setLoading(true);
         try {
-            await onSubmit(rows);
+            await onSubmit(rows.map((row) => row.data));
         } catch (err) {
             setError(err instanceof Error ? err.message : String(err));
         } finally {
@@ -65,36 +73,41 @@ export default function DynamicSchemaForm({ schema, initialRows = [{}], onSubmit
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            {rows.map((row, idx) => (
-                <div key={idx} className="app-panel grid gap-3 p-4">
+            {rows.map(({ id, data }, idx) => (
+                <div key={id} className="app-panel grid gap-3 p-4">
                     <div className="grid grid-cols-12 gap-3">
                         {properties.map(([key, def]: [string, SchemaProperty]) => {
                             const title = def.title || key;
                             const required = (schema.required || []).includes(key);
                             const fieldType = def.type || "string";
                             const opts = options[key];
+                            const value = (data[key] as string | number) ?? "";
+                            let field: React.ReactNode;
+                            if (opts) {
+                                field = (
+                                    <select className="app-input" value={value} onChange={(e) => handleChange(id, key, e.target.value ? Number(e.target.value) : null)}>
+                                        <option value="">Select</option>
+                                        {opts.map((o) => (<option key={o.value} value={o.value}>{o.label}</option>))}
+                                    </select>
+                                );
+                            } else if (fieldType === "integer" || fieldType === "number") {
+                                field = <input type="number" className="app-input" value={value} onChange={(e) => handleChange(id, key, e.target.value === "" ? undefined : Number(e.target.value))} />;
+                            } else if (fieldType === "boolean") {
+                                field = <input type="checkbox" className="h-4 w-4 rounded border border-border bg-input text-primary" checked={Boolean(data[key])} onChange={(e) => handleChange(id, key, e.target.checked)} />;
+                            } else {
+                                field = <input type="text" className="app-input" value={value} onChange={(e) => handleChange(id, key, e.target.value)} />;
+                            }
                             return (
                                 <label key={key} className="col-span-12 text-sm text-foreground sm:col-span-6">
                                     <span className="mb-1 block font-medium">{title}{required ? " *" : ""}</span>
-                                    {opts ? (
-                                        <select className="app-input" value={(row[key] as string | number) ?? ""} onChange={(e) => handleChange(idx, key, e.target.value ? Number(e.target.value) : null)}>
-                                            <option value="">Select</option>
-                                            {opts.map((o) => (<option key={o.value} value={o.value}>{o.label}</option>))}
-                                        </select>
-                                    ) : fieldType === "integer" || fieldType === "number" ? (
-                                        <input type="number" className="app-input" value={(row[key] as string | number) ?? ""} onChange={(e) => handleChange(idx, key, e.target.value === "" ? undefined : Number(e.target.value))} />
-                                    ) : fieldType === "boolean" ? (
-                                        <input type="checkbox" className="h-4 w-4 rounded border border-border bg-input text-primary" checked={Boolean(row[key])} onChange={(e) => handleChange(idx, key, e.target.checked)} />
-                                    ) : (
-                                        <input type="text" className="app-input" value={(row[key] as string | number) ?? ""} onChange={(e) => handleChange(idx, key, e.target.value)} />
-                                    )}
+                                    {field}
                                 </label>
                             );
                         })}
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
                         <p>Line {idx + 1}</p>
-                        {rows.length > 1 && <button type="button" className="text-destructive hover:underline" onClick={() => removeRow(idx)}>Remove</button>}
+                        {rows.length > 1 && <button type="button" className="text-destructive hover:underline" onClick={() => removeRow(id)}>Remove</button>}
                     </div>
                 </div>
             ))}

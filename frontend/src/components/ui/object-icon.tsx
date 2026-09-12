@@ -1,8 +1,8 @@
 import { DoorOpen, SquareLibrary, Archive, Lamp } from "lucide-react";
 
 interface ObjectIconProps {
-    type: "room" | "place" | "container" | "item";
-    className?: string;
+    readonly type: "room" | "place" | "container" | "item";
+    readonly className?: string;
 }
 
 export function ObjectIcon({ type, className = "w-7 h-7" }: ObjectIconProps) {

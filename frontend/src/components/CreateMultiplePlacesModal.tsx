@@ -4,9 +4,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { backendApi } from "@/lib/backend-api";
 
 interface CreateMultiplePlacesModalProps {
-    open: boolean;
-    onClose: () => void;
-    embedded?: boolean;
+    readonly open: boolean;
+    readonly onClose: () => void;
+    readonly embedded?: boolean;
 }
 
 interface BulkPlaceRow {

@@ -83,9 +83,9 @@ function SearchResultsSection({
   searchResults,
   onSelectItem,
 }: {
-  searchLoading: boolean;
-  searchResults: SearchItem[];
-  onSelectItem: (item: SearchItem) => void;
+  readonly searchLoading: boolean;
+  readonly searchResults: SearchItem[];
+  readonly onSelectItem: (item: SearchItem) => void;
 }) {
   if (searchLoading) {
     return (
@@ -156,8 +156,8 @@ function AllItemsSlider({
   allItems,
   onSelectItem,
 }: {
-  allItems: RecentItem[];
-  onSelectItem: (item: RecentItem) => void;
+  readonly allItems: RecentItem[];
+  readonly onSelectItem: (item: RecentItem) => void;
 }) {
   if (allItems.length === 0) {
     return (
@@ -419,7 +419,7 @@ export default function Dashboard() {
 }
 
 // Stat Card Component
-function StatCard({ title, value, className }: { title: string; value: number; className?: string }) {
+function StatCard({ title, value, className }: { readonly title: string; readonly value: number; readonly className?: string }) {
   return (
     <div className={`app-panel group relative p-5 transition-transform duration-150 hover:-translate-y-0.5 ${className || ""}`}>
       <div className="flex flex-col">

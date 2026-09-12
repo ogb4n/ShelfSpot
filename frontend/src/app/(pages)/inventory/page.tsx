@@ -36,7 +36,6 @@ export default function InventoryPage() {
                         "tags",
                         "actions"
                     ]}
-                    showCreateForm={false}
                 />
             </div>
         </div>

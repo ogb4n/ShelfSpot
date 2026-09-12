@@ -244,7 +244,7 @@ const ManagePage = () => {
                           value={editValues.name || ''}
                           onChange={(e) => handleEditValueChange(e.target.value)}
                           className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white mr-3"
-                          autoFocus
+                          ref={(el) => el?.focus()}
                         />
                         <div className="flex gap-2">
                           <button
@@ -311,7 +311,7 @@ const ManagePage = () => {
                             value={editValues.name || ''}
                             onChange={(e) => handleEditValueChange(e.target.value)}
                             className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white mb-1"
-                            autoFocus
+                            ref={(el) => el?.focus()}
                           />
                           <div className="text-xs text-gray-500 dark:text-gray-400">
                             {rooms.find(r => r.id === place.roomId)?.name || "Unknown room"}
@@ -388,7 +388,7 @@ const ManagePage = () => {
                             onChange={(e) => handleEditValueChange(e.target.value)}
                             className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                             placeholder="Container name"
-                            autoFocus
+                            ref={(el) => el?.focus()}
                           />
                           <select
                             value={editValues.roomId || ''}
@@ -500,7 +500,7 @@ const ManagePage = () => {
                         value={editValues.name || ''}
                         onChange={(e) => handleEditValueChange(e.target.value)}
                         className="text-sm border-none bg-transparent text-gray-900 dark:text-white outline-none w-20"
-                        autoFocus
+                        ref={(el) => el?.focus()}
                       />
                       <button
                         onClick={() => handleSaveTag(tag.id)}

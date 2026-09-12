@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Archive, DoorOpen, Lamp, SquareLibrary } from "lucide-react";
 import { backendApi } from "@/lib/backend-api";
 
@@ -58,13 +58,16 @@ function normalizeNumericFields(
     payload: Record<string, unknown>,
     selectedType: string | null
 ): void {
-    if (payload.quantity) payload.quantity = Number.parseInt(String(payload.quantity));
+    // Form fields only ever hold strings (typed) or numbers (defaults set in
+    // code) — never objects — so this cast is safe, not an assumption.
+    const asPrimitive = (v: unknown) => v as string | number;
+    if (payload.quantity) payload.quantity = Number.parseInt(String(asPrimitive(payload.quantity)));
     else if (selectedType === "item") payload.quantity = 1; // Default quantity for items
-    if (payload.price) payload.price = Number.parseFloat(String(payload.price));
-    if (payload.sellprice) payload.sellprice = Number.parseFloat(String(payload.sellprice));
-    if (payload.roomId) payload.roomId = Number.parseInt(String(payload.roomId));
-    if (payload.placeId) payload.placeId = Number.parseInt(String(payload.placeId));
-    if (payload.containerId) payload.containerId = Number.parseInt(String(payload.containerId));
+    if (payload.price) payload.price = Number.parseFloat(String(asPrimitive(payload.price)));
+    if (payload.sellprice) payload.sellprice = Number.parseFloat(String(asPrimitive(payload.sellprice)));
+    if (payload.roomId) payload.roomId = Number.parseInt(String(asPrimitive(payload.roomId)));
+    if (payload.placeId) payload.placeId = Number.parseInt(String(asPrimitive(payload.placeId)));
+    if (payload.containerId) payload.containerId = Number.parseInt(String(asPrimitive(payload.containerId)));
 }
 
 // Use the appropriate backend API method based on the selected type
@@ -133,7 +136,16 @@ export default function CreateObjectModal({ open, onClose }: Readonly<CreateObje
         }
     }, [open]);
 
-    if (!open) return null;
+    const dialogRef = useRef<HTMLDialogElement>(null);
+
+    useEffect(() => {
+        const dialog = dialogRef.current;
+        if (!dialog) return;
+        if (open && !dialog.open) dialog.showModal();
+        else if (!open && dialog.open) dialog.close();
+    }, [open]);
+
+    if (!open) return <dialog ref={dialogRef} onClose={onClose} />;
 
     const resetModal = () => {
         setStep("select");
@@ -205,13 +217,12 @@ export default function CreateObjectModal({ open, onClose }: Readonly<CreateObje
     };
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center backdrop-blur-sm bg-black/60 modal-backdrop p-4">
-            <div
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="create-object-modal-title"
-                className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-sm shadow-md border border-gray-200/50 dark:border-gray-700/50 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative modal-content"
-            >
+        <dialog
+            ref={dialogRef}
+            onClose={onClose}
+            aria-labelledby="create-object-modal-title"
+            className="z-[70] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-sm shadow-md border border-gray-200/50 dark:border-gray-700/50 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative modal-content p-0 backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+        >
                 <button
                     className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10 h-11 w-11 flex items-center justify-center rounded-md hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-200 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80"
                     onClick={() => {
@@ -577,7 +588,6 @@ export default function CreateObjectModal({ open, onClose }: Readonly<CreateObje
                         </form>
                     </div>
                 )}
-            </div>
-        </div>
+        </dialog>
     );
 }

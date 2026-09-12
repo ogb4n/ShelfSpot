@@ -27,7 +27,7 @@ type RoomWithCount = Room & {
 };
 
 interface DashboardChartsProps {
-    preferences?: {
+    readonly preferences?: {
         showRoomDistribution: boolean;
         showAlertsPerMonth: boolean;
         showInventoryValue: boolean;
@@ -72,76 +72,89 @@ function RoomDistributionCard({
     roomsWithItems,
     chartData,
 }: {
-    loading: boolean;
-    error: ReturnType<typeof useGetRooms>["error"];
-    rooms: RoomWithCount[] | undefined;
-    roomsWithItems: RoomWithCount[];
-    chartData: ChartData<"pie", number[], string>;
+    readonly loading: boolean;
+    readonly error: ReturnType<typeof useGetRooms>["error"];
+    readonly rooms: RoomWithCount[] | undefined;
+    readonly roomsWithItems: RoomWithCount[];
+    readonly chartData: ChartData<"pie", number[], string>;
 }) {
+    let body: React.ReactNode;
+    if (loading) {
+        body = (
+            <div className="flex flex-col items-center justify-center h-64">
+                <div className="relative mb-6">
+                    <div className="h-16 w-16 rounded-full border-4 border-blue-100 dark:border-blue-900"></div>
+                    <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+                </div>
+                <p className="font-medium text-muted-foreground">Loading room data...</p>
+            </div>
+        );
+    } else if (error) {
+        body = (
+            <div className="text-center py-16">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
+                    <span className="text-red-500 text-2xl">⚠️</span>
+                </div>
+                <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading rooms</div>
+                <div className="text-sm text-muted-foreground">{error}</div>
+            </div>
+        );
+    } else if (!rooms || rooms.length === 0) {
+        body = (
+            <div className="text-center py-16">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                    <span className="text-gray-400 text-2xl">🏠</span>
+                </div>
+                <div className="mb-2 text-lg font-semibold text-foreground">No rooms found</div>
+                <div className="text-sm text-muted-foreground">Create your first room to see distribution</div>
+            </div>
+        );
+    } else if (roomsWithItems.length === 0) {
+        body = (
+            <div className="text-center py-16">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                    <span className="text-blue-500 text-2xl">📦</span>
+                </div>
+                <div className="mb-2 text-lg font-semibold text-foreground">No items found</div>
+                <div className="text-sm text-muted-foreground">Add items to see room distribution</div>
+            </div>
+        );
+    } else {
+        body = (
+            <div className="w-full h-64 flex justify-center">
+                <Pie
+                    data={chartData}
+                    options={{
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom' as const,
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                    label: function (context: any) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        return `${label}: ${value} items`;
+                                    }
+                                }
+                            }
+                        }
+                    }}
+                />
+            </div>
+        );
+    }
+
     return (
         <div className="app-panel p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
                 <div className="h-6 w-1 rounded-full bg-primary"></div>
                 <h2 className="app-heading text-xl font-bold text-foreground">Distribution by room</h2>
             </div>
-            {loading ? (
-                <div className="flex flex-col items-center justify-center h-64">
-                    <div className="relative mb-6">
-                        <div className="h-16 w-16 rounded-full border-4 border-blue-100 dark:border-blue-900"></div>
-                        <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-                    </div>
-                    <p className="font-medium text-muted-foreground">Loading room data...</p>
-                </div>
-            ) : error ? (
-                <div className="text-center py-16">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-                        <span className="text-red-500 text-2xl">⚠️</span>
-                    </div>
-                    <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading rooms</div>
-                    <div className="text-sm text-muted-foreground">{error}</div>
-                </div>
-            ) : !rooms || rooms.length === 0 ? (
-                <div className="text-center py-16">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                        <span className="text-gray-400 text-2xl">🏠</span>
-                    </div>
-                    <div className="mb-2 text-lg font-semibold text-foreground">No rooms found</div>
-                    <div className="text-sm text-muted-foreground">Create your first room to see distribution</div>
-                </div>
-            ) : roomsWithItems.length === 0 ? (
-                <div className="text-center py-16">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                        <span className="text-blue-500 text-2xl">📦</span>
-                    </div>
-                    <div className="mb-2 text-lg font-semibold text-foreground">No items found</div>
-                    <div className="text-sm text-muted-foreground">Add items to see room distribution</div>
-                </div>
-            ) : (
-                <div className="w-full h-64 flex justify-center">
-                    <Pie
-                        data={chartData}
-                        options={{
-                            maintainAspectRatio: false,
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom' as const,
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                        label: function (context: any) {
-                                            const label = context.label || '';
-                                            const value = context.parsed || 0;
-                                            return `${label}: ${value} items`;
-                                        }
-                                    }
-                                }
-                            }
-                        }}
-                    />
-                </div>
-            )}
+            {body}
         </div>
     );
 }
@@ -152,56 +165,67 @@ function AlertsPerMonthCard({
     alertsData,
     chartData,
 }: {
-    loading: boolean;
-    error: ReturnType<typeof useAlertsStatistics>["error"];
-    alertsData: ReturnType<typeof useAlertsStatistics>["data"];
-    chartData: ChartData<"bar", number[], string>;
+    readonly loading: boolean;
+    readonly error: ReturnType<typeof useAlertsStatistics>["error"];
+    readonly alertsData: ReturnType<typeof useAlertsStatistics>["data"];
+    readonly chartData: ChartData<"bar", number[], string>;
 }) {
+    let body: React.ReactNode;
+    if (loading) {
+        body = (
+            <div className="flex flex-col items-center justify-center h-64">
+                <div className="relative mb-6">
+                    <div className="h-16 w-16 rounded-full border-4 border-orange-100 dark:border-orange-900"></div>
+                    <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+                </div>
+                <p className="font-medium text-muted-foreground">Loading alerts data...</p>
+            </div>
+        );
+    } else if (error) {
+        body = (
+            <div className="text-center py-16">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
+                    <span className="text-red-500 text-2xl">⚠️</span>
+                </div>
+                <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading alerts</div>
+                <div className="text-sm text-muted-foreground">{error}</div>
+            </div>
+        );
+    } else if (!alertsData || alertsData.data.length === 0) {
+        body = (
+            <div className="text-center py-16">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900">
+                    <span className="text-orange-500 text-2xl">🚨</span>
+                </div>
+                <div className="mb-2 text-lg font-semibold text-foreground">No alerts data</div>
+                <div className="text-sm text-muted-foreground">No alerts have been created yet</div>
+            </div>
+        );
+    } else {
+        body = (
+            <>
+                <div className="mb-4 text-center">
+                    <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                        {alertsData.total}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                        Total alerts in the last 12 months
+                    </div>
+                </div>
+                <div className="w-full h-48">
+                    <Bar data={chartData} options={{ maintainAspectRatio: false }} />
+                </div>
+            </>
+        );
+    }
+
     return (
         <div className="app-panel p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
                 <div className="h-6 w-1 rounded-full bg-amber-500"></div>
                 <h2 className="app-heading text-xl font-bold text-foreground">Alerts per month</h2>
             </div>
-            {loading ? (
-                <div className="flex flex-col items-center justify-center h-64">
-                    <div className="relative mb-6">
-                        <div className="h-16 w-16 rounded-full border-4 border-orange-100 dark:border-orange-900"></div>
-                        <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
-                    </div>
-                    <p className="font-medium text-muted-foreground">Loading alerts data...</p>
-                </div>
-            ) : error ? (
-                <div className="text-center py-16">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-                        <span className="text-red-500 text-2xl">⚠️</span>
-                    </div>
-                    <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading alerts</div>
-                    <div className="text-sm text-muted-foreground">{error}</div>
-                </div>
-            ) : !alertsData || alertsData.data.length === 0 ? (
-                <div className="text-center py-16">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900">
-                        <span className="text-orange-500 text-2xl">🚨</span>
-                    </div>
-                    <div className="mb-2 text-lg font-semibold text-foreground">No alerts data</div>
-                    <div className="text-sm text-muted-foreground">No alerts have been created yet</div>
-                </div>
-            ) : (
-                <>
-                    <div className="mb-4 text-center">
-                        <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                            {alertsData.total}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            Total alerts in the last 12 months
-                        </div>
-                    </div>
-                    <div className="w-full h-48">
-                        <Bar data={chartData} options={{ maintainAspectRatio: false }} />
-                    </div>
-                </>
-            )}
+            {body}
         </div>
     );
 }
@@ -211,47 +235,56 @@ function InventoryValueCard({
     inventoryValueData,
     chartData,
 }: {
-    loading: boolean;
-    inventoryValueData: ReturnType<typeof useInventoryValue>["data"];
-    chartData: ChartData<"line", number[], string>;
+    readonly loading: boolean;
+    readonly inventoryValueData: ReturnType<typeof useInventoryValue>["data"];
+    readonly chartData: ChartData<"line", number[], string>;
 }) {
+    let body: React.ReactNode;
+    if (loading) {
+        body = (
+            <div className="flex flex-col items-center justify-center h-64">
+                <div className="relative mb-6">
+                    <div className="h-16 w-16 rounded-full border-4 border-green-100 dark:border-green-900"></div>
+                    <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-green-500 border-t-transparent"></div>
+                </div>
+                <p className="font-medium text-muted-foreground">Calculating inventory value...</p>
+            </div>
+        );
+    } else if (inventoryValueData) {
+        body = (
+            <>
+                <div className="mb-4 text-center">
+                    <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                        €{inventoryValueData.totalValue.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                        Based on {inventoryValueData.itemsWithValue} items with selling prices
+                    </div>
+                </div>
+                <div className="w-full h-48">
+                    <Line data={chartData} options={{ maintainAspectRatio: false }} />
+                </div>
+            </>
+        );
+    } else {
+        body = (
+            <div className="text-center py-16">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                    <span className="text-gray-400 text-2xl">💰</span>
+                </div>
+                <div className="mb-2 text-lg font-semibold text-foreground">No inventory value data</div>
+                <div className="text-sm text-muted-foreground">Add selling prices to items to see inventory value</div>
+            </div>
+        );
+    }
+
     return (
         <div className="app-panel p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
                 <div className="h-6 w-1 rounded-full bg-emerald-500"></div>
                 <h2 className="app-heading text-xl font-bold text-foreground">Inventory value</h2>
             </div>
-            {loading ? (
-                <div className="flex flex-col items-center justify-center h-64">
-                    <div className="relative mb-6">
-                        <div className="h-16 w-16 rounded-full border-4 border-green-100 dark:border-green-900"></div>
-                        <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-green-500 border-t-transparent"></div>
-                    </div>
-                    <p className="font-medium text-muted-foreground">Calculating inventory value...</p>
-                </div>
-            ) : inventoryValueData ? (
-                <>
-                    <div className="mb-4 text-center">
-                        <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                            €{inventoryValueData.totalValue.toLocaleString()}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            Based on {inventoryValueData.itemsWithValue} items with selling prices
-                        </div>
-                    </div>
-                    <div className="w-full h-48">
-                        <Line data={chartData} options={{ maintainAspectRatio: false }} />
-                    </div>
-                </>
-            ) : (
-                <div className="text-center py-16">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                        <span className="text-gray-400 text-2xl">💰</span>
-                    </div>
-                    <div className="mb-2 text-lg font-semibold text-foreground">No inventory value data</div>
-                    <div className="text-sm text-muted-foreground">Add selling prices to items to see inventory value</div>
-                </div>
-            )}
+            {body}
         </div>
     );
 }
@@ -262,46 +295,57 @@ function StatusDistributionCard({
     statusData,
     chartData,
 }: {
-    loading: boolean;
-    error: ReturnType<typeof useStatusStatistics>["error"];
-    statusData: ReturnType<typeof useStatusStatistics>["data"];
-    chartData: ChartData<"bar", number[], string>;
+    readonly loading: boolean;
+    readonly error: ReturnType<typeof useStatusStatistics>["error"];
+    readonly statusData: ReturnType<typeof useStatusStatistics>["data"];
+    readonly chartData: ChartData<"bar", number[], string>;
 }) {
+    let body: React.ReactNode;
+    if (loading) {
+        body = (
+            <div className="flex flex-col items-center justify-center h-64">
+                <div className="relative mb-6">
+                    <div className="h-16 w-16 rounded-full border-4 border-slate-100 dark:border-slate-700"></div>
+                    <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-slate-500 border-t-transparent"></div>
+                </div>
+                <p className="font-medium text-muted-foreground">Loading status data...</p>
+            </div>
+        );
+    } else if (error) {
+        body = (
+            <div className="text-center py-16">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
+                    <span className="text-red-500 text-2xl">⚠️</span>
+                </div>
+                <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading status data</div>
+                <div className="text-sm text-muted-foreground">{error}</div>
+            </div>
+        );
+    } else if (statusData && statusData.data.length > 0) {
+        body = (
+            <div className="w-full h-64">
+                <Bar data={chartData} options={{ maintainAspectRatio: false }} />
+            </div>
+        );
+    } else {
+        body = (
+            <div className="text-center py-16">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                    <span className="text-gray-400 text-2xl">📊</span>
+                </div>
+                <div className="mb-2 text-lg font-semibold text-foreground">No status data</div>
+                <div className="text-sm text-muted-foreground">Add status information to items to see distribution</div>
+            </div>
+        );
+    }
+
     return (
         <div className="app-panel p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
                 <div className="h-6 w-1 rounded-full bg-slate-500"></div>
                 <h2 className="app-heading text-xl font-bold text-foreground">Status distribution</h2>
             </div>
-            {loading ? (
-                <div className="flex flex-col items-center justify-center h-64">
-                    <div className="relative mb-6">
-                        <div className="h-16 w-16 rounded-full border-4 border-slate-100 dark:border-slate-700"></div>
-                        <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-slate-500 border-t-transparent"></div>
-                    </div>
-                    <p className="font-medium text-muted-foreground">Loading status data...</p>
-                </div>
-            ) : error ? (
-                <div className="text-center py-16">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-                        <span className="text-red-500 text-2xl">⚠️</span>
-                    </div>
-                    <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading status data</div>
-                    <div className="text-sm text-muted-foreground">{error}</div>
-                </div>
-            ) : statusData && statusData.data.length > 0 ? (
-                <div className="w-full h-64">
-                    <Bar data={chartData} options={{ maintainAspectRatio: false }} />
-                </div>
-            ) : (
-                <div className="text-center py-16">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                        <span className="text-gray-400 text-2xl">📊</span>
-                    </div>
-                    <div className="mb-2 text-lg font-semibold text-foreground">No status data</div>
-                    <div className="text-sm text-muted-foreground">Add status information to items to see distribution</div>
-                </div>
-            )}
+            {body}
         </div>
     );
 }

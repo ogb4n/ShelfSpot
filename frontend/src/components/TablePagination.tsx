@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 
 interface TablePaginationProps {
-    page: number;
-    totalPages: number;
-    pageSize: number;
-    setPage: (page: number) => void;
-    setPageSize: (size: number) => void;
-    pageSizeOptions: number[];
+    readonly page: number;
+    readonly totalPages: number;
+    readonly pageSize: number;
+    readonly setPage: (page: number) => void;
+    readonly setPageSize: (size: number) => void;
+    readonly pageSizeOptions: number[];
 }
 
 export default function TablePagination({

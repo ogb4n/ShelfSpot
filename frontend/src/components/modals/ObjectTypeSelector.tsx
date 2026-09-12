@@ -3,7 +3,7 @@ import { OBJECT_TYPES } from "@/lib/constants";
 import { ObjectIcon } from "@/components/ui/object-icon";
 
 interface ObjectTypeSelectorProps {
-    onSelect: (type: string) => void;
+    readonly onSelect: (type: string) => void;
 }
 
 export function ObjectTypeSelector({ onSelect }: ObjectTypeSelectorProps) {
@@ -14,8 +14,9 @@ export function ObjectTypeSelector({ onSelect }: ObjectTypeSelectorProps) {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {OBJECT_TYPES.map((type) => (
-                    <div
+                    <button
                         key={type.key}
+                        type="button"
                         className="border-2 border-gray-200 dark:border-gray-600 rounded-sm p-6 flex flex-col items-center hover:border-blue-500 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer bg-gray-50/50 dark:bg-gray-700/50 backdrop-blur-sm"
                         onClick={() => onSelect(type.key)}
                     >
@@ -25,7 +26,7 @@ export function ObjectTypeSelector({ onSelect }: ObjectTypeSelectorProps) {
                         <span className="text-gray-900 dark:text-white font-medium text-center">
                             {type.label}
                         </span>
-                    </div>
+                    </button>
                 ))}
             </div>
         </div>

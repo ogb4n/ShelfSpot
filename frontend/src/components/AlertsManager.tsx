@@ -4,9 +4,9 @@ import { Alert } from "@/app/types";
 import { backendApi } from "@/lib/backend-api";
 
 interface AlertsManagerProps {
-    itemId: number;
-    itemName: string;
-    currentQuantity: number;
+    readonly itemId: number;
+    readonly itemName: string;
+    readonly currentQuantity: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

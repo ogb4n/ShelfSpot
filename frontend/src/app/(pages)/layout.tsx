@@ -5,7 +5,7 @@ import Sidebar from "@/components/Sidebar";
 export default function PagesLayout({
   children,
 }: {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }) {
   return (
     <div className="app-shell relative flex min-h-dvh w-full">

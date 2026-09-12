@@ -6,7 +6,7 @@ import useGetPlaces from "@/app/hooks/useGetPlaces";
 import useGetContainers from "@/app/hooks/useGetContainers";
 import { backendApi } from "@/lib/backend-api";
 
-export default function ManageObjectClient({ item }: { item: Item }) {
+export default function ManageObjectClient({ item }: { readonly item: Item }) {
     const [showModal, setShowModal] = useState(false);
     const [form, setForm] = useState<Partial<Item>>(item);
     const { data: rooms, loading: loadingRooms } = useGetRooms();
@@ -14,9 +14,14 @@ export default function ManageObjectClient({ item }: { item: Item }) {
     const { data: containers, loading: loadingContainers } = useGetContainers();
 
     const filteredPlaces = form.roomId ? (places || []).filter((p: Place) => p.roomId === form.roomId) : (places || []);
-    const filteredContainers = form.placeId
-        ? (containers || []).filter((c: Container) => c.placeId === form.placeId)
-        : (form.roomId ? (containers || []).filter((c: Container) => c.roomId === form.roomId) : (containers || []));
+    let filteredContainers: Container[];
+    if (form.placeId) {
+        filteredContainers = (containers || []).filter((c: Container) => c.placeId === form.placeId);
+    } else if (form.roomId) {
+        filteredContainers = (containers || []).filter((c: Container) => c.roomId === form.roomId);
+    } else {
+        filteredContainers = containers || [];
+    }
 
     const handleDelete = async () => {
         if (!window.confirm("Do you really want to delete this item? This action is irreversible.")) return;
@@ -73,16 +78,18 @@ export default function ManageObjectClient({ item }: { item: Item }) {
                                 {/* Basic Information */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                                        <label htmlFor="edit-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
                                         <input
+                                            id="edit-name"
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             value={form.name}
                                             onChange={e => setForm({ ...form, name: e.target.value })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
+                                        <label htmlFor="edit-quantity" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
                                         <input
+                                            id="edit-quantity"
                                             type="number"
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             value={form.quantity}
@@ -93,16 +100,18 @@ export default function ManageObjectClient({ item }: { item: Item }) {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                                        <label htmlFor="edit-status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                                         <input
+                                            id="edit-status"
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             value={form.status || ""}
                                             onChange={e => setForm({ ...form, status: e.target.value })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item Link</label>
+                                        <label htmlFor="edit-item-link" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item Link</label>
                                         <input
+                                            id="edit-item-link"
                                             type="url"
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             value={form.itemLink || ""}
@@ -115,8 +124,9 @@ export default function ManageObjectClient({ item }: { item: Item }) {
                                 {/* Pricing */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purchase Price</label>
+                                        <label htmlFor="edit-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purchase Price</label>
                                         <input
+                                            id="edit-price"
                                             type="number"
                                             min="0"
                                             step="0.01"
@@ -127,8 +137,9 @@ export default function ManageObjectClient({ item }: { item: Item }) {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Selling Price</label>
+                                        <label htmlFor="edit-sellprice" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Selling Price</label>
                                         <input
+                                            id="edit-sellprice"
                                             type="number"
                                             min="0"
                                             step="0.01"
@@ -143,8 +154,9 @@ export default function ManageObjectClient({ item }: { item: Item }) {
                                 {/* Location */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Room</label>
+                                        <label htmlFor="edit-room" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Room</label>
                                         <select
+                                            id="edit-room"
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             value={form.roomId ?? ""}
                                             onChange={e => {
@@ -159,8 +171,9 @@ export default function ManageObjectClient({ item }: { item: Item }) {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Place</label>
+                                        <label htmlFor="edit-place" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Place</label>
                                         <select
+                                            id="edit-place"
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                                             value={form.placeId ?? ""}
                                             onChange={e => {
@@ -176,8 +189,9 @@ export default function ManageObjectClient({ item }: { item: Item }) {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Container</label>
+                                        <label htmlFor="edit-container" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Container</label>
                                         <select
+                                            id="edit-container"
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                                             value={form.containerId ?? ""}
                                             onChange={e => setForm(f => ({ ...f, containerId: Number(e.target.value) || undefined }))}
@@ -194,13 +208,13 @@ export default function ManageObjectClient({ item }: { item: Item }) {
                                 {/* Options and Tags */}
                                 <div className="grid grid-cols-1 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tags (Read-only)</label>
+                                        <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tags (Read-only)</span>
                                         <div className="max-h-24 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-sm p-2 bg-gray-50 dark:bg-gray-600">
                                             {item.tags && item.tags.length > 0 ? (
                                                 <div className="flex flex-wrap gap-1">
-                                                    {item.tags.map((tagName: string, index: number) => (
+                                                    {item.tags.map((tagName: string) => (
                                                         <span
-                                                            key={index}
+                                                            key={tagName}
                                                             className="px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-600"
                                                         >
                                                             {tagName}

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+export function ProtectedRoute({ children }: { readonly children: React.ReactNode }) {
     const { user, loading } = useAuth();
     const router = useRouter();
 
@@ -28,7 +28,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
 }
 
-export function AdminRoute({ children }: { children: React.ReactNode }) {
+export function AdminRoute({ children }: { readonly children: React.ReactNode }) {
     const { user, loading } = useAuth();
     const router = useRouter();
 
@@ -50,7 +50,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
         );
     }
 
-    if (!user || !user.admin) {
+    if (!user?.admin) {
         return null;
     }
 

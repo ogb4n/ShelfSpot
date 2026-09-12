@@ -38,7 +38,7 @@ export default function SignUpForm() {
             newErrors.name = "Username must be at least 5 characters long.";
         }
 
-        if (!email || !email.includes("@")) {
+        if (!email?.includes("@")) {
             newErrors.email = "Please enter a valid email address.";
         }
 
@@ -206,8 +206,8 @@ export default function SignUpForm() {
                     <div className="app-panel-muted p-4">
                         <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password requirements:</h4>
                         <ul className="space-y-1">
-                            {passwordRequirements.map((req, index) => (
-                                <li key={index} className="flex items-center text-sm">
+                            {passwordRequirements.map((req) => (
+                                <li key={req.text} className="flex items-center text-sm">
                                     <CheckCircleIcon
                                         className={`h-4 w-4 mr-2 ${req.met ? "text-green-500" : "text-gray-300 dark:text-gray-600"
                                             }`}

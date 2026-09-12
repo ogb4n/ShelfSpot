@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CreateMultipleItemsModal from "@/components/CreateMultipleItemsModal";
 import CreateMultipleRoomsModal from "@/components/CreateMultipleRoomsModal";
 import CreateMultiplePlacesModal from "@/components/CreateMultiplePlacesModal";
@@ -15,17 +15,22 @@ interface CreateMultipleModalProps {
 
 export default function CreateMultipleModal({ open, onClose }: Readonly<CreateMultipleModalProps>) {
     const [type, setType] = useState<ObjectType>("items");
+    const dialogRef = useRef<HTMLDialogElement>(null);
 
-    if (!open) return null;
+    useEffect(() => {
+        const dialog = dialogRef.current;
+        if (!dialog) return;
+        if (open && !dialog.open) dialog.showModal();
+        else if (!open && dialog.open) dialog.close();
+    }, [open]);
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center backdrop-blur-sm bg-black/60 p-4">
-            <div
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="create-multiple-modal-title"
-                className="w-full max-w-5xl rounded-xl bg-white/95 dark:bg-gray-900/95 shadow-2xl border border-gray-200/50 dark:border-gray-700/50 max-h-[92vh] flex flex-col"
-            >
+        <dialog
+            ref={dialogRef}
+            aria-labelledby="create-multiple-modal-title"
+            onClose={onClose}
+            className="z-[70] w-full max-w-5xl rounded-xl border border-gray-200/50 bg-white/95 p-0 shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-sm open:flex max-h-[92vh] flex-col dark:border-gray-700/50 dark:bg-gray-900/95"
+        >
                 {/* Header with Type Selection */}
                 <div className="p-4 md:p-5 border-b border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between mb-3">
@@ -85,7 +90,6 @@ export default function CreateMultipleModal({ open, onClose }: Readonly<CreateMu
                     {type === 'rooms' && <CreateMultipleRoomsModal open={true} onClose={onClose} embedded={true} />}
                     {type === 'places' && <CreateMultiplePlacesModal open={true} onClose={onClose} embedded={true} />}
                 </div>
-            </div>
-        </div>
+        </dialog>
     );
 }

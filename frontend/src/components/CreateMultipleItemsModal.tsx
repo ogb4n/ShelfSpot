@@ -4,9 +4,9 @@ import React, { useMemo, useState, useEffect } from "react";
 import { backendApi } from "@/lib/backend-api";
 
 interface CreateMultipleItemsModalProps {
-    open: boolean;
-    onClose: () => void;
-    embedded?: boolean;
+    readonly open: boolean;
+    readonly onClose: () => void;
+    readonly embedded?: boolean;
 }
 
 interface BulkItemRow {

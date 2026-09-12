@@ -23,12 +23,9 @@ export type ItemsTableColumn =
     | "actions";
 
 interface ItemsTableProps {
-    search?: string;
-    items?: Item[];
-    columns?: ItemsTableColumn[];
-    onCreate?: () => void;
-    showCreateForm?: boolean;
-    children?: React.ReactNode;
+    readonly search?: string;
+    readonly items?: Item[];
+    readonly columns?: ItemsTableColumn[];
 }
 
 // Extracted so its own nested arrow (the .filter callback) doesn't push the
@@ -51,6 +48,100 @@ function toggleTagSelection(
             ? prevTags.filter((t: string) => t !== tagName)
             : [...prevTags, tagName],
     };
+}
+
+// Extracted to module scope (typescript:S6478): it only reads its own props
+// plus the module-level toggleFavouriteId helper, so nesting it inside
+// ItemsTable bought nothing but a fresh component identity — and therefore a
+// full remount of the menu — on every ItemsTable render.
+function ActionMenu({ item, handleEdit, handleDelete, favourites, setFavourites }: {
+    readonly item: Item;
+    readonly handleEdit: (item: Item) => void;
+    readonly handleDelete: (id: number) => void;
+    readonly favourites: number[];
+    readonly setFavourites: React.Dispatch<React.SetStateAction<number[]>>;
+}) {
+    const { refs, floatingStyles } = useFloating({
+        placement: 'bottom-end',
+        middleware: [offset(4), flip(), shift()],
+        strategy: 'fixed',
+    });
+    return (
+        <Menu as="div" className="inline-block text-left relative z-[60]">
+            {({ open }: { open: boolean }) => (
+                <>
+                    <Menu.Button ref={refs.setReference} as="button" aria-label="Item actions" className="flex h-11 w-11 items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80">
+                        <MoreVertical className="w-5 h-5" />
+                    </Menu.Button>
+                    {open && (
+                        <FloatingPortal>
+                            <Menu.Items
+                                ref={refs.setFloating}
+                                style={{ ...floatingStyles, zIndex: 60 }}
+                                className="bg-white dark:bg-gray-900 border-2 border-foreground dark:border-gray-800 rounded-global shadow-brutal focus:outline-none flex flex-col p-1"
+                            >
+                                <Menu.Item>
+                                    {({ active }: { active: boolean }) => (
+                                        <button
+                                            className={`w-full text-left px-4 py-2 text-sm rounded ${active ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+                                            onClick={() => handleEdit(item)}
+                                        >
+                                            Modifier
+                                        </button>
+                                    )}
+                                </Menu.Item>
+                                <Menu.Item>
+                                    {({ active }: { active: boolean }) => (
+                                        <button
+                                            className={`w-full text-left px-4 py-2 text-sm rounded ${active ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+                                            onClick={() => {
+                                                if (typeof window !== 'undefined') {
+                                                    window.location.href = `/manage/${item.id}`;
+                                                }
+                                            }}
+                                        >
+                                            Page de l&apos;objet
+                                        </button>
+                                    )}
+                                </Menu.Item>
+                                <Menu.Item>
+                                    {({ active }: { active: boolean }) => {
+                                        const isFav = favourites.includes(item.id);
+                                        return (
+                                            <button
+                                                className={`w-full text-left px-4 py-2 text-sm rounded ${active ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+                                                onClick={async () => {
+                                                    if (isFav) {
+                                                        await backendApi.deleteFavourite(item.id);
+                                                        setFavourites(toggleFavouriteId(favourites, item.id));
+                                                    } else {
+                                                        await backendApi.createFavourite(item.id);
+                                                        setFavourites([...favourites, item.id]);
+                                                    }
+                                                }}
+                                            >
+                                                {isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                                            </button>
+                                        );
+                                    }}
+                                </Menu.Item>
+                                <Menu.Item>
+                                    {({ active }: { active: boolean }) => (
+                                        <button
+                                            className={`w-full text-left px-4 py-2 text-sm rounded text-red-600 ${active ? 'bg-red-100 dark:bg-red-900' : ''}`}
+                                            onClick={() => handleDelete(item.id)}
+                                        >
+                                            Supprimer l&apos;objet
+                                        </button>
+                                    )}
+                                </Menu.Item>
+                            </Menu.Items>
+                        </FloatingPortal>
+                    )}
+                </>
+            )}
+        </Menu>
+    );
 }
 
 function ItemsTable({ search, items: itemsProp, columns = [
@@ -323,96 +414,6 @@ function ItemsTable({ search, items: itemsProp, columns = [
             alert("Erreur lors de la suppression");
         }
     };
-
-    function ActionMenu({ item, handleEdit, handleDelete, favourites, setFavourites }: {
-        item: Item;
-        handleEdit: (item: Item) => void;
-        handleDelete: (id: number) => void;
-        favourites: number[];
-        setFavourites: React.Dispatch<React.SetStateAction<number[]>>;
-    }) {
-        const { refs, floatingStyles } = useFloating({
-            placement: 'bottom-end',
-            middleware: [offset(4), flip(), shift()],
-            strategy: 'fixed',
-        });
-        return (
-            <Menu as="div" className="inline-block text-left relative z-[60]">
-                {({ open }: { open: boolean }) => (
-                    <>
-                        <Menu.Button ref={refs.setReference} as="button" aria-label="Item actions" className="flex h-11 w-11 items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80">
-                            <MoreVertical className="w-5 h-5" />
-                        </Menu.Button>
-                        {open && (
-                            <FloatingPortal>
-                                <Menu.Items
-                                    ref={refs.setFloating}
-                                    style={{ ...floatingStyles, zIndex: 60 }}
-                                    className="bg-white dark:bg-gray-900 border-2 border-foreground dark:border-gray-800 rounded-global shadow-brutal focus:outline-none flex flex-col p-1"
-                                >
-                                    <Menu.Item>
-                                        {({ active }: { active: boolean }) => (
-                                            <button
-                                                className={`w-full text-left px-4 py-2 text-sm rounded ${active ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
-                                                onClick={() => handleEdit(item)}
-                                            >
-                                                Modifier
-                                            </button>
-                                        )}
-                                    </Menu.Item>
-                                    <Menu.Item>
-                                        {({ active }: { active: boolean }) => (
-                                            <button
-                                                className={`w-full text-left px-4 py-2 text-sm rounded ${active ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
-                                                onClick={() => {
-                                                    if (typeof window !== 'undefined') {
-                                                        window.location.href = `/manage/${item.id}`;
-                                                    }
-                                                }}
-                                            >
-                                                Page de l&apos;objet
-                                            </button>
-                                        )}
-                                    </Menu.Item>
-                                    <Menu.Item>
-                                        {({ active }: { active: boolean }) => {
-                                            const isFav = favourites.includes(item.id);
-                                            return (
-                                                <button
-                                                    className={`w-full text-left px-4 py-2 text-sm rounded ${active ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
-                                                    onClick={async () => {
-                                                        if (isFav) {
-                                                            await backendApi.deleteFavourite(item.id);
-                                                            setFavourites(toggleFavouriteId(favourites, item.id));
-                                                        } else {
-                                                            await backendApi.createFavourite(item.id);
-                                                            setFavourites([...favourites, item.id]);
-                                                        }
-                                                    }}
-                                                >
-                                                    {isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                                                </button>
-                                            );
-                                        }}
-                                    </Menu.Item>
-                                    <Menu.Item>
-                                        {({ active }: { active: boolean }) => (
-                                            <button
-                                                className={`w-full text-left px-4 py-2 text-sm rounded text-red-600 ${active ? 'bg-red-100 dark:bg-red-900' : ''}`}
-                                                onClick={() => handleDelete(item.id)}
-                                            >
-                                                Supprimer l&apos;objet
-                                            </button>
-                                        )}
-                                    </Menu.Item>
-                                </Menu.Items>
-                            </FloatingPortal>
-                        )}
-                    </>
-                )}
-            </Menu>
-        );
-    }
 
     return (
         <div>
@@ -702,7 +703,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
                                         {columns.includes("container") && <TableCell className="py-1">{item.container?.name}</TableCell>}
                                         {columns.includes("tags") && <TableCell className="py-1">
                                             <div className="flex flex-wrap gap-1">
-                                                {item.tags && item.tags.length > 0 ? (
+                                                {item.tags?.length ? (
                                                     (item.tags as string[]).map((tagName: string) => {
                                                         const tagObj = Array.isArray(allTags) ? allTags.find((t: Tag) => t.name === tagName) : undefined;
                                                         return (

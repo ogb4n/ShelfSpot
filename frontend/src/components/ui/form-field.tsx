@@ -3,20 +3,20 @@ import { COMMON_INPUT_CLASSES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 interface FormFieldProps {
-    label: string;
-    name: string;
-    type?: "text" | "number" | "email" | "password" | "checkbox";
-    value?: string | number;
-    defaultValue?: string | number;
-    placeholder?: string;
-    required?: boolean;
-    disabled?: boolean;
-    min?: string | number;
-    max?: string | number;
-    step?: string | number;
-    className?: string;
-    children?: React.ReactNode;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+    readonly label: string;
+    readonly name: string;
+    readonly type?: "text" | "number" | "email" | "password" | "checkbox";
+    readonly value?: string | number;
+    readonly defaultValue?: string | number;
+    readonly placeholder?: string;
+    readonly required?: boolean;
+    readonly disabled?: boolean;
+    readonly min?: string | number;
+    readonly max?: string | number;
+    readonly step?: string | number;
+    readonly className?: string;
+    readonly children?: React.ReactNode;
+    readonly onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 }
 
 export function FormField({
@@ -81,15 +81,15 @@ export function FormField({
         <div className={className}>
             <label htmlFor={inputId} className="block text-sm font-medium text-foreground">
                 <span className="mb-2 block">{label}</span>
-                {children ? children : <input {...inputProps} />}
+                {children || <input {...inputProps} />}
             </label>
         </div>
     );
 }
 
 interface SelectFieldProps extends Omit<FormFieldProps, "type" | "children"> {
-    options: Array<{ value: string | number; label: string }>;
-    emptyLabel?: string;
+    readonly options: Array<{ value: string | number; label: string }>;
+    readonly emptyLabel?: string;
 }
 
 export function SelectField({

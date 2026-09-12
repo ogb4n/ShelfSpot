@@ -319,7 +319,7 @@
     font-size: 0.75rem;
     line-height: 0.9rem;
     white-space: normal;
-    word-break: break-word;
+    overflow-wrap: break-word;
     text-wrap: balance;
   }
 
@@ -419,6 +419,13 @@
 
   .modal-backdrop {
     backdrop-filter: blur(4px);
+    animation: modalBackdropIn 0.2s ease-out;
+  }
+
+  /* Native <dialog> backdrops (CreateObjectModal, CreateMultipleModal): the
+     ::backdrop pseudo-element replaces the old wrapping div that carried
+     .modal-backdrop, so the same fade-in is re-applied here instead. */
+  .modal-content::backdrop {
     animation: modalBackdropIn 0.2s ease-out;
   }
 

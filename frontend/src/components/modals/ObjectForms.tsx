@@ -2,38 +2,38 @@ import React from "react";
 import { FormField, SelectField } from "@/components/ui/form-field";
 
 interface RoomFormProps {
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+    readonly onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 }
 
 interface PlaceFormProps {
-    rooms: Array<{ id: number; name: string }>;
-    selectedRoom: number | null;
-    onRoomChange: (roomId: number | null) => void;
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+    readonly rooms: Array<{ id: number; name: string }>;
+    readonly selectedRoom: number | null;
+    readonly onRoomChange: (roomId: number | null) => void;
+    readonly onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 }
 
 interface ContainerFormProps {
-    rooms: Array<{ id: number; name: string }>;
-    places: Array<{ id: number; name: string; roomId: number }>;
-    selectedRoom: number | null;
-    selectedPlace: number | null;
-    onRoomChange: (roomId: number | null) => void;
-    onPlaceChange: (placeId: number | null) => void;
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+    readonly rooms: Array<{ id: number; name: string }>;
+    readonly places: Array<{ id: number; name: string; roomId: number }>;
+    readonly selectedRoom: number | null;
+    readonly selectedPlace: number | null;
+    readonly onRoomChange: (roomId: number | null) => void;
+    readonly onPlaceChange: (placeId: number | null) => void;
+    readonly onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 }
 
 interface ItemFormProps {
-    rooms: Array<{ id: number; name: string }>;
-    places: Array<{ id: number; name: string; roomId: number }>;
-    containers: Array<{ id: number; name: string; placeId: number }>;
-    selectedRoom: number | null;
-    selectedPlace: number | null;
-    selectedContainer: number | null;
-    onRoomChange: (roomId: number | null) => void;
-    onPlaceChange: (placeId: number | null) => void;
-    onContainerChange: (containerId: number | null) => void;
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-    onFormChange: (updates: Record<string, unknown>) => void;
+    readonly rooms: Array<{ id: number; name: string }>;
+    readonly places: Array<{ id: number; name: string; roomId: number }>;
+    readonly containers: Array<{ id: number; name: string; placeId: number }>;
+    readonly selectedRoom: number | null;
+    readonly selectedPlace: number | null;
+    readonly selectedContainer: number | null;
+    readonly onRoomChange: (roomId: number | null) => void;
+    readonly onPlaceChange: (placeId: number | null) => void;
+    readonly onContainerChange: (containerId: number | null) => void;
+    readonly onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+    readonly onFormChange: (updates: Record<string, unknown>) => void;
 }
 
 export function RoomForm({ onChange }: RoomFormProps) {

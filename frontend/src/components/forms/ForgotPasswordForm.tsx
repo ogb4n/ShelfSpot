@@ -44,8 +44,8 @@ export default function ForgotPasswordForm() {
                     </p>
 
                     <label htmlFor="forgot-email" className="flex flex-col">
-                        Email
-                        <input
+                        Email{/*
+                        */}<input
                             id="forgot-email"
                             type="email"
                             name="email"
