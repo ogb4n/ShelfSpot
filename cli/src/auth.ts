@@ -1,7 +1,7 @@
-import fs from "fs";
-import path from "path";
-import os from "os";
-import readline from "readline";
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import readline from "node:readline";
 
 export const BASE_URL = process.env.SHELFSPOT_URL ?? "http://localhost:3001";
 

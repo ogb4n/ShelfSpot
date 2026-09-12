@@ -8,7 +8,7 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma.service";
-import { randomBytes } from "crypto";
+import { randomBytes } from "node:crypto";
 import { EmailService } from "../email/email.service";
 import * as bcrypt from "bcrypt";
 import { LoginDto } from "./dto/login.dto";
