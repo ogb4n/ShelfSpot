@@ -37,23 +37,14 @@ interface SearchItem {
   container?: { id: number; name: string };
 }
 
-export default function Dashboard() {
-  const { user, loading: authLoading } = useAuth();
-  const { preferences } = useUserPreferences();
-  const [stats] = useState<Stats | null>(null);
+// Extracted so its branching is scored on its own instead of adding to
+// Dashboard()'s cognitive complexity (typescript:S3776).
+function useDashboardItems(
+  user: ReturnType<typeof useAuth>["user"],
+  authLoading: boolean
+) {
   const [allItems, setAllItems] = useState<RecentItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchItem[]>([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const router = useRouter();
-
-  // Rediriger vers login si pas authentifié
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, authLoading, router]);
 
   useEffect(() => {
     // Ne charger les données que si l'utilisateur est authentifié
@@ -81,7 +72,17 @@ export default function Dashboard() {
     fetchData();
   }, [user, authLoading]);
 
-  // Effect pour la recherche
+  return { allItems, loading };
+}
+
+// Same reason as useDashboardItems above.
+function useDashboardSearch(
+  user: ReturnType<typeof useAuth>["user"],
+  search: string
+) {
+  const [searchResults, setSearchResults] = useState<SearchItem[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+
   useEffect(() => {
     if (!search || !user) {
       setSearchResults([]);
@@ -100,6 +101,26 @@ export default function Dashboard() {
     }, 300);
     return () => clearTimeout(handler);
   }, [search, user]);
+
+  return { searchResults, searchLoading };
+}
+
+export default function Dashboard() {
+  const { user, loading: authLoading } = useAuth();
+  const { preferences } = useUserPreferences();
+  const [stats] = useState<Stats | null>(null);
+  const [search, setSearch] = useState("");
+  const router = useRouter();
+
+  // Rediriger vers login si pas authentifié
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
+
+  const { allItems, loading } = useDashboardItems(user, authLoading);
+  const { searchResults, searchLoading } = useDashboardSearch(user, search);
 
   // Afficher loading pendant l'authentification
   if (authLoading) {

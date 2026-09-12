@@ -126,70 +126,84 @@ export class ItemsService {
   async createMany(data: Prisma.ItemCreateManyInput[]) {
     const created: (TransformedItem | null)[] = [];
     for (const d of data) {
-      // Basic validation: ensure roomId provided (DTO requires it)
-      if (d.roomId === undefined || d.roomId === null) {
-        throw new BadRequestException(
-          "roomId is required for each item in bulk create"
-        );
-      }
-
-      // Validate referenced room
-      const room = await this.prisma.room.findUnique({
-        where: { id: d.roomId },
-      });
-      if (!room) {
-        throw new NotFoundException(`Room with ID ${d.roomId} not found`);
-      }
-
-      // Validate optional placeId
-      if (d.placeId) {
-        const place = await this.prisma.place.findUnique({
-          where: { id: d.placeId },
-        });
-        if (!place) {
-          throw new NotFoundException(`Place with ID ${d.placeId} not found`);
-        }
-        // If place has a roomId, ensure it matches provided roomId
-        if (place.roomId && place.roomId !== d.roomId) {
-          throw new BadRequestException(
-            `Place ${d.placeId} is not in room ${d.roomId} (belongs to room ${place.roomId})`
-          );
-        }
-      }
-
-      // Validate optional containerId
-      if (d.containerId) {
-        const container = await this.prisma.container.findUnique({
-          where: { id: d.containerId },
-        });
-        if (!container) {
-          throw new NotFoundException(
-            `Container with ID ${d.containerId} not found`
-          );
-        }
-      }
-
-      // Use the safe create() method to keep behaviour (includes, alerts)
-      const itemPayload: Prisma.ItemCreateInput = {
-        name: d.name,
-        quantity: (d.quantity as number) || 1,
-        image: d.image || undefined,
-        price: d.price || undefined,
-        sellprice: d.sellprice || undefined,
-        status: d.status || undefined,
-        consumable: d.consumable ?? false,
-        place: d.placeId ? { connect: { id: d.placeId } } : undefined,
-        room: d.roomId ? { connect: { id: d.roomId } } : undefined,
-        container: d.containerId
-          ? { connect: { id: d.containerId } }
-          : undefined,
-        itemLink: d.itemLink || undefined,
-      };
-
-      const createdItem = await this.create(itemPayload);
+      await this.validateBulkItem(d);
+      const createdItem = await this.create(this.buildBulkItemPayload(d));
       created.push(createdItem);
     }
     return created;
+  }
+
+  // Basic validation: ensure roomId provided (DTO requires it) and that
+  // roomId/placeId/containerId, when given, reference existing, consistent records.
+  private async validateBulkItem(
+    d: Prisma.ItemCreateManyInput
+  ): Promise<void> {
+    if (d.roomId === undefined || d.roomId === null) {
+      throw new BadRequestException(
+        "roomId is required for each item in bulk create"
+      );
+    }
+
+    const room = await this.prisma.room.findUnique({
+      where: { id: d.roomId },
+    });
+    if (!room) {
+      throw new NotFoundException(`Room with ID ${d.roomId} not found`);
+    }
+
+    if (d.placeId) {
+      await this.validateBulkItemPlace(d.placeId, d.roomId);
+    }
+
+    if (d.containerId) {
+      const container = await this.prisma.container.findUnique({
+        where: { id: d.containerId },
+      });
+      if (!container) {
+        throw new NotFoundException(
+          `Container with ID ${d.containerId} not found`
+        );
+      }
+    }
+  }
+
+  private async validateBulkItemPlace(
+    placeId: number,
+    roomId: number
+  ): Promise<void> {
+    const place = await this.prisma.place.findUnique({
+      where: { id: placeId },
+    });
+    if (!place) {
+      throw new NotFoundException(`Place with ID ${placeId} not found`);
+    }
+    // If place has a roomId, ensure it matches provided roomId
+    if (place.roomId && place.roomId !== roomId) {
+      throw new BadRequestException(
+        `Place ${placeId} is not in room ${roomId} (belongs to room ${place.roomId})`
+      );
+    }
+  }
+
+  // Use the safe create() method to keep behaviour (includes, alerts)
+  private buildBulkItemPayload(
+    d: Prisma.ItemCreateManyInput
+  ): Prisma.ItemCreateInput {
+    return {
+      name: d.name,
+      quantity: (d.quantity as number) || 1,
+      image: d.image || undefined,
+      price: d.price || undefined,
+      sellprice: d.sellprice || undefined,
+      status: d.status || undefined,
+      consumable: d.consumable ?? false,
+      place: d.placeId ? { connect: { id: d.placeId } } : undefined,
+      room: d.roomId ? { connect: { id: d.roomId } } : undefined,
+      container: d.containerId
+        ? { connect: { id: d.containerId } }
+        : undefined,
+      itemLink: d.itemLink || undefined,
+    };
   }
 
   async findAll(): Promise<(TransformedItem | null)[]> {
@@ -255,32 +269,7 @@ export class ItemsService {
 
     // Handle tags update if tags array is provided
     if (tags !== undefined && Array.isArray(tags)) {
-      // Delete existing item-tag relationships
-      await this.prisma.itemTag.deleteMany({
-        where: { itemId: id },
-      });
-
-      // Create new item-tag relationships
-      if (tags.length > 0) {
-        for (const tagName of tags) {
-          // Find or create the tag
-          let tag = await this.prisma.tag.findUnique({
-            where: { name: tagName },
-          });
-
-          tag ??= await this.prisma.tag.create({
-            data: { name: tagName },
-          });
-
-          // Create item-tag relationship
-          await this.prisma.itemTag.create({
-            data: {
-              itemId: id,
-              tagId: tag.id,
-            },
-          });
-        }
-      }
+      await this.syncItemTags(id, tags);
 
       // Fetch the updated item with new tags
       const updatedItem = await this.prisma.item.findUnique({
@@ -298,42 +287,51 @@ export class ItemsService {
       });
 
       if (updatedItem) {
-        if (
-          itemData.quantity !== undefined &&
-          oldItem &&
-          typeof itemData.quantity === "number"
-        ) {
-          const newQuantity = itemData.quantity;
-          if (newQuantity !== oldItem.quantity) {
-            // Check alerts asynchronously without blocking the response
-            this.alertsService
-              .checkItemAlerts(id, newQuantity)
-              .catch((error) => {
-                console.error(`Error checking alerts for item ${id}:`, error);
-              });
-          }
-        }
-
+        this.checkQuantityAlertIfChanged(id, oldItem, itemData.quantity);
         return this.transformItem(updatedItem);
       }
     }
 
-    // Check alerts if quantity has changed
-    if (
-      itemData.quantity !== undefined &&
-      oldItem &&
-      typeof itemData.quantity === "number"
-    ) {
-      const newQuantity = itemData.quantity;
-      if (newQuantity !== oldItem.quantity) {
-        // Check alerts asynchronously without blocking the response
-        this.alertsService.checkItemAlerts(id, newQuantity).catch((error) => {
-          console.error(`Error checking alerts for item ${id}:`, error);
-        });
-      }
-    }
-
+    this.checkQuantityAlertIfChanged(id, oldItem, itemData.quantity);
     return this.transformItem(item);
+  }
+
+  private async syncItemTags(itemId: number, tags: string[]): Promise<void> {
+    await this.prisma.itemTag.deleteMany({
+      where: { itemId },
+    });
+
+    for (const tagName of tags) {
+      const tag = await this.findOrCreateTag(tagName);
+      await this.prisma.itemTag.create({
+        data: { itemId, tagId: tag.id },
+      });
+    }
+  }
+
+  private async findOrCreateTag(name: string) {
+    const tag = await this.prisma.tag.findUnique({ where: { name } });
+    return tag ?? (await this.prisma.tag.create({ data: { name } }));
+  }
+
+  // Fires the alert check asynchronously without blocking the response,
+  // only when quantity was part of the update and actually changed.
+  private checkQuantityAlertIfChanged(
+    id: number,
+    oldItem: { quantity: number } | null,
+    newQuantity: unknown
+  ): void {
+    if (
+      newQuantity === undefined ||
+      !oldItem ||
+      typeof newQuantity !== "number" ||
+      newQuantity === oldItem.quantity
+    ) {
+      return;
+    }
+    this.alertsService.checkItemAlerts(id, newQuantity).catch((error) => {
+      console.error(`Error checking alerts for item ${id}:`, error);
+    });
   }
 
   remove(id: number) {

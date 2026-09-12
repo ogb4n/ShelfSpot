@@ -8,6 +8,7 @@ import { PrismaService } from "../prisma.service";
 import { EmailService } from "../email/email.service";
 import { PushNotificationService } from "../notifications/push-notification.service";
 import { CreateAlertDto, UpdateAlertDto } from "./dto/alert.dto";
+import { Prisma } from "@prisma/client";
 
 interface PrismaError {
   code: string;
@@ -22,6 +23,21 @@ function isPrismaError(error: unknown): error is PrismaError {
     typeof (error as Record<string, unknown>).code === "string"
   );
 }
+
+// Matches the `include` used by checkAlerts()'s query, so
+// sendAlertEmailsIfConfigured/sendPushNotificationsForAlerts can take its result directly.
+type AlertWithItem = Prisma.AlertGetPayload<{
+  include: {
+    item: {
+      include: {
+        room: true;
+        place: true;
+        container: true;
+        itemTags: { include: { tag: true } };
+      };
+    };
+  };
+}>;
 
 @Injectable()
 export class AlertsService {
@@ -268,70 +284,8 @@ export class AlertsService {
       };
     }
 
-    const emailRecipient = process.env.ALERT_EMAIL_RECIPIENT;
-    if (emailRecipient && alertsToSend.length > 0) {
-      try {
-        const emailData = alertsToSend.map((alert) => ({
-          id: alert.id,
-          threshold: alert.threshold,
-          name: alert.name,
-          item: alert.item,
-        }));
-
-        await this.emailService.sendAlertEmail(emailRecipient, emailData);
-      } catch (error) {
-        console.error("Error sending alert emails:", error);
-      }
-    }
-
-    if (alertsToSend.length > 0) {
-      try {
-        const usersWithTokens = await this.prisma.user.findMany({
-          where: {
-            notificationToken: {
-              not: null,
-            },
-          },
-          select: {
-            notificationToken: true,
-          },
-        });
-
-        const pushTokens = usersWithTokens
-          .map((user) => user.notificationToken)
-          .filter((token): token is string => token !== null);
-
-        if (pushTokens.length > 0) {
-          const alertNames = alertsToSend.map((alert) => alert.item.name);
-          const title = "Alerte Stock";
-          const body =
-            alertsToSend.length === 1
-              ? `Stock faible: ${alertNames[0]} (${alertsToSend[0].item.quantity} restant)`
-              : `${alertsToSend.length} items en stock faible: ${alertNames.slice(0, 3).join(", ")}${alertsToSend.length > 3 ? "..." : ""}`;
-
-          await this.pushNotificationService.sendPushNotifications(pushTokens, {
-            title,
-            body,
-            data: {
-              type: "low_stock_alert",
-              alertCount: alertsToSend.length,
-              items: alertsToSend.map((alert) => ({
-                id: alert.item.id,
-                name: alert.item.name,
-                quantity: alert.item.quantity,
-                threshold: alert.threshold,
-              })),
-            },
-          });
-
-          console.log(
-            `Sent push notifications to ${pushTokens.length} users for ${alertsToSend.length} alerts`
-          );
-        }
-      } catch (error) {
-        console.error("Error sending push notifications:", error);
-      }
-    }
+    await this.sendAlertEmailsIfConfigured(alertsToSend);
+    await this.sendPushNotificationsForAlerts(alertsToSend);
 
     await this.prisma.alert.updateMany({
       where: {
@@ -350,6 +304,77 @@ export class AlertsService {
       triggeredAlerts: triggeredAlerts.length,
       sentAlerts: alertsToSend.length,
     };
+  }
+
+  private async sendAlertEmailsIfConfigured(
+    alertsToSend: AlertWithItem[]
+  ): Promise<void> {
+    const emailRecipient = process.env.ALERT_EMAIL_RECIPIENT;
+    if (!emailRecipient) return;
+
+    try {
+      const emailData = alertsToSend.map((alert) => ({
+        id: alert.id,
+        threshold: alert.threshold,
+        name: alert.name,
+        item: alert.item,
+      }));
+
+      await this.emailService.sendAlertEmail(emailRecipient, emailData);
+    } catch (error) {
+      console.error("Error sending alert emails:", error);
+    }
+  }
+
+  private async sendPushNotificationsForAlerts(
+    alertsToSend: AlertWithItem[]
+  ): Promise<void> {
+    try {
+      const usersWithTokens = await this.prisma.user.findMany({
+        where: {
+          notificationToken: {
+            not: null,
+          },
+        },
+        select: {
+          notificationToken: true,
+        },
+      });
+
+      const pushTokens = usersWithTokens
+        .map((user) => user.notificationToken)
+        .filter((token): token is string => token !== null);
+
+      if (pushTokens.length === 0) return;
+
+      const alertNames = alertsToSend.map((alert) => alert.item.name);
+      const title = "Alerte Stock";
+      const body =
+        alertsToSend.length === 1
+          ? `Stock faible: ${alertNames[0]} (${alertsToSend[0].item.quantity} restant)`
+          : `${alertsToSend.length} items en stock faible: ${alertNames.slice(0, 3).join(", ")}${alertsToSend.length > 3 ? "..." : ""}`;
+
+      await this.pushNotificationService.sendPushNotifications(pushTokens, {
+        title,
+        body,
+        data: {
+          type: "low_stock_alert",
+          alertCount: alertsToSend.length,
+          items: alertsToSend.map((alert) => ({
+            id: alert.item.id,
+            name: alert.item.name,
+            quantity: alert.item.quantity,
+            threshold: alert.threshold,
+          })),
+        },
+      });
+
+      console.log(
+        `Sent push notifications to ${pushTokens.length} users for ${alertsToSend.length} alerts`
+      );
+    } catch (error) {
+      console.error("Error sending push notifications:", error);
+    }
   }
 
   /**

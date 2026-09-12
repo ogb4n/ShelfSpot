@@ -3,6 +3,7 @@ import React from "react";
 import { Pie, Bar, Line } from "react-chartjs-2";
 import {
     Chart,
+    type ChartData,
     ArcElement,
     BarElement,
     CategoryScale,
@@ -51,6 +52,259 @@ const backgroundColors = [
     "#1e40af",
     "#1e3a8a"
 ]
+
+function getGridCols(count: number): string {
+    if (count === 0) return 'grid-cols-1';
+    if (count === 1) return 'grid-cols-1';
+    if (count === 2) return 'grid-cols-1 md:grid-cols-2';
+    if (count === 3) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+    return 'grid-cols-1 md:grid-cols-2';
+}
+
+// Each card below owns its own loading/error/empty ternary chain so it is
+// scored on its own by Sonar instead of rolling into DashboardCharts()'s
+// cognitive complexity (typescript:S3776) — no behavior change.
+
+function RoomDistributionCard({
+    loading,
+    error,
+    rooms,
+    roomsWithItems,
+    chartData,
+}: {
+    loading: boolean;
+    error: ReturnType<typeof useGetRooms>["error"];
+    rooms: RoomWithCount[] | undefined;
+    roomsWithItems: RoomWithCount[];
+    chartData: ChartData<"pie", number[], string>;
+}) {
+    return (
+        <div className="app-panel p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="h-6 w-1 rounded-full bg-primary"></div>
+                <h2 className="app-heading text-xl font-bold text-foreground">Distribution by room</h2>
+            </div>
+            {loading ? (
+                <div className="flex flex-col items-center justify-center h-64">
+                    <div className="relative mb-6">
+                        <div className="h-16 w-16 rounded-full border-4 border-blue-100 dark:border-blue-900"></div>
+                        <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+                    </div>
+                    <p className="font-medium text-muted-foreground">Loading room data...</p>
+                </div>
+            ) : error ? (
+                <div className="text-center py-16">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
+                        <span className="text-red-500 text-2xl">⚠️</span>
+                    </div>
+                    <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading rooms</div>
+                    <div className="text-sm text-muted-foreground">{error}</div>
+                </div>
+            ) : !rooms || rooms.length === 0 ? (
+                <div className="text-center py-16">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                        <span className="text-gray-400 text-2xl">🏠</span>
+                    </div>
+                    <div className="mb-2 text-lg font-semibold text-foreground">No rooms found</div>
+                    <div className="text-sm text-muted-foreground">Create your first room to see distribution</div>
+                </div>
+            ) : roomsWithItems.length === 0 ? (
+                <div className="text-center py-16">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                        <span className="text-blue-500 text-2xl">📦</span>
+                    </div>
+                    <div className="mb-2 text-lg font-semibold text-foreground">No items found</div>
+                    <div className="text-sm text-muted-foreground">Add items to see room distribution</div>
+                </div>
+            ) : (
+                <div className="w-full h-64 flex justify-center">
+                    <Pie
+                        data={chartData}
+                        options={{
+                            maintainAspectRatio: false,
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom' as const,
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                        label: function (context: any) {
+                                            const label = context.label || '';
+                                            const value = context.parsed || 0;
+                                            return `${label}: ${value} items`;
+                                        }
+                                    }
+                                }
+                            }
+                        }}
+                    />
+                </div>
+            )}
+        </div>
+    );
+}
+
+function AlertsPerMonthCard({
+    loading,
+    error,
+    alertsData,
+    chartData,
+}: {
+    loading: boolean;
+    error: ReturnType<typeof useAlertsStatistics>["error"];
+    alertsData: ReturnType<typeof useAlertsStatistics>["data"];
+    chartData: ChartData<"bar", number[], string>;
+}) {
+    return (
+        <div className="app-panel p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="h-6 w-1 rounded-full bg-amber-500"></div>
+                <h2 className="app-heading text-xl font-bold text-foreground">Alerts per month</h2>
+            </div>
+            {loading ? (
+                <div className="flex flex-col items-center justify-center h-64">
+                    <div className="relative mb-6">
+                        <div className="h-16 w-16 rounded-full border-4 border-orange-100 dark:border-orange-900"></div>
+                        <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+                    </div>
+                    <p className="font-medium text-muted-foreground">Loading alerts data...</p>
+                </div>
+            ) : error ? (
+                <div className="text-center py-16">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
+                        <span className="text-red-500 text-2xl">⚠️</span>
+                    </div>
+                    <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading alerts</div>
+                    <div className="text-sm text-muted-foreground">{error}</div>
+                </div>
+            ) : !alertsData || alertsData.data.length === 0 ? (
+                <div className="text-center py-16">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900">
+                        <span className="text-orange-500 text-2xl">🚨</span>
+                    </div>
+                    <div className="mb-2 text-lg font-semibold text-foreground">No alerts data</div>
+                    <div className="text-sm text-muted-foreground">No alerts have been created yet</div>
+                </div>
+            ) : (
+                <>
+                    <div className="mb-4 text-center">
+                        <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                            {alertsData.total}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                            Total alerts in the last 12 months
+                        </div>
+                    </div>
+                    <div className="w-full h-48">
+                        <Bar data={chartData} options={{ maintainAspectRatio: false }} />
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
+function InventoryValueCard({
+    loading,
+    inventoryValueData,
+    chartData,
+}: {
+    loading: boolean;
+    inventoryValueData: ReturnType<typeof useInventoryValue>["data"];
+    chartData: ChartData<"line", number[], string>;
+}) {
+    return (
+        <div className="app-panel p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="h-6 w-1 rounded-full bg-emerald-500"></div>
+                <h2 className="app-heading text-xl font-bold text-foreground">Inventory value</h2>
+            </div>
+            {loading ? (
+                <div className="flex flex-col items-center justify-center h-64">
+                    <div className="relative mb-6">
+                        <div className="h-16 w-16 rounded-full border-4 border-green-100 dark:border-green-900"></div>
+                        <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-green-500 border-t-transparent"></div>
+                    </div>
+                    <p className="font-medium text-muted-foreground">Calculating inventory value...</p>
+                </div>
+            ) : inventoryValueData ? (
+                <>
+                    <div className="mb-4 text-center">
+                        <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                            €{inventoryValueData.totalValue.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                            Based on {inventoryValueData.itemsWithValue} items with selling prices
+                        </div>
+                    </div>
+                    <div className="w-full h-48">
+                        <Line data={chartData} options={{ maintainAspectRatio: false }} />
+                    </div>
+                </>
+            ) : (
+                <div className="text-center py-16">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                        <span className="text-gray-400 text-2xl">💰</span>
+                    </div>
+                    <div className="mb-2 text-lg font-semibold text-foreground">No inventory value data</div>
+                    <div className="text-sm text-muted-foreground">Add selling prices to items to see inventory value</div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function StatusDistributionCard({
+    loading,
+    error,
+    statusData,
+    chartData,
+}: {
+    loading: boolean;
+    error: ReturnType<typeof useStatusStatistics>["error"];
+    statusData: ReturnType<typeof useStatusStatistics>["data"];
+    chartData: ChartData<"bar", number[], string>;
+}) {
+    return (
+        <div className="app-panel p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="h-6 w-1 rounded-full bg-slate-500"></div>
+                <h2 className="app-heading text-xl font-bold text-foreground">Status distribution</h2>
+            </div>
+            {loading ? (
+                <div className="flex flex-col items-center justify-center h-64">
+                    <div className="relative mb-6">
+                        <div className="h-16 w-16 rounded-full border-4 border-slate-100 dark:border-slate-700"></div>
+                        <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-slate-500 border-t-transparent"></div>
+                    </div>
+                    <p className="font-medium text-muted-foreground">Loading status data...</p>
+                </div>
+            ) : error ? (
+                <div className="text-center py-16">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
+                        <span className="text-red-500 text-2xl">⚠️</span>
+                    </div>
+                    <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading status data</div>
+                    <div className="text-sm text-muted-foreground">{error}</div>
+                </div>
+            ) : statusData && statusData.data.length > 0 ? (
+                <div className="w-full h-64">
+                    <Bar data={chartData} options={{ maintainAspectRatio: false }} />
+                </div>
+            ) : (
+                <div className="text-center py-16">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                        <span className="text-gray-400 text-2xl">📊</span>
+                    </div>
+                    <div className="mb-2 text-lg font-semibold text-foreground">No status data</div>
+                    <div className="text-sm text-muted-foreground">Add status information to items to see distribution</div>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function DashboardCharts({ preferences }: DashboardChartsProps) {
     const { data: rooms, loading, error } = useGetRooms();
@@ -158,16 +412,6 @@ export default function DashboardCharts({ preferences }: DashboardChartsProps) {
         visibleCharts.push('statusDistribution');
     }
 
-    // Calculate grid columns based on visible charts
-    const getGridCols = () => {
-        const count = visibleCharts.length;
-        if (count === 0) return 'grid-cols-1';
-        if (count === 1) return 'grid-cols-1';
-        if (count === 2) return 'grid-cols-1 md:grid-cols-2';
-        if (count === 3) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
-        return 'grid-cols-1 md:grid-cols-2';
-    };
-
     if (visibleCharts.length === 0) {
         return (
             <div className="text-center py-16">
@@ -181,205 +425,42 @@ export default function DashboardCharts({ preferences }: DashboardChartsProps) {
     }
 
     return (
-        <div className={`grid ${getGridCols()} gap-6 mt-6`}>
-            {/* Modern Card 1: Distribution by room */}
+        <div className={`grid ${getGridCols(visibleCharts.length)} gap-6 mt-6`}>
             {chartPrefs.showRoomDistribution && (
-                <div className="app-panel p-6 md:p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="h-6 w-1 rounded-full bg-primary"></div>
-                        <h2 className="app-heading text-xl font-bold text-foreground">Distribution by room</h2>
-                    </div>
-                    {loading ? (
-                        <div className="flex flex-col items-center justify-center h-64">
-                            <div className="relative mb-6">
-                                <div className="h-16 w-16 rounded-full border-4 border-blue-100 dark:border-blue-900"></div>
-                                <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-                            </div>
-                            <p className="font-medium text-muted-foreground">Loading room data...</p>
-                        </div>
-                    ) : error ? (
-                        <div className="text-center py-16">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-                                <span className="text-red-500 text-2xl">⚠️</span>
-                            </div>
-                            <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading rooms</div>
-                            <div className="text-sm text-muted-foreground">{error}</div>
-                        </div>
-                    ) : !rooms || rooms.length === 0 ? (
-                        <div className="text-center py-16">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                                <span className="text-gray-400 text-2xl">🏠</span>
-                            </div>
-                            <div className="mb-2 text-lg font-semibold text-foreground">No rooms found</div>
-                            <div className="text-sm text-muted-foreground">Create your first room to see distribution</div>
-                        </div>
-                    ) : roomsWithItems.length === 0 ? (
-                        <div className="text-center py-16">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                                <span className="text-blue-500 text-2xl">📦</span>
-                            </div>
-                            <div className="mb-2 text-lg font-semibold text-foreground">No items found</div>
-                            <div className="text-sm text-muted-foreground">Add items to see room distribution</div>
-                        </div>
-                    ) : (
-                        <div className="w-full h-64 flex justify-center">
-                            <Pie
-                                data={filteredRoomDistribution}
-                                options={{
-                                    maintainAspectRatio: false,
-                                    responsive: true,
-                                    plugins: {
-                                        legend: {
-                                            position: 'bottom' as const,
-                                        },
-                                        tooltip: {
-                                            callbacks: {
-                                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                                label: function (context: any) {
-                                                    const label = context.label || '';
-                                                    const value = context.parsed || 0;
-                                                    return `${label}: ${value} items`;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }}
-                            />
-                        </div>
-                    )}
-                </div>
+                <RoomDistributionCard
+                    loading={loading}
+                    error={error}
+                    rooms={rooms}
+                    roomsWithItems={roomsWithItems}
+                    chartData={filteredRoomDistribution}
+                />
             )}
 
-            {/* Modern Card 2: Alerts per month */}
             {chartPrefs.showAlertsPerMonth && (
-                <div className="app-panel p-6 md:p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="h-6 w-1 rounded-full bg-amber-500"></div>
-                        <h2 className="app-heading text-xl font-bold text-foreground">Alerts per month</h2>
-                    </div>
-                    {alertsLoading ? (
-                        <div className="flex flex-col items-center justify-center h-64">
-                            <div className="relative mb-6">
-                                <div className="h-16 w-16 rounded-full border-4 border-orange-100 dark:border-orange-900"></div>
-                                <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
-                            </div>
-                            <p className="font-medium text-muted-foreground">Loading alerts data...</p>
-                        </div>
-                    ) : alertsError ? (
-                        <div className="text-center py-16">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-                                <span className="text-red-500 text-2xl">⚠️</span>
-                            </div>
-                            <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading alerts</div>
-                            <div className="text-sm text-muted-foreground">{alertsError}</div>
-                        </div>
-                    ) : !alertsData || alertsData.data.length === 0 ? (
-                        <div className="text-center py-16">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900">
-                                <span className="text-orange-500 text-2xl">🚨</span>
-                            </div>
-                            <div className="mb-2 text-lg font-semibold text-foreground">No alerts data</div>
-                            <div className="text-sm text-muted-foreground">No alerts have been created yet</div>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="mb-4 text-center">
-                                <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                                    {alertsData.total}
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                    Total alerts in the last 12 months
-                                </div>
-                            </div>
-                            <div className="w-full h-48">
-                                <Bar data={alertsPerMonth} options={{ maintainAspectRatio: false }} />
-                            </div>
-                        </>
-                    )}
-                </div>
+                <AlertsPerMonthCard
+                    loading={alertsLoading}
+                    error={alertsError}
+                    alertsData={alertsData}
+                    chartData={alertsPerMonth}
+                />
             )}
 
-            {/* Modern Card 3: Inventory value */}
             {chartPrefs.showInventoryValue && (
-                <div className="app-panel p-6 md:p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="h-6 w-1 rounded-full bg-emerald-500"></div>
-                        <h2 className="app-heading text-xl font-bold text-foreground">Inventory value</h2>
-                    </div>
-                    {inventoryLoading ? (
-                        <div className="flex flex-col items-center justify-center h-64">
-                            <div className="relative mb-6">
-                                <div className="h-16 w-16 rounded-full border-4 border-green-100 dark:border-green-900"></div>
-                                <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-green-500 border-t-transparent"></div>
-                            </div>
-                            <p className="font-medium text-muted-foreground">Calculating inventory value...</p>
-                        </div>
-                    ) : inventoryValueData ? (
-                        <>
-                            <div className="mb-4 text-center">
-                                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                                    €{inventoryValueData.totalValue.toLocaleString()}
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                    Based on {inventoryValueData.itemsWithValue} items with selling prices
-                                </div>
-                            </div>
-                            <div className="w-full h-48">
-                                <Line data={inventoryValue} options={{ maintainAspectRatio: false }} />
-                            </div>
-                        </>
-                    ) : (
-                        <div className="text-center py-16">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                                <span className="text-gray-400 text-2xl">💰</span>
-                            </div>
-                            <div className="mb-2 text-lg font-semibold text-foreground">No inventory value data</div>
-                            <div className="text-sm text-muted-foreground">Add selling prices to items to see inventory value</div>
-                        </div>
-                    )}
-                </div>
+                <InventoryValueCard
+                    loading={inventoryLoading}
+                    inventoryValueData={inventoryValueData}
+                    chartData={inventoryValue}
+                />
             )}
 
-            {/* Modern Card 4: Status distribution */}
             {chartPrefs.showStatusDistribution && (
-                <div className="app-panel p-6 md:p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="h-6 w-1 rounded-full bg-slate-500"></div>
-                        <h2 className="app-heading text-xl font-bold text-foreground">Status distribution</h2>
-                    </div>
-                    {statusLoading ? (
-                        <div className="flex flex-col items-center justify-center h-64">
-                            <div className="relative mb-6">
-                                <div className="h-16 w-16 rounded-full border-4 border-slate-100 dark:border-slate-700"></div>
-                                <div className="absolute top-0 h-16 w-16 animate-spin rounded-full border-4 border-slate-500 border-t-transparent"></div>
-                            </div>
-                            <p className="font-medium text-muted-foreground">Loading status data...</p>
-                        </div>
-                    ) : statusError ? (
-                        <div className="text-center py-16">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-                                <span className="text-red-500 text-2xl">⚠️</span>
-                            </div>
-                            <div className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Error loading status data</div>
-                            <div className="text-sm text-muted-foreground">{statusError}</div>
-                        </div>
-                    ) : statusData && statusData.data.length > 0 ? (
-                        <div className="w-full h-64">
-                            <Bar data={statusDistribution} options={{ maintainAspectRatio: false }} />
-                        </div>
-                    ) : (
-                        <div className="text-center py-16">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                                <span className="text-gray-400 text-2xl">📊</span>
-                            </div>
-                            <div className="mb-2 text-lg font-semibold text-foreground">No status data</div>
-                            <div className="text-sm text-muted-foreground">Add status information to items to see distribution</div>
-                        </div>
-                    )}
-                </div>
+                <StatusDistributionCard
+                    loading={statusLoading}
+                    error={statusError}
+                    statusData={statusData}
+                    chartData={statusDistribution}
+                />
             )}
         </div>
     );
 }
-
-

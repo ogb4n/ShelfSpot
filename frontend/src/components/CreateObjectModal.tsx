@@ -19,6 +19,77 @@ const objectTypes = [
     { key: "item", label: "Item", icon: <Lamp className="w-7 h-7 mb-2 text-blue-600 dark:text-blue-400" /> },
 ];
 
+// The three helpers below used to live inline in handleSubmit; extracted so
+// each is scored on its own instead of summing into one function's cognitive
+// complexity (typescript:S3776) — no behavior change.
+
+interface RelationSelections {
+    roomForPlace: number | null;
+    roomForContainer: number | null;
+    placeForContainer: number | null;
+    roomForItem: number | null;
+    placeForItem: number | null;
+    containerForItem: number | null;
+}
+
+// Add relation IDs according to type
+function buildRelationPayload(
+    selectedType: string | null,
+    selections: RelationSelections
+): Record<string, unknown> {
+    const relation: Record<string, unknown> = {};
+    if (selectedType === "place" && selections.roomForPlace) {
+        relation.roomId = selections.roomForPlace;
+    }
+    if (selectedType === "container") {
+        if (selections.roomForContainer) relation.roomId = selections.roomForContainer;
+        if (selections.placeForContainer) relation.placeId = selections.placeForContainer;
+    }
+    if (selectedType === "item") {
+        if (selections.roomForItem) relation.roomId = selections.roomForItem;
+        if (selections.placeForItem) relation.placeId = selections.placeForItem;
+        if (selections.containerForItem) relation.containerId = selections.containerForItem;
+    }
+    return relation;
+}
+
+// Convert numeric values, mutating payload in place (matches prior inline behavior)
+function normalizeNumericFields(
+    payload: Record<string, unknown>,
+    selectedType: string | null
+): void {
+    if (payload.quantity) payload.quantity = parseInt(String(payload.quantity));
+    else if (selectedType === "item") payload.quantity = 1; // Default quantity for items
+    if (payload.price) payload.price = parseFloat(String(payload.price));
+    if (payload.sellprice) payload.sellprice = parseFloat(String(payload.sellprice));
+    if (payload.roomId) payload.roomId = parseInt(String(payload.roomId));
+    if (payload.placeId) payload.placeId = parseInt(String(payload.placeId));
+    if (payload.containerId) payload.containerId = parseInt(String(payload.containerId));
+}
+
+// Use the appropriate backend API method based on the selected type
+async function submitObjectByType(
+    selectedType: string | null,
+    payload: Record<string, unknown>
+): Promise<void> {
+    switch (selectedType) {
+        case "room":
+            await backendApi.createRoom(payload);
+            return;
+        case "place":
+            await backendApi.createPlace(payload);
+            return;
+        case "container":
+            await backendApi.createContainer(payload);
+            return;
+        case "item":
+            await backendApi.createItem(payload);
+            return;
+        default:
+            throw new Error(`Unknown type: ${selectedType}`);
+    }
+}
+
 export default function CreateObjectModal({ open, onClose }: Readonly<CreateObjectModalProps>) {
     const [step, setStep] = useState<"select" | "form">("select");
     const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -100,53 +171,26 @@ export default function CreateObjectModal({ open, onClose }: Readonly<CreateObje
         setSuccess(false);
 
         try {
-            const payload: Record<string, unknown> = { ...form };
+            const payload: Record<string, unknown> = {
+                ...form,
+                ...buildRelationPayload(selectedType, {
+                    roomForPlace: selectedRoomForPlace,
+                    roomForContainer: selectedRoomForContainer,
+                    placeForContainer: selectedPlaceForContainer,
+                    roomForItem: selectedRoomForItem,
+                    placeForItem: selectedPlaceForItem,
+                    containerForItem: selectedContainerForItem,
+                }),
+            };
 
-            // Add relation IDs according to type
-            if (selectedType === "place" && selectedRoomForPlace) {
-                payload.roomId = selectedRoomForPlace;
-            }
-            if (selectedType === "container") {
-                if (selectedRoomForContainer) payload.roomId = selectedRoomForContainer;
-                if (selectedPlaceForContainer) payload.placeId = selectedPlaceForContainer;
-            }
-            if (selectedType === "item") {
-                if (selectedRoomForItem) payload.roomId = selectedRoomForItem;
-                if (selectedPlaceForItem) payload.placeId = selectedPlaceForItem;
-                if (selectedContainerForItem) payload.containerId = selectedContainerForItem;
-            }
-
-            // Convert numeric values
-            if (payload.quantity) payload.quantity = parseInt(String(payload.quantity));
-            else if (selectedType === "item") payload.quantity = 1; // Default quantity for items
-            if (payload.price) payload.price = parseFloat(String(payload.price));
-            if (payload.sellprice) payload.sellprice = parseFloat(String(payload.sellprice));
-            if (payload.roomId) payload.roomId = parseInt(String(payload.roomId));
-            if (payload.placeId) payload.placeId = parseInt(String(payload.placeId));
-            if (payload.containerId) payload.containerId = parseInt(String(payload.containerId));
+            normalizeNumericFields(payload, selectedType);
 
             // Ensure boolean values are properly set
             if (selectedType === "item") {
                 payload.consumable = Boolean(payload.consumable);
             }
 
-            // Use the appropriate backend API method based on the selected type
-            switch (selectedType) {
-                case "room":
-                    await backendApi.createRoom(payload);
-                    break;
-                case "place":
-                    await backendApi.createPlace(payload);
-                    break;
-                case "container":
-                    await backendApi.createContainer(payload);
-                    break;
-                case "item":
-                    await backendApi.createItem(payload);
-                    break;
-                default:
-                    throw new Error(`Unknown type: ${selectedType}`);
-            }
+            await submitObjectByType(selectedType, payload);
 
             setSuccess(true);
             setTimeout(() => {
