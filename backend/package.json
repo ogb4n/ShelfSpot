@@ -105,6 +105,8 @@
     "yauzl": "^3.2.1",
     "js-yaml": "^4.1.1",
     "picomatch": "^4.0.4",
-    "defu": "^6.1.5"
+    "defu": "^6.1.5",
+    "multer": "^2.3.0",
+    "@xhmikosr/decompress": "^10.2.2"
   }
 }

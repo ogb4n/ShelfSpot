@@ -1952,10 +1952,10 @@
     get-stream "^6.0.1"
     yauzl "^3.1.2"
 
-"@xhmikosr/decompress@^10.2.0":
-  version "10.2.0"
-  resolved "https://registry.yarnpkg.com/@xhmikosr/decompress/-/decompress-10.2.0.tgz#f67bf32a5e0e8064a665c17259af3431f85fadf9"
-  integrity sha512-MmDBvu0+GmADyQWHolcZuIWffgfnuTo4xpr2I/Qw5Ox0gt+e1Be7oYqJM4te5ylL6mzlcoicnHVDvP27zft8tg==
+"@xhmikosr/decompress@^10.2.0", "@xhmikosr/decompress@^10.2.2":
+  version "10.2.2"
+  resolved "https://registry.yarnpkg.com/@xhmikosr/decompress/-/decompress-10.2.2.tgz#dc1639a230a7433a89354e25179cf27ac2ec87fb"
+  integrity sha512-naYc2D/KCUDBx5VkohXp++TQB0IxLlUh8lbPX8DBTXB3HsDOsrp4pWP4V0cxBNEIhXEeN+Xma1hr9nuEGGW4TQ==
   dependencies:
     "@xhmikosr/decompress-tar" "^8.1.0"
     "@xhmikosr/decompress-tarbz2" "^8.1.0"
@@ -4708,10 +4708,10 @@ ms@^2.1.1, ms@^2.1.3:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-multer@2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/multer/-/multer-2.1.1.tgz#122d819244fbdfee1efddd9147426691014385b7"
-  integrity sha512-mo+QTzKlx8R7E5ylSXxWzGoXoZbOsRMpyitcht8By2KHvMbf3tjwosZ/Mu/XYU6UuJ3VZnODIrak5ZrPiPyB6A==
+multer@2.1.1, multer@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/multer/-/multer-2.3.0.tgz#46f5a98c34e09661ff089fa49ae487846bd5b4fd"
+  integrity sha512-cjNbm3sttszgZeGfJR124D+jFEfkXCVAsoPBmFn9X7UxmDSFHWqE2CoEj0vrmSpuAFnqWR1Szcm9QTsiHr60Xw==
   dependencies:
     append-field "^1.0.0"
     busboy "^1.6.0"
