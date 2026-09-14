@@ -107,6 +107,15 @@
     "picomatch": "^4.0.4",
     "defu": "^6.1.5",
     "multer": "^2.3.0",
-    "@xhmikosr/decompress": "^10.2.2"
+    "@xhmikosr/decompress": "^10.2.2",
+    "baseline-browser-mapping": "^2.11.0",
+    "browserslist": "^4.28.7",
+    "@humanfs/node": "^0.16.8",
+    "deepmerge-ts": "^8.0.2",
+    "form-data": "^4.0.6",
+    "piscina": "^4.9.3",
+    "@babel/core": "^7.29.6",
+    "body-parser": "^2.3.0",
+    "effect": "^3.22.2"
   }
 }
