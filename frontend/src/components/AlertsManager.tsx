@@ -108,10 +108,11 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
                     ) : (
                         <form onSubmit={handleCreateAlert} className="space-y-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-sm">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <label htmlFor={`alert-threshold-${itemId}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Alert Threshold
                                 </label>
                                 <input
+                                    id={`alert-threshold-${itemId}`}
                                     type="number"
                                     min="1"
                                     value={newAlert.threshold}
@@ -122,10 +123,11 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <label htmlFor={`alert-name-${itemId}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Alert Name (optional)
                                 </label>
                                 <input
+                                    id={`alert-name-${itemId}`}
                                     type="text"
                                     value={newAlert.name}
                                     onChange={(e) => setNewAlert({ ...newAlert, name: e.target.value })}
@@ -228,10 +230,11 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
                     ) : (
                         <form onSubmit={handleCreateAlert} className="space-y-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-sm">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <label htmlFor={`alert-threshold-${itemId}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Alert Threshold
                                 </label>
                                 <input
+                                    id={`alert-threshold-${itemId}`}
                                     type="number"
                                     min="1"
                                     value={newAlert.threshold}
@@ -242,10 +245,11 @@ export default function AlertsManager({ itemId, itemName, currentQuantity }: Ale
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <label htmlFor={`alert-name-${itemId}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Alert Name (optional)
                                 </label>
                                 <input
+                                    id={`alert-name-${itemId}`}
                                     type="text"
                                     value={newAlert.name}
                                     onChange={(e) => setNewAlert({ ...newAlert, name: e.target.value })}

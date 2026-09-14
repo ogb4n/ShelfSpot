@@ -15,6 +15,18 @@ interface BulkPlaceRow {
     roomId: number | null;
 }
 
+// Extracted so the field-dependent conversion isn't a nested ternary
+// (typescript:S3358) — same values, no behavior change.
+function normalizeFieldValue(
+    field: keyof BulkPlaceRow,
+    value: string | number | null
+): string | number | null {
+    if (field === "roomId") {
+        return value === null ? null : Number(value);
+    }
+    return String(value ?? "");
+}
+
 interface Room {
     id: number;
     name: string;
@@ -50,7 +62,7 @@ export default function CreateMultiplePlacesModal({ open, onClose, embedded = fa
                 r.id === id
                     ? {
                         ...r,
-                        [field]: field === "roomId" ? (value === null ? null : Number(value)) : String(value ?? ""),
+                        [field]: normalizeFieldValue(field, value),
                     }
                     : r
             )

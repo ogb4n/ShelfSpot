@@ -75,8 +75,6 @@ export default function CreateMultipleRoomsModal({ open, onClose, embedded = fal
     if (!open) return null;
 
     const formContent = (
-        <>
-
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2.5">
                     {rows.map((row, idx) => (
@@ -113,7 +111,6 @@ export default function CreateMultipleRoomsModal({ open, onClose, embedded = fal
                     <button type="submit" className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white" disabled={loading || !canSubmit}>{loading ? "Preparing…" : "Bulk create rooms"}</button>
                 </div>
             </form>
-        </>
     );
 
     if (embedded) {

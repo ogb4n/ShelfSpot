@@ -17,6 +17,18 @@ interface BulkContainerRow {
     placeId?: number | null;
 }
 
+// Extracted so the field-dependent conversion isn't a nested ternary
+// (typescript:S3358) — same values, no behavior change.
+function normalizeFieldValue(
+    field: keyof BulkContainerRow,
+    value: string | number | null
+): string | number | null {
+    if (field === "roomId" || field === "placeId") {
+        return value === null ? null : Number(value);
+    }
+    return value;
+}
+
 interface Room { id: number; name: string; }
 interface Place { id: number; name: string; roomId?: number | null }
 
@@ -44,7 +56,7 @@ export default function CreateMultipleContainersModal({ open, onClose, embedded 
     );
 
     const handleChange = (id: string, field: keyof BulkContainerRow, value: string | number | null) => {
-        setRows((prev) => prev.map((r) => r.id === id ? { ...r, [field]: field === 'roomId' || field === 'placeId' ? (value === null ? null : Number(value)) : value } : r));
+        setRows((prev) => prev.map((r) => r.id === id ? { ...r, [field]: normalizeFieldValue(field, value) } : r));
     };
 
     const addRow = () => setRows((prev) => [...prev, createEmptyRow()]);

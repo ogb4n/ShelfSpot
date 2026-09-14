@@ -317,7 +317,7 @@ function ItemsTable({ search, items: itemsProp, columns = [
             // Update local state
             setItems((prev: Item[]) =>
                 prev.map((item: Item) => {
-                    const update = results.find(r => r && r.id === item.id);
+                    const update = results.find(r => r?.id === item.id);
                     return update ? { ...item, tags: update.tags } : item;
                 })
             );
