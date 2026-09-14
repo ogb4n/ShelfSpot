@@ -17,12 +17,14 @@ interface BulkItemRow {
     roomId: number | null;
 }
 
+type FieldValue = string | number | null;
+
 // Extracted so the field-dependent conversion isn't a nested ternary
 // (typescript:S3358) — same values, no behavior change.
 function normalizeFieldValue(
     field: keyof BulkItemRow,
-    value: string | number | null
-): string | number | null {
+    value: FieldValue
+): FieldValue {
     if (field === "quantity") {
         return Math.max(1, Number(value) || 1);
     }
@@ -60,7 +62,7 @@ export default function CreateMultipleItemsModal({ open, onClose, embedded = fal
         [items]
     );
 
-    const handleChange = (id: string, field: keyof BulkItemRow, value: string | number | null) => {
+    const handleChange = (id: string, field: keyof BulkItemRow, value: FieldValue) => {
         setItems((previous) =>
             previous.map((item) =>
                 item.id === id
