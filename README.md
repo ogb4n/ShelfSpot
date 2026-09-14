@@ -113,7 +113,7 @@ installation in a single interactive session.
 **Linux / macOS**
 
 ```bash
-git clone https://github.com/your-org/shelfspot.git
+git clone https://github.com/ogb4n/shelfspot.git
 cd shelfspot
 chmod +x setup.sh
 ./setup.sh
@@ -122,7 +122,7 @@ chmod +x setup.sh
 **Windows (PowerShell as administrator)**
 
 ```powershell
-git clone https://github.com/your-org/shelfspot.git
+git clone https://github.com/ogb4n/shelfspot.git
 cd shelfspot
 .\setup.ps1
 ```
@@ -147,7 +147,7 @@ After the wizard completes, ShelfSpot is accessible at the ports you configured
 #### 1. Clone and configure environment files
 
 ```bash
-git clone https://github.com/your-org/shelfspot.git
+git clone https://github.com/ogb4n/shelfspot.git
 cd shelfspot
 ```
 
